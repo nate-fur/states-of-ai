@@ -134,15 +134,19 @@ export function useTweenNumbers(targets: number[]): number[] {
   return targets.map((v, i) => vals[i] ?? v);
 }
 
-/** Returns the transformed ancestor's box so `position: fixed` can be corrected. */
-export function fixedOffset(el: HTMLElement): { left: number; top: number } {
+/**
+ * Returns the box of the nearest transformed ancestor (which becomes the
+ * containing block for `position: fixed`), or the viewport when there is
+ * none, so fixed coordinates can be expressed in that block's space.
+ */
+export function fixedOffset(el: HTMLElement): { left: number; top: number; right: number } {
   let cb = el.parentElement;
   while (cb && cb !== document.body) {
     if (getComputedStyle(cb).transform !== "none") {
       const r = cb.getBoundingClientRect();
-      return { left: r.left, top: r.top };
+      return { left: r.left, top: r.top, right: r.right };
     }
     cb = cb.parentElement;
   }
-  return { left: 0, top: 0 };
+  return { left: 0, top: 0, right: window.innerWidth };
 }

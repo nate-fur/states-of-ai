@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { STATES } from "@/lib/map/data";
 import { buildDiff } from "@/lib/map/diff";
+import { fixedOffset } from "./motion";
 import { VERIFIED } from "@/lib/map/data";
 import {
   AccordionSection,
@@ -285,11 +286,18 @@ export function DiffView({
                     type="button"
                     className="flex flex-col items-start gap-1 border-0 bg-transparent p-0 text-left"
                     onMouseEnter={(e) => {
+                      // Embedded in the Broadsheet drawer the tooltip's fixed
+                      // coordinates resolve against the transformed drawer,
+                      // not the viewport; express them in that space.
                       const rect = e.currentTarget.getBoundingClientRect();
-                      const flip = rect.top - 86 < 8;
+                      const box = fixedOffset(e.currentTarget);
+                      const left = rect.left - box.left;
+                      const top = rect.top - box.top;
+                      const bottom = rect.bottom - box.top;
+                      const flip = top - 86 < 8;
                       setTip({
-                        x: Math.max(8, Math.min(rect.left, window.innerWidth - 228)),
-                        y: flip ? rect.bottom + 6 : rect.top - 6,
+                        x: Math.max(8, Math.min(left, box.right - box.left - 228)),
+                        y: flip ? bottom + 6 : top - 6,
                         flip,
                         state: abbr,
                         tierName: name,
