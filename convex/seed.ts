@@ -67,12 +67,21 @@ const dataCenters = [
   { external_id: "oh-new-albany-01", name: "New Albany Data Campus", state: "OH", city: "New Albany", capacity_mw: 120, status: "construction", operator: "Hyperscale campus" },
 ] as const;
 
-async function clearTable(ctx: any, table: "states" | "bills" | "datacenters") {
+type TableName = "states" | "bills" | "datacenters";
+type SeedContext = {
+  db: {
+    query: (table: TableName) => { collect: () => Promise<Array<{ _id: string }>> };
+    delete: (id: string) => Promise<void>;
+    insert: (table: TableName, value: Record<string, unknown>) => Promise<unknown>;
+  };
+};
+
+async function clearTable(ctx: SeedContext, table: TableName) {
   const rows = await ctx.db.query(table).collect();
   await Promise.all(rows.map((row) => ctx.db.delete(row._id)));
 }
 
-async function replaceFixtureData(ctx: any) {
+async function replaceFixtureData(ctx: SeedContext) {
   await clearTable(ctx, "states");
   await clearTable(ctx, "bills");
   await clearTable(ctx, "datacenters");
