@@ -47,3 +47,6 @@ __pycache__/
 
 # Pipeline output
 /data/mock-convex-import.json
+
+# Generated when Convex connects to a deployment
+/convex/_generated/

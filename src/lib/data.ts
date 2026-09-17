@@ -1,4 +1,5 @@
 import { fixtureDataCenters, fixtureProfiles } from "@/lib/fixtures";
+import { getConvexBills } from "@/lib/convex-data";
 import { getBillsForState } from "@/lib/legiscan";
 import type { AIBill, DataCenter, StateProfile, StateSummary } from "@/lib/types";
 
@@ -40,7 +41,7 @@ export async function getStateProfile(code: string): Promise<StateProfile | null
   );
   if (!fixtureProfile) return null;
 
-  const bills = await getBillsForState(fixtureProfile.code);
+  const bills = await getStateBills(fixtureProfile.code);
   return { ...fixtureProfile, bills };
 }
 
@@ -55,11 +56,16 @@ export async function getStateSummaries(): Promise<StateSummary[]> {
 }
 
 export async function getStateBills(code: string): Promise<AIBill[] | null> {
-  const profile = await getStateProfile(code);
-  return profile?.bills ?? null;
+  const profile = fixtureProfiles.find(
+    (entry) => entry.code === code.toUpperCase(),
+  );
+  if (!profile) return null;
+  return (await getConvexBills(profile.code)) ?? getBillsForState(profile.code);
 }
 
 export async function getAllBills(): Promise<AIBill[]> {
+  const convexBills = await getConvexBills();
+  if (convexBills) return convexBills;
   const billGroups = await Promise.all(
     fixtureProfiles.map((profile) => getBillsForState(profile.code)),
   );

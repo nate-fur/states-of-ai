@@ -1,100 +1,89 @@
 # StateAI Index
 
-A small, public-facing tracker for AI legislation in all 50 states and the District of Columbia. The first slice is deliberately focused: a responsive bill list with a state filter, source links, and proposed/enacted status.
+A public tracker for AI legislation in all 50 states and the District of Columbia. The current slice is a responsive, searchable bill list with state filtering, proposed/enacted status, and source links.
 
-## Run the app
+## Run locally
 
 ```bash
 npm install
 npm run dev -- --hostname 0.0.0.0 --port 43123
 ```
 
-Open `http://localhost:43123`.
+The app runs from bundled LegiScan-shaped fixtures when Convex is not configured. This makes local development and the bill-list UI available without credentials.
 
-## Data mode: fixture first
+## Convex backend
 
-The app works without credentials. It includes realistic fixtures that retain LegiScan-style fields:
+The deployed app reads bills from the `bills:list` Convex query whenever `NEXT_PUBLIC_CONVEX_URL` is set. If the URL is absent or Convex is unavailable, it falls back to the local fixture adapter.
 
-`bill_id`, `number`, `title`, `status`, `status_date`, `last_action`, `last_action_date`, `url`, `state`, `chamber`, `session`, `history`, `sponsors`, `texts`, and `progress`.
+This project uses the existing Convex project **state-ai-index** (team `nmfurbearr-gmail-com`):
 
-All 50 states plus DC appear in the filter. California, Colorado, Texas, Virginia, New York, Illinois, and Utah have active sample records; most other states intentionally return an empty result so empty-state behavior is visible.
+- Development deployment: `dev/mac`
+- Production deployment: `production`
 
-The sole bill-source adapter is `src/lib/legiscan.ts`:
+Run this once from a machine authenticated to that Convex account to generate bindings and configure local development:
 
-- No `LEGISCAN_API_KEY`: it returns the bundled fixtures.
-- `LEGISCAN_API_KEY` set: it calls LegiScan's `getSearch` endpoint for an AI query and gracefully falls back to those same fixtures if the request fails.
+```bash
+npx convex dev --once --configure existing --team nmfurbearr-gmail-com --project state-ai-index
+```
 
-Copy `.env.example` to `.env.local` to configure a key. The key is server-side only and is never sent to the browser.
+That command writes the correct `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` values to `.env.local`. It does not create a new Convex project.
+
+### Fixture seed and pipeline
+
+`convex/seed.ts` contains an idempotent `seed:fixtures` mutation. It replaces the state, bill, and data-center tables with the committed LegiScan-style fixtures. Preview deployments run it automatically.
+
+The Python pipeline still supports fixture or live-LegiScan normalization:
+
+```bash
+cd pipelines
+python3 ingest.py --source fixture
+```
+
+It writes `data/mock-convex-import.json`. To upload that document to an existing deployment, set these environment variables:
+
+```bash
+CONVEX_INGEST_URL=https://<deployment>.convex.site/ingest
+CONVEX_INGEST_TOKEN=<long-random-token>
+python3 ingest.py --source auto
+```
+
+Set the identical `CONVEX_INGEST_TOKEN` in Convex Dashboard → Settings → Environment Variables. The `/ingest` endpoint rejects calls without it.
+
+## Vercel previews with Origin
+
+`vercel.json` uses `npm run build:vercel`. That invokes:
+
+```bash
+npx convex deploy --cmd 'npm run build' \
+  --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL \
+  --preview-run seed:fixtures
+```
+
+Convex deploys the backend first, exposes the matching deployment URL to the Next.js build as `NEXT_PUBLIC_CONVEX_URL`, and then builds the frontend. The preview seed is ignored by production deployments.
+
+In the connected Vercel project, add `CONVEX_DEPLOY_KEY` twice:
+
+| Vercel environment | Value |
+| --- | --- |
+| Preview | Preview Deploy Key from Convex Dashboard → state-ai-index → Settings |
+| Production | Production Deploy Key from the same page |
+
+Keep both values secret; do not commit them or place them in `.env.example`. A Vercel preview created from an Origin branch push will then receive an isolated Convex preview deployment.
+
+## LegiScan fixture adapter
+
+The fixture records retain these LegiScan-style fields: `bill_id`, `number`, `title`, `status`, `status_date`, `last_action`, `last_action_date`, `url`, `state`, `chamber`, `session`, `history`, `sponsors`, `texts`, and `progress`.
+
+Without `LEGISCAN_API_KEY`, the adapter returns committed mock records. With it, the adapter discovers bills through `getSearch`, enriches records through `getBill`, and uses fixtures if the live source fails.
 
 ## Public JSON API
-
-The UI is backed by the same application data layer as these public routes:
 
 | Endpoint | Description |
 | --- | --- |
 | `GET /api/bills` | All indexed AI bills |
-| `GET /api/bills?state=CA` | Bills filtered to one postal code |
+| `GET /api/bills?state=CA` | Bills filtered to one state |
 | `GET /api/states` | State summaries for 50 states + DC |
-| `GET /api/states/CA/bills` | Bills for one state |
-| `GET /api/states/VA/datacenters` | Fixture buildout records for one state |
+| `GET /api/states/CA/bills` | Bills for a state |
+| `GET /api/states/VA/datacenters` | Fixture buildout records |
 
 Responses use `{ data, meta }`; invalid state codes return `404`.
-
-## Python ingestion pipeline
-
-The dependency-free pipeline creates a Convex-shaped local import document:
-
-```bash
-cd pipelines
-python ingest.py
-```
-
-It writes `data/mock-convex-import.json` (ignored by git). Use `--source fixture` to force mock records, or set `LEGISCAN_API_KEY` and use the default `--source auto` to request live data with per-state fixture fallback:
-
-```bash
-LEGISCAN_API_KEY=... python ingest.py --source auto
-```
-
-If you use [uv](https://docs.astral.sh/uv/), the equivalent is `uv run python ingest.py`. `pipelines/pyproject.toml` has no runtime dependencies.
-
-Set `CONVEX_INGEST_URL` to an HTTP action URL that accepts the generated JSON to POST it after the local write. `convex/schema.ts` defines the corresponding state, bill, and data-center tables; create a Convex deployment and ingest action before setting that URL. Until then, the app intentionally remains fully runnable from its local fixtures.
-
-## Compute fixtures
-
-Compute/buildout records are already shaped and exposed in the data layer and API to support the next UI slice. `EPOCH_DATASET_URL` is reserved for connecting a public Epoch AI source when a stable dataset endpoint is selected; no third-party credential is required for today’s mock fallback.
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

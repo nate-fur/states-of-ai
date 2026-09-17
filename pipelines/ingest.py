@@ -99,10 +99,13 @@ def get_bills(state: str, source: str) -> list[dict]:
 
 
 def post_to_convex(ingest_url: str, document: dict) -> None:
+    token = os.getenv("CONVEX_INGEST_TOKEN")
+    if not token:
+        raise RuntimeError("CONVEX_INGEST_TOKEN is required when CONVEX_INGEST_URL is set")
     request = urllib.request.Request(
         ingest_url,
         data=json.dumps(document).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
         method="POST",
     )
     with urllib.request.urlopen(request, timeout=30) as response:
