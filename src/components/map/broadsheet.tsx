@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { STATES } from "@/lib/map/data";
 import { countQuadrants } from "@/lib/map/derive";
@@ -130,7 +137,9 @@ export function Broadsheet() {
   const vw = measuredVw ?? 1280;
   const vpRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
-  const pendingReveal = useRef<{ abbr: string; wasClosed: boolean } | null>(null);
+  const pendingReveal = useRef<{ abbr: string; wasClosed: boolean } | null>(
+    null,
+  );
   // Bounds are cached per gesture: the DOM measurement is invariant while
   // dragging and too expensive to redo on every pointer move.
   const drag = useRef<{
@@ -213,20 +222,27 @@ export function Broadsheet() {
         animateTo(clampX(el, g, g.panX));
         return;
       }
-      const p = el.querySelector<SVGPathElement>(`path[data-abbr="${req.abbr}"]`);
+      const p = el.querySelector<SVGPathElement>(
+        `path[data-abbr="${req.abbr}"]`,
+      );
       if (!p) return;
       // The rect is measured mid-animation if a pan is in flight; project it
       // to where the map is heading (state panX) before judging visibility.
       const r = p.getBoundingClientRect();
       const delta = g.panX - renderedX(el);
-      const b = { left: r.left + delta, right: r.right + delta, width: r.width };
+      const b = {
+        left: r.left + delta,
+        right: r.right + delta,
+        width: r.width,
+      };
       const visibleLeft = REVEAL_PAD;
       const visibleRight = g.vw - g.drawerPx - REVEAL_PAD;
       let target = g.panX;
       if (req.wasClosed) {
         const anchor = visibleLeft + (visibleRight - visibleLeft) * OPEN_ANCHOR;
         target = g.panX + (anchor - (b.left + b.width / 2));
-      } else if (b.right > visibleRight) target = g.panX - (b.right - visibleRight);
+      } else if (b.right > visibleRight)
+        target = g.panX - (b.right - visibleRight);
       else if (b.left < visibleLeft) target = g.panX + (visibleLeft - b.left);
       else return;
       animateTo(clampX(el, g, target));
@@ -280,7 +296,13 @@ export function Broadsheet() {
     if (e.button !== 0) return;
     const bounds = panBounds(vpRef.current, geom.current);
     if (!bounds.canPan) return;
-    drag.current = { sx: e.clientX, sy: e.clientY, ox: geom.current.panX, moved: false, bounds };
+    drag.current = {
+      sx: e.clientX,
+      sy: e.clientY,
+      ox: geom.current.panX,
+      moved: false,
+      bounds,
+    };
     const move = (ev: MouseEvent) => {
       const d = drag.current;
       if (!d) return;
@@ -314,7 +336,13 @@ export function Broadsheet() {
       const bounds = panBounds(el, geom.current);
       if (!bounds.canPan) return;
       const t = e.touches[0];
-      drag.current = { sx: t.clientX, sy: t.clientY, ox: geom.current.panX, moved: false, bounds };
+      drag.current = {
+        sx: t.clientX,
+        sy: t.clientY,
+        ox: geom.current.panX,
+        moved: false,
+        bounds,
+      };
     };
     const move = (e: TouchEvent) => {
       const d = drag.current;
@@ -361,17 +389,21 @@ export function Broadsheet() {
   const stageInset = drawerPx ? drawerPx - side : 0;
   const showCaption = vw - drawerPx >= 800;
 
-  const compareLabel = picking ? "Click a state…" : compare ? "Clear compare" : "Compare";
+  const compareLabel = picking
+    ? "Click a state…"
+    : compare
+      ? "Clear compare"
+      : "Compare";
   const detailState = rail.last ? byAbbr[rail.last.abbr] : undefined;
 
   return (
     <div className="mx-auto w-full min-h-screen max-w-[1480px] px-9 py-7 pb-16 text-ink">
       {/* Out of flow so the title row matches the design; sits under the drawer when it is open. */}
       <Link
-        href="/bills"
+        href="/data"
         className="fixed top-3.5 right-7 z-[5] border border-ink bg-paper px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-ink no-underline hover:bg-ink hover:text-white"
       >
-        Bill list
+        Data
       </Link>
 
       <div className="border-b border-ink pb-[18px]">

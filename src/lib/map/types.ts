@@ -21,7 +21,6 @@ export type Topic = {
   label: string;
   icon: string;
   desc: string;
-  rubric: string[];
 };
 
 export type SourceLink = { label: string; url: string };
@@ -33,16 +32,14 @@ export type StateRecord = {
   posture: number;
   ai: number;
   summary: string;
-  count: number;
+  sites: { completed: number; pipeline: number };
   mw: number;
   ops: { n: string; v: number }[];
   growth: number[];
   incentives: boolean;
-  moratorium: string;
   preempt: boolean;
   grades?: Record<string, [number, string]>;
   bills: MapBill[];
-  local: { p: string; a: string }[];
   sources: { build: SourceLink[]; gov: SourceLink[] };
 };
 

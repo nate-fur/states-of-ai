@@ -115,16 +115,8 @@ export function DetailRail({
                 </span>
                 <span className="text-dim">{data.tierNum}/4</span>
               </span>
-              <span className="col-span-full font-map-serif text-[15px] leading-[1.45] text-ink-2 text-pretty">
-                {data.rubric}
-              </span>
               <span className="text-mute">At this tier or above</span>
               <span>{data.peersText}</span>
-              {data.gradeNote ? (
-                <span className="col-span-full leading-[1.45] text-mute text-pretty">
-                  {data.gradeNote}
-                </span>
-              ) : null}
             </div>
             <div className={`${anim} flex flex-col`} style={{ animationDelay: "0.42s" }}>
               <div className="flex justify-between border-b border-ink pb-2 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">

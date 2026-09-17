@@ -296,9 +296,7 @@ export function buildDetail(
       bills,
       tierName: TIERS[g.tier] ?? "None",
       tierNum: String(g.tier),
-      rubric: topic.rubric[g.tier] ?? "",
       peersText: `${peers(st, topic.k, all)} of ${all.length} states`,
-      gradeNote: g.note,
       iappUrl: IAPP_URL,
       legiscanUrl: legiscanUrl(st.abbr, topic.label),
     };

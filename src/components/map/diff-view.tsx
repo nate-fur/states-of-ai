@@ -37,7 +37,6 @@ export function DiffView({
     state: string;
     tierName: string;
     tierNum: string;
-    rubric: string;
   } | null>(null);
 
   const sa = STATES.find((s) => s.abbr === a);
@@ -277,10 +276,10 @@ export function DiffView({
                 </div>
                 {(
                   [
-                    [r.aTier, r.aName, r.aPending, r.rubricA, data.A.abbr],
-                    [r.bTier, r.bName, r.bPending, r.rubricB, data.B.abbr],
+                    [r.aTier, r.aName, r.aPending, data.A.abbr],
+                    [r.bTier, r.bName, r.bPending, data.B.abbr],
                   ] as const
-                ).map(([tier, name, pending, rubric, abbr], i) => (
+                ).map(([tier, name, pending, abbr], i) => (
                   <button
                     key={i}
                     type="button"
@@ -302,7 +301,6 @@ export function DiffView({
                         state: abbr,
                         tierName: name,
                         tierNum: String(tier),
-                        rubric,
                       });
                     }}
                     onMouseLeave={() => setTip(null)}
@@ -402,14 +400,11 @@ export function DiffView({
               : "translateY(-100%)",
           }}
         >
-          <span className="mb-[5px] flex justify-between gap-2">
+          <span className="flex justify-between gap-2">
             <span className="tracking-[0.1em] uppercase">
               {tip.state} · {tip.tierName}
             </span>
             <span className="text-dim">{tip.tierNum}/4</span>
-          </span>
-          <span className="block font-map-serif text-[13.5px] leading-[1.4] text-pretty">
-            {tip.rubric}
           </span>
         </div>
       )}

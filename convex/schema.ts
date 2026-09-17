@@ -1,36 +1,73 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-// Mirrors the local fixtures so Convex can become the backing store without
-// changing the public API or frontend data shapes.
+// Mirrors docs/data-model.md. A state stores only judgment about itself;
+// anything countable comes from facilities, bills, and grades at read time.
+
+const axis = v.object({
+  score: v.number(),
+  summary: v.string(),
+});
+
+export const facilityStatus = v.union(
+  v.literal("operational"),
+  v.literal("under_construction"),
+  v.literal("proposed"),
+);
+
+export const billStatus = v.union(
+  v.literal("enacted"),
+  v.literal("pending"),
+  v.literal("proposed"),
+);
+
 export default defineSchema({
   states: defineTable({
     code: v.string(),
     name: v.string(),
+    // Both axes are derived from facilities, bills, and grades once those
+    // exist; absent until then.
+    dataCenterPosture: v.optional(axis), // score -3 restrict … +3 accelerate
+    aiRegulation: v.optional(axis), // score 0 none … 6 comprehensive
+    verifiedAt: v.optional(v.string()), // ISO date
   }).index("by_code", ["code"]),
-  bills: defineTable({
-    bill_id: v.number(),
-    number: v.string(),
-    title: v.string(),
-    status: v.number(),
-    status_date: v.string(),
-    last_action: v.string(),
-    last_action_date: v.string(),
-    url: v.string(),
-    state: v.string(),
-    chamber: v.string(),
-    session: v.string(),
-    product_status: v.union(v.literal("proposed"), v.literal("enacted")),
-    raw: v.any(),
-  }).index("by_state", ["state"]),
-  datacenters: defineTable({
-    external_id: v.string(),
+
+  facilities: defineTable({
+    externalId: v.string(),
+    state: v.string(), // states.code
     name: v.string(),
-    state: v.string(),
-    city: v.string(),
-    capacity_mw: v.number(),
-    status: v.string(),
     operator: v.string(),
-    raw: v.any(),
-  }).index("by_state", ["state"]),
+    status: facilityStatus,
+    capacityMw: v.union(v.number(), v.null()), // null when undisclosed
+  })
+    .index("by_state", ["state"])
+    .index("by_external_id", ["externalId"]),
+
+  bills: defineTable({
+    externalId: v.string(),
+    state: v.string(), // states.code
+    number: v.string(), // "SB 53"
+    title: v.string(),
+    status: billStatus,
+    date: v.string(), // ISO date of that status
+    url: v.string(),
+    categories: v.array(v.string()), // regulationCategories.key[]
+  })
+    .index("by_state", ["state"])
+    .index("by_external_id", ["externalId"]),
+
+  regulationCategories: defineTable({
+    key: v.string(),
+    label: v.string(),
+    description: v.string(),
+    icon: v.string(),
+  }).index("by_key", ["key"]),
+
+  stateCategoryGrades: defineTable({
+    state: v.string(), // states.code
+    category: v.string(), // regulationCategories.key
+    tier: v.number(), // 0 … 4
+  })
+    .index("by_state", ["state"])
+    .index("by_category", ["category"]),
 });

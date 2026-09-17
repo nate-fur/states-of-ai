@@ -47,8 +47,6 @@ export type DiffGovRow = {
   deltaSub: string;
   deltaColor: string;
   leadColor: string;
-  rubricA: string;
-  rubricB: string;
 };
 
 export type DiffBillRow = {
@@ -115,7 +113,7 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
       same: a.ai === b.ai,
     },
     {
-      label: "Installed capacity",
+      label: "Active capacity",
       sub: "operating data centers",
       a: gw(a.mw),
       b: gw(b.mw),
@@ -139,41 +137,28 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
       same: ga === gb,
     },
     {
-      label: "Sites",
-      sub: "tracked facilities",
-      a: String(a.count),
-      b: String(b.count),
-      aSub: `incentives ${a.incentives ? "active" : "none"}`,
-      bSub: `incentives ${b.incentives ? "active" : "none"}`,
-      size: "20px",
-      ...lead(a.count, b.count, a.abbr, b.abbr, (d) => `+${d} sites`),
-      deltaSub: a.incentives === b.incentives ? "" : "incentives differ",
-      same: a.count === b.count && a.incentives === b.incentives,
-    },
-    {
-      label: "Local pushback",
-      sub: "city or county actions",
-      a: String(a.local.length),
-      b: String(b.local.length),
-      aSub: a.local[0]?.p ?? "",
-      bSub: b.local[0]?.p ?? "",
-      size: "20px",
-      ...lead(a.local.length, b.local.length, a.abbr, b.abbr, (d) => `+${d} actions`),
-      deltaSub: "",
-      same: a.local.length === b.local.length,
-    },
-    {
-      label: "Moratorium",
-      sub: "statewide pause on new builds",
-      a: a.moratorium,
-      b: b.moratorium,
+      label: "Completed sites",
+      sub: "operational facilities",
+      a: String(a.sites.completed),
+      b: String(b.sites.completed),
       aSub: "",
       bSub: "",
-      size: "14px",
-      delta: a.moratorium === b.moratorium ? "same" : "differs",
-      deltaColor: a.moratorium === b.moratorium ? "#9AA1A9" : "#14181D",
+      size: "20px",
+      ...lead(a.sites.completed, b.sites.completed, a.abbr, b.abbr, (d) => `+${d} sites`),
       deltaSub: "",
-      same: a.moratorium === b.moratorium,
+      same: a.sites.completed === b.sites.completed,
+    },
+    {
+      label: "Planned sites",
+      sub: "building or proposed",
+      a: String(a.sites.pipeline),
+      b: String(b.sites.pipeline),
+      aSub: "",
+      bSub: "",
+      size: "20px",
+      ...lead(a.sites.pipeline, b.sites.pipeline, a.abbr, b.abbr, (d) => `+${d} sites`),
+      deltaSub: "",
+      same: a.sites.pipeline === b.sites.pipeline,
     },
     {
       label: "Federal preemption",
@@ -231,8 +216,6 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
       deltaSub,
       deltaColor: same ? "#9AA1A9" : "#14181D",
       leadColor: same ? "#D7DBE0" : leader.q.color,
-      rubricA: t.rubric[ta] ?? "",
-      rubricB: t.rubric[tb] ?? "",
     };
   }).sort((x, y) => y.gap - x.gap || (y.neither ? 0 : 1) - (x.neither ? 0 : 1));
 

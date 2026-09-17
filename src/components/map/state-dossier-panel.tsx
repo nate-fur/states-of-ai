@@ -39,8 +39,8 @@ type OpenKey = "policy" | "ai" | "local" | null;
 type Nums = {
   gwText: string;
   growthPct: string;
-  countText: string;
-  localCount: string;
+  completedText: string;
+  pipelineText: string;
   postureText: string;
   aiText: string;
   billCount: string;
@@ -50,8 +50,8 @@ function numsOf(st: StateRecord): Nums {
   return {
     gwText: gw(st.mw),
     growthPct: `+${growthPct(st)}%`,
-    countText: String(st.count),
-    localCount: String(st.local.length),
+    completedText: String(st.sites.completed),
+    pipelineText: String(st.sites.pipeline),
     postureText: sign(st.posture),
     aiText: String(st.ai),
     billCount: String(st.bills.length),
@@ -134,7 +134,6 @@ export function StateDossierPanel({
     };
   });
   const [legendRef, legendH] = useMeasuredHeight<HTMLDivElement>();
-  const [localRef, localH] = useMeasuredHeight<HTMLDivElement>();
   const [billsRef, billsH] = useMeasuredHeight<HTMLDivElement>();
 
   const topics = TOPICS.map((t) => {
@@ -152,7 +151,6 @@ export function StateDossierPanel({
       glyph,
       rowBg,
       tierName: TIERS[g.tier] ?? "None",
-      rubric: t.rubric[g.tier] ?? "",
     };
   });
 
@@ -275,7 +273,7 @@ export function StateDossierPanel({
         <div className="flex flex-col gap-[18px] py-4 pb-5">
           <div className="grid grid-cols-3 gap-4 font-map-mono">
             <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] text-mute">Capacity</span>
+              <span className="text-[11px] text-mute">Active capacity</span>
               <RollNumber
                 value={nums.gwText}
                 prev={prev?.gwText}
@@ -288,29 +286,24 @@ export function StateDossierPanel({
               </span>
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] text-mute">Sites</span>
+              <span className="text-[11px] text-mute">Completed sites</span>
               <RollNumber
-                value={nums.countText}
-                prev={prev?.countText}
+                value={nums.completedText}
+                prev={prev?.completedText}
                 seq={roll.seq}
                 className="text-[22px] leading-none text-ink"
               />
-              <span
-                className="text-[11px] transition-colors duration-300"
-                style={{ color: state.incentives ? "#4A8C82" : "#7B838C" }}
-              >
-                incentives {state.incentives ? "active" : "none"}
-              </span>
+              <span className="text-[11px] text-mute">operational</span>
             </div>
             <div className="flex flex-col gap-1.5">
-              <span className="text-[11px] text-mute">Local pushback</span>
+              <span className="text-[11px] text-mute">Planned sites</span>
               <RollNumber
-                value={nums.localCount}
-                prev={prev?.localCount}
+                value={nums.pipelineText}
+                prev={prev?.pipelineText}
                 seq={roll.seq}
                 className="text-[22px] leading-none text-ink"
               />
-              <span className="text-[11px] text-mute">city actions</span>
+              <span className="text-[11px] text-mute">building or proposed</span>
             </div>
           </div>
           <div className="flex flex-col gap-2 font-map-mono text-[11px] text-mute">
@@ -328,9 +321,6 @@ export function StateDossierPanel({
                 }}
               />
             </div>
-          </div>
-          <div className="font-map-mono text-[11px] text-mute">
-            Moratorium: <span className="text-ink">{state.moratorium}</span>
           </div>
           <div className="flex items-center gap-[18px]">
             <svg viewBox="0 0 40 40" className="h-[74px] w-[74px] shrink-0 -rotate-90">
@@ -391,22 +381,6 @@ export function StateDossierPanel({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-          <div
-            className="-mt-[18px] overflow-hidden"
-            style={{
-              height: state.local.length ? (localH ?? "auto") : 0,
-              transition: `height .5s ${EASE_STD}`,
-            }}
-          >
-            <div ref={localRef} className="flex flex-col gap-1.5 pt-[18px] text-[14px] leading-[1.4]">
-              {state.local.map((c) => (
-                <div key={c.p + c.a} className="flex items-baseline gap-2.5">
-                  <span className="min-w-[120px] font-map-mono text-[12px]">{c.p}</span>
-                  <span className="text-ink-2">{c.a}</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -490,12 +464,9 @@ export function StateDossierPanel({
                 transition: "opacity .18s ease, transform .18s ease",
               }}
             >
-              <span className="mb-[5px] flex justify-between gap-2">
+              <span className="flex justify-between gap-2">
                 <span className="tracking-[0.1em] uppercase">{tipTopic.tierName}</span>
                 <span className="text-dim">{tipTopic.g.tier}/4</span>
-              </span>
-              <span className="block font-map-serif text-[13.5px] leading-[1.4] text-pretty">
-                {tipTopic.rubric}
               </span>
             </span>
           )}
