@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { STATES } from "@/lib/map/data";
 import { countQuadrants } from "@/lib/map/derive";
@@ -15,12 +15,69 @@ import { OutlineButton } from "./ui";
 const EASE = "cubic-bezier(.2,.7,.2,1)";
 const CONTAINER_MAX = 1480;
 const CONTAINER_PAD = 36;
-const STAGE_GUTTER = 28;
+// Spec (MAP_STAGE_AND_PANNING.md): symmetric pan margin, reveal comfort zone,
+// first-open anchor, drag dead zone.
+const EDGE = 48;
+const REVEAL_PAD = 120;
+const OPEN_ANCHOR = 0.5;
+const DEAD_ZONE = 4;
+// A pan range narrower than this is not worth a drag; pin the map instead.
+const PAN_SLACK = 24;
 
 const clamp = (lo: number, v: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
 function baseDrawerPx(vw: number, compare: boolean): number {
   return compare ? clamp(560, vw * 0.6, 760) : clamp(520, vw * 0.4, 560);
+}
+
+type Geom = { panX: number; drawerPx: number; vw: number };
+
+// Union of every state path and label span inside the viewport, in window
+// coords, normalised back to panX = 0. Labels are included because the offset
+// NE labels (MA, NH, RI…) extend past the easternmost path. The rendered
+// transform is read from the moving layer rather than taken from state: the
+// layer may be mid-transition (or not yet transitioned at all), and subtracting
+// the target position would skew the edges and double-apply the shift.
+function renderedX(el: HTMLElement): number {
+  const mover = el.firstElementChild as HTMLElement | null;
+  return mover ? new DOMMatrix(getComputedStyle(mover).transform).m41 : 0;
+}
+
+function mapEdges(el: HTMLElement) {
+  const r = el.getBoundingClientRect();
+  const cur = renderedX(el);
+  let mn = Infinity;
+  let mx = -Infinity;
+  el.querySelectorAll("path, span").forEach((p) => {
+    const b = p.getBoundingClientRect();
+    if (b.left < mn) mn = b.left;
+    if (b.right > mx) mx = b.right;
+  });
+  if (mx === -Infinity) {
+    mn = r.left;
+    mx = r.right;
+  }
+  return { left: mn - cur, right: mx - cur };
+}
+
+// Pan bounds for view.x: lo = furthest left (−maxShift), hi = furthest right
+// (minShift, ≤ 0). Both are 0 while the drawer is closed, which disables
+// panning. When the map fits the stage (hi < lo) it pins to hi, hugging the
+// window's left edge. A range smaller than PAN_SLACK is collapsed to its
+// midpoint so the map can't wiggle a few pixels; the slack is split evenly
+// between the two edge margins instead.
+function panBounds(el: HTMLElement | null, g: Geom) {
+  if (!el || !g.drawerPx) return { lo: 0, hi: 0, canPan: false };
+  const e = mapEdges(el);
+  let lo = -Math.max(0, e.right - (g.vw - g.drawerPx) + EDGE);
+  let hi = Math.min(0, EDGE - e.left);
+  if (hi < lo) lo = hi;
+  else if (hi - lo < PAN_SLACK) lo = hi = (lo + hi) / 2;
+  return { lo, hi, canPan: hi > lo };
+}
+function clampX(el: HTMLElement | null, g: Geom, x: number): number {
+  const b = panBounds(el, g);
+  return Math.min(b.hi, Math.max(b.lo, x));
 }
 
 export function Broadsheet() {
@@ -44,10 +101,15 @@ export function Broadsheet() {
   const [panX, setPanX] = useState(0);
   const [animPan, setAnimPan] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [canPan, setCanPan] = useState(false);
+  // Bumped once the map's geometry has rendered so a fresh load with a state in
+  // the URL re-clamps against real paths instead of the empty viewport.
+  const [geoReady, setGeoReady] = useState(0);
   const [vw, setVw] = useState(1280);
   const vpRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
   const pendingReveal = useRef<{ abbr: string; wasClosed: boolean } | null>(null);
+  const drag = useRef<{ sx: number; ox: number; moved: boolean } | null>(null);
   const counts = useMemo(() => countQuadrants(STATES), []);
 
   useEffect(() => {
@@ -68,6 +130,11 @@ export function Broadsheet() {
   const drawerW = Math.min(vw, base + detailW);
   const drawerPx = drawer ? drawerW : 0;
 
+  // Latest geometry for native (touch) listeners and rAF callbacks.
+  const geom = useRef<Geom>({ panX, drawerPx, vw });
+  useLayoutEffect(() => {
+    geom.current = { panX, drawerPx, vw };
+  });
 
   const setQuery = useCallback(
     (next: { s?: string | null; c?: string | null }) => {
@@ -86,51 +153,52 @@ export function Broadsheet() {
     [params, router],
   );
 
-  const maxShift = useCallback(
-    (shiftX: number, drawerWidth: number) => {
-      const el = vpRef.current;
-      if (!el || !drawerWidth) return 0;
-      let right = el.getBoundingClientRect().right;
-      let mx = 0;
-      el.querySelectorAll("svg path").forEach((p) => {
-        const r = p.getBoundingClientRect().right;
-        if (r > mx) mx = r;
-      });
-      if (mx) right = mx - shiftX;
-      return Math.max(0, right - (vw - drawerWidth) + STAGE_GUTTER);
-    },
-    [vw],
-  );
+  const onGeoReady = useCallback(() => setGeoReady((n) => n + 1), []);
 
-  // Auto-shift the map so the chosen state stays visible beside the drawer:
-  // on open it lands ~30% into the visible stage; on switch it only moves if hidden.
+  const animateTo = useCallback((x: number) => {
+    if (x === geom.current.panX) return;
+    setAnimPan(true);
+    setPanX(x);
+  }, []);
+
+  // After a selection (or a drawer width change) settles: reveal the requested
+  // state, otherwise just keep the current pan inside the new bounds.
+  //   first open  → selected state centred in the stage
+  //   later picks → shift only if the state is within REVEAL_PAD of a stage edge
   useEffect(() => {
-    const req = pendingReveal.current;
-    if (!req || !drawer) return;
-    pendingReveal.current = null;
     const id = requestAnimationFrame(() => {
       const el = vpRef.current;
-      const p = el?.querySelector<SVGPathElement>(`path[data-abbr="${req.abbr}"]`);
-      if (!el || !p) return;
-      const b = p.getBoundingClientRect();
-      const visibleRight = vw - drawerPx - STAGE_GUTTER;
-      const visibleLeft = STAGE_GUTTER;
-      let target = panX;
+      const g = geom.current;
+      const req = pendingReveal.current;
+      pendingReveal.current = null;
+      if (!el) return;
+      setCanPan(panBounds(el, g).canPan);
+      if (!drawer) return;
+      if (!req) {
+        animateTo(clampX(el, g, g.panX));
+        return;
+      }
+      const p = el.querySelector<SVGPathElement>(`path[data-abbr="${req.abbr}"]`);
+      if (!p) return;
+      // The rect is measured mid-animation if a pan is in flight; project it
+      // to where the map is heading (state panX) before judging visibility.
+      const r = p.getBoundingClientRect();
+      const delta = g.panX - renderedX(el);
+      const b = { left: r.left + delta, right: r.right + delta, width: r.width };
+      const visibleLeft = REVEAL_PAD;
+      const visibleRight = g.vw - g.drawerPx - REVEAL_PAD;
+      let target = g.panX;
       if (req.wasClosed) {
-        const stageW = visibleRight - visibleLeft;
-        const anchor = visibleLeft + stageW * 0.3;
-        target = panX + (anchor - (b.left + b.width / 2));
-      } else if (b.right > visibleRight) target = panX - (b.right - visibleRight);
-      else if (b.left < visibleLeft) target = panX + (visibleLeft - b.left);
+        const anchor = visibleLeft + (visibleRight - visibleLeft) * OPEN_ANCHOR;
+        target = g.panX + (anchor - (b.left + b.width / 2));
+      } else if (b.right > visibleRight) target = g.panX - (b.right - visibleRight);
+      else if (b.left < visibleLeft) target = g.panX + (visibleLeft - b.left);
       else return;
-      setAnimPan(true);
-      setPanX(clamp(-maxShift(panX, drawerPx), target, 0));
+      animateTo(clampX(el, g, target));
     });
     return () => cancelAnimationFrame(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, compare, drawerPx]);
+  }, [selected, compare, drawer, drawerPx, geoReady, animateTo]);
 
-  // Opening or closing the rail changes the drawer width; keep the pan in bounds.
   const setDetail = (d: DetailSelection | null) => {
     setRail((r) => ({
       detail: d,
@@ -139,13 +207,6 @@ export function Broadsheet() {
       c: compare,
       seq: d ? r.seq + 1 : r.seq,
     }));
-    if (!drawer) return;
-    const nextDetailW = d ? Math.max(0, Math.min(380, vw - base)) : 0;
-    const next = clamp(-maxShift(panX, Math.min(vw, base + nextDetailW)), panX, 0);
-    if (next !== panX) {
-      setAnimPan(true);
-      setPanX(next);
-    }
   };
 
   const onSelect = (abbr: string) => {
@@ -168,35 +229,76 @@ export function Broadsheet() {
     });
   };
 
+  const endDrag = (suppressMs: number) => {
+    const d = drag.current;
+    drag.current = null;
+    setDragging(false);
+    if (d?.moved) {
+      suppressClick.current = true;
+      setTimeout(() => {
+        suppressClick.current = false;
+      }, suppressMs);
+    }
+  };
+
   const onPanStart = (e: React.MouseEvent) => {
-    if (e.button !== 0 || !maxShift(panX, drawerPx)) return;
-    const startX = e.clientX;
-    const ox = panX;
-    let moved = false;
+    const el = vpRef.current;
+    if (e.button !== 0 || !panBounds(el, geom.current).canPan) return;
+    drag.current = { sx: e.clientX, ox: geom.current.panX, moved: false };
     const move = (ev: MouseEvent) => {
-      const dx = ev.clientX - startX;
-      if (!moved && Math.abs(dx) < 4) return;
-      if (!moved) {
-        moved = true;
+      const d = drag.current;
+      if (!d) return;
+      const dx = ev.clientX - d.sx;
+      if (!d.moved && Math.abs(dx) < DEAD_ZONE) return;
+      if (!d.moved) {
+        d.moved = true;
         setDragging(true);
         setAnimPan(false);
       }
-      setPanX(clamp(-maxShift(ox, drawerPx), ox + dx, 0));
+      setPanX(clampX(el, geom.current, d.ox + dx));
     };
     const up = () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
-      setDragging(false);
-      if (moved) {
-        suppressClick.current = true;
-        setTimeout(() => {
-          suppressClick.current = false;
-        }, 0);
-      }
+      endDrag(0);
     };
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
   };
+
+  // Touch pan: same model with touches[0]. Attached natively so touchmove can
+  // preventDefault (React registers touch listeners as passive); vertical
+  // scrolling stays allowed via touch-action: pan-y on the viewport.
+  useEffect(() => {
+    const el = vpRef.current;
+    if (!el) return;
+    const start = (e: TouchEvent) => {
+      if (e.touches.length !== 1 || !panBounds(el, geom.current).canPan) return;
+      drag.current = { sx: e.touches[0].clientX, ox: geom.current.panX, moved: false };
+    };
+    const move = (e: TouchEvent) => {
+      const d = drag.current;
+      if (!d) return;
+      const dx = e.touches[0].clientX - d.sx;
+      if (Math.abs(dx) > DEAD_ZONE) {
+        d.moved = true;
+        e.preventDefault();
+      }
+      setAnimPan(false);
+      setPanX(clampX(el, geom.current, d.ox + dx));
+    };
+    const end = () => endDrag(300);
+    el.addEventListener("touchstart", start, { passive: true });
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+    return () => {
+      el.removeEventListener("touchstart", start);
+      el.removeEventListener("touchmove", move);
+      el.removeEventListener("touchend", end);
+      el.removeEventListener("touchcancel", end);
+    };
+  }, []);
 
   const closeDrawer = () => {
     setQuery({ s: null, c: null });
@@ -205,7 +307,7 @@ export function Broadsheet() {
     setPanX(0);
   };
 
-  // Legend/caption sit centered in the visible stage, not the full container.
+  // Legend/caption follow the visible stage, not the full column.
   const side = Math.max(0, (vw - CONTAINER_MAX) / 2) + CONTAINER_PAD;
   const stageLeft = drawerPx ? -side : 0;
   const stageInset = drawerPx ? drawerPx - side : 0;
@@ -215,7 +317,7 @@ export function Broadsheet() {
   const detailState = rail.last ? byAbbr[rail.last.abbr] : undefined;
 
   return (
-    <div className="mx-auto min-h-screen max-w-[1480px] overflow-x-hidden px-9 py-7 pb-16 text-ink">
+    <div className="mx-auto w-full min-h-screen max-w-[1480px] px-9 py-7 pb-16 text-ink">
       {/* Out of flow so the title row matches the design; sits under the drawer when it is open. */}
       <Link
         href="/bills"
@@ -239,8 +341,10 @@ export function Broadsheet() {
           onSelect={onSelect}
           panX={panX}
           animPan={animPan}
-          cursor={dragging ? "grabbing" : drawer ? "grab" : "default"}
+          cursor={dragging ? "grabbing" : canPan ? "grab" : "default"}
+          touchAction={drawer ? "pan-y" : "auto"}
           onPanStart={onPanStart}
+          onGeoReady={onGeoReady}
           viewportRef={vpRef}
         />
 

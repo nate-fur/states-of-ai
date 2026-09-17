@@ -35,7 +35,9 @@ export function StateMap({
   panX = 0,
   animPan = false,
   cursor = "default",
+  touchAction = "auto",
   onPanStart,
+  onGeoReady,
   viewportRef,
 }: {
   selected: string | null;
@@ -44,7 +46,10 @@ export function StateMap({
   panX?: number;
   animPan?: boolean;
   cursor?: string;
+  touchAction?: "auto" | "pan-y";
   onPanStart?: (e: React.MouseEvent) => void;
+  /** Fires after the state paths and labels have rendered. */
+  onGeoReady?: () => void;
   viewportRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const [geo, setGeo] = useState<GeoShape[]>([]);
@@ -100,6 +105,10 @@ export function StateMap({
     };
   }, [byName]);
 
+  useEffect(() => {
+    if (geo.length) onGeoReady?.();
+  }, [geo, onGeoReady]);
+
   // Paths keep a stable DOM order. Hover/active strokes are drawn in an overlay
   // so a state is never re-inserted between mousedown and mouseup (which would
   // swallow the click on fast pointer moves and on touch).
@@ -129,7 +138,7 @@ export function StateMap({
       ref={viewportRef}
       onMouseDown={onPanStart}
       className="relative mx-auto aspect-[960/600] w-[min(100%,max(576px,calc((100vh-300px)*1.6)))] select-none"
-      style={{ cursor }}
+      style={{ cursor, touchAction }}
     >
       <div
         className="absolute inset-0 origin-top-left will-change-transform"

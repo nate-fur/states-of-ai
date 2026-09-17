@@ -265,6 +265,12 @@
   html {
     @apply font-sans;
   }
+  /* The only horizontal clip. The map pans past the page column's left edge
+     and must be cut at the window, not the column (see MAP_STAGE_AND_PANNING). */
+  html,
+  body {
+    overflow-x: hidden;
+  }
   a {
     color: #14181d;
     text-decoration: underline;
