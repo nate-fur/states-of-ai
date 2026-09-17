@@ -70,6 +70,12 @@ In the connected Vercel project, add `CONVEX_DEPLOY_KEY` twice:
 
 Keep both values secret; do not commit them or place them in `.env.example`. A Vercel preview created from an Origin branch push will then receive an isolated Convex preview deployment.
 
+## Cursor MCP connections
+
+The project configures a Vercel MCP server at `https://mcp.vercel.com` and starts the Convex MCP server locally through `npx convex mcp start`.
+
+Vercel MCP requires a Cursor OAuth approval: when Cursor marks the server **Needs login**, select it and complete the browser sign-in. Convex MCP uses the local CLI session, so authenticate it with the same account used for `npx convex dev`.
+
 ## LegiScan fixture adapter
 
 The fixture records retain these LegiScan-style fields: `bill_id`, `number`, `title`, `status`, `status_date`, `last_action`, `last_action_date`, `url`, `state`, `chamber`, `session`, `history`, `sponsors`, `texts`, and `progress`.
