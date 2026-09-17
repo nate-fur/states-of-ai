@@ -41,7 +41,7 @@ export async function getStateProfile(code: string): Promise<StateProfile | null
   );
   if (!fixtureProfile) return null;
 
-  const bills = await getStateBills(fixtureProfile.code);
+  const bills = (await getStateBills(fixtureProfile.code)) ?? [];
   return { ...fixtureProfile, bills };
 }
 
