@@ -66,9 +66,11 @@ export function StateMap({
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const res = await fetch("/geo/states-10m.json");
+      if (!res.ok) throw new Error(`geo fetch failed: ${res.status}`);
       // TopoJSON object typing is loose across atlas packages.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const topo: any = await fetch("/geo/states-10m.json").then((r) => r.json());
+      const topo: any = await res.json();
       const fc = feature(topo, topo.objects.states) as unknown as FeatureCollection<
         Geometry,
         { name: string }
@@ -99,7 +101,9 @@ export function StateMap({
         };
       });
       if (!cancelled) setGeo(shapes);
-    })();
+    })().catch((err) => {
+      if (!cancelled) console.error("State map geometry failed to load", err);
+    });
     return () => {
       cancelled = true;
     };

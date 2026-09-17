@@ -266,10 +266,12 @@
     @apply font-sans;
   }
   /* The only horizontal clip. The map pans past the page column's left edge
-     and must be cut at the window, not the column (see MAP_STAGE_AND_PANNING). */
+     and must be cut at the window, not the column (see MAP_STAGE_AND_PANNING).
+     `clip` rather than `hidden`: hidden would turn body into a scroll
+     container and break page-level position: sticky (the /diff header). */
   html,
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   a {
     color: #14181d;

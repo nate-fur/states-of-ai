@@ -31,6 +31,17 @@ function baseDrawerPx(vw: number, compare: boolean): number {
 }
 
 type Geom = { panX: number; drawerPx: number; vw: number };
+type Bounds = { lo: number; hi: number; canPan: boolean };
+
+const BY_ABBR: Record<string, (typeof STATES)[number]> = Object.fromEntries(
+  STATES.map((s) => [s.abbr, s]),
+);
+
+// URL state codes are user-editable: accept any case, reject unknown codes.
+function stateParam(v: string | null): string | null {
+  const abbr = v?.toUpperCase() ?? "";
+  return BY_ABBR[abbr] ? abbr : null;
+}
 
 // Union of every state path and label span inside the viewport, in window
 // coords, normalised back to panX = 0. Labels are included because the offset
@@ -66,7 +77,7 @@ function mapEdges(el: HTMLElement) {
 // window's left edge. A range smaller than PAN_SLACK is collapsed to its
 // midpoint so the map can't wiggle a few pixels; the slack is split evenly
 // between the two edge margins instead.
-function panBounds(el: HTMLElement | null, g: Geom) {
+function panBounds(el: HTMLElement | null, g: Geom): Bounds {
   if (!el || !g.drawerPx) return { lo: 0, hi: 0, canPan: false };
   const e = mapEdges(el);
   let lo = -Math.max(0, e.right - (g.vw - g.drawerPx) + EDGE);
@@ -75,16 +86,19 @@ function panBounds(el: HTMLElement | null, g: Geom) {
   else if (hi - lo < PAN_SLACK) lo = hi = (lo + hi) / 2;
   return { lo, hi, canPan: hi > lo };
 }
-function clampX(el: HTMLElement | null, g: Geom, x: number): number {
-  const b = panBounds(el, g);
+function clampTo(b: Bounds, x: number): number {
   return Math.min(b.hi, Math.max(b.lo, x));
+}
+function clampX(el: HTMLElement | null, g: Geom, x: number): number {
+  return clampTo(panBounds(el, g), x);
 }
 
 export function Broadsheet() {
   const router = useRouter();
   const params = useSearchParams();
-  const selected = params.get("s");
-  const compare = params.get("c");
+  const selected = stateParam(params.get("s"));
+  const rawCompare = stateParam(params.get("c"));
+  const compare = rawCompare && rawCompare !== selected ? rawCompare : null;
   const drawer = !!selected;
 
   const [picking, setPicking] = useState(false);
@@ -109,7 +123,15 @@ export function Broadsheet() {
   const vpRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
   const pendingReveal = useRef<{ abbr: string; wasClosed: boolean } | null>(null);
-  const drag = useRef<{ sx: number; ox: number; moved: boolean } | null>(null);
+  // Bounds are cached per gesture: the DOM measurement is invariant while
+  // dragging and too expensive to redo on every pointer move.
+  const drag = useRef<{
+    sx: number;
+    sy: number;
+    ox: number;
+    moved: boolean;
+    bounds: Bounds;
+  } | null>(null);
   const counts = useMemo(() => countQuadrants(STATES), []);
 
   useEffect(() => {
@@ -119,10 +141,7 @@ export function Broadsheet() {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  const byAbbr = useMemo(
-    () => Object.fromEntries(STATES.map((s) => [s.abbr, s])),
-    [],
-  );
+  const byAbbr = BY_ABBR;
 
   // Drawer geometry (prototype: base width + detail rail, capped at the viewport).
   const base = baseDrawerPx(vw, !!compare);
@@ -197,7 +216,7 @@ export function Broadsheet() {
       animateTo(clampX(el, g, target));
     });
     return () => cancelAnimationFrame(id);
-  }, [selected, compare, drawer, drawerPx, geoReady, animateTo]);
+  }, [selected, compare, drawer, drawerPx, vw, geoReady, animateTo]);
 
   const setDetail = (d: DetailSelection | null) => {
     setRail((r) => ({
@@ -242,9 +261,10 @@ export function Broadsheet() {
   };
 
   const onPanStart = (e: React.MouseEvent) => {
-    const el = vpRef.current;
-    if (e.button !== 0 || !panBounds(el, geom.current).canPan) return;
-    drag.current = { sx: e.clientX, ox: geom.current.panX, moved: false };
+    if (e.button !== 0) return;
+    const bounds = panBounds(vpRef.current, geom.current);
+    if (!bounds.canPan) return;
+    drag.current = { sx: e.clientX, sy: e.clientY, ox: geom.current.panX, moved: false, bounds };
     const move = (ev: MouseEvent) => {
       const d = drag.current;
       if (!d) return;
@@ -255,7 +275,7 @@ export function Broadsheet() {
         setDragging(true);
         setAnimPan(false);
       }
-      setPanX(clampX(el, geom.current, d.ox + dx));
+      setPanX(clampTo(d.bounds, d.ox + dx));
     };
     const up = () => {
       window.removeEventListener("mousemove", move);
@@ -267,25 +287,37 @@ export function Broadsheet() {
   };
 
   // Touch pan: same model with touches[0]. Attached natively so touchmove can
-  // preventDefault (React registers touch listeners as passive); vertical
-  // scrolling stays allowed via touch-action: pan-y on the viewport.
+  // preventDefault (React registers touch listeners as passive). A gesture
+  // that starts mostly vertical is handed back to the browser for page
+  // scrolling (touch-action: pan-y) and never pans or suppresses a tap.
   useEffect(() => {
     const el = vpRef.current;
     if (!el) return;
     const start = (e: TouchEvent) => {
-      if (e.touches.length !== 1 || !panBounds(el, geom.current).canPan) return;
-      drag.current = { sx: e.touches[0].clientX, ox: geom.current.panX, moved: false };
+      if (e.touches.length !== 1) return;
+      const bounds = panBounds(el, geom.current);
+      if (!bounds.canPan) return;
+      const t = e.touches[0];
+      drag.current = { sx: t.clientX, sy: t.clientY, ox: geom.current.panX, moved: false, bounds };
     };
     const move = (e: TouchEvent) => {
       const d = drag.current;
       if (!d) return;
-      const dx = e.touches[0].clientX - d.sx;
-      if (Math.abs(dx) > DEAD_ZONE) {
+      const t = e.touches[0];
+      const dx = t.clientX - d.sx;
+      if (!d.moved) {
+        const dy = t.clientY - d.sy;
+        if (Math.abs(dx) < DEAD_ZONE) return;
+        if (Math.abs(dy) > Math.abs(dx)) {
+          drag.current = null;
+          return;
+        }
         d.moved = true;
-        e.preventDefault();
+        setDragging(true);
+        setAnimPan(false);
       }
-      setAnimPan(false);
-      setPanX(clampX(el, geom.current, d.ox + dx));
+      if (e.cancelable) e.preventDefault();
+      setPanX(clampTo(d.bounds, d.ox + dx));
     };
     const end = () => endDrag(300);
     el.addEventListener("touchstart", start, { passive: true });
