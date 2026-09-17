@@ -1,0 +1,4972 @@
+{
+  "STATES": [
+    {
+      "abbr": "AL",
+      "name": "Alabama",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 57,
+      "mw": 397,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 15
+        },
+        {
+          "n": "Microsoft",
+          "v": 21
+        }
+      ],
+      "growth": [
+        236,
+        261,
+        293,
+        319,
+        345,
+        397
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 1816",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 463",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 142",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan"
+        },
+        {
+          "n": "SB 277",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": true,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/AL"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "AK",
+      "name": "Alaska",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 85,
+      "mw": 548,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 16
+        },
+        {
+          "n": "Microsoft",
+          "v": 14
+        },
+        {
+          "n": "Flexential",
+          "v": 32
+        }
+      ],
+      "growth": [
+        271,
+        319,
+        364,
+        413,
+        466,
+        548
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "HB 1803",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 809",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 187",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        }
+      ],
+      "preempt": true,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/AK"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "AZ",
+      "name": "Arizona",
+      "q": {
+        "key": "throttle",
+        "label": "Full throttle",
+        "color": "#D4A15E"
+      },
+      "posture": 2,
+      "ai": 1,
+      "summary": "Water constraints drive local fights; state stays pro-build",
+      "count": 120,
+      "mw": 2600,
+      "ops": [
+        {
+          "n": "Microsoft",
+          "v": 26
+        },
+        {
+          "n": "Meta",
+          "v": 17
+        },
+        {
+          "n": "Vantage",
+          "v": 12
+        }
+      ],
+      "growth": [
+        1100,
+        1400,
+        1700,
+        2000,
+        2300,
+        2600
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "HB 2774",
+          "t": "Data center incentive extension to 2033",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2025"
+        },
+        {
+          "n": "HB 2394",
+          "t": "Digital impersonation in campaigns",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective 2024"
+        },
+        {
+          "n": "SB 1121",
+          "t": "Water-use caps for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Committee assignment pending"
+        }
+      ],
+      "local": [
+        {
+          "p": "Chandler",
+          "a": "Ordinance on cooling water reporting"
+        },
+        {
+          "p": "Tucson",
+          "a": "Council rejected Project Blue campus"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/AZ"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "AR",
+      "name": "Arkansas",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 2,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 67,
+      "mw": 675,
+      "ops": [
+        {
+          "n": "QTS",
+          "v": 11
+        },
+        {
+          "n": "Vantage",
+          "v": 32
+        },
+        {
+          "n": "DataBank",
+          "v": 25
+        }
+      ],
+      "growth": [
+        401,
+        453,
+        497,
+        551,
+        593,
+        675
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1495",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 1512",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/AR"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "CA",
+      "name": "California",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "grades": {
+        "frontier": [
+          3,
+          "SB 53 requires published safety frameworks and incident reporting from frontier developers."
+        ],
+        "transparency": [
+          3,
+          "Notice duties for automated decisions plus AI content disclosure."
+        ],
+        "dc": [
+          2,
+          "Grid-cost transparency, no binding caps."
+        ],
+        "deepfakes": [
+          3,
+          "Election deepfake bans and intimate-imagery remedies."
+        ],
+        "employment": [
+          3,
+          "Civil Rights Council rules cover automated hiring tools."
+        ]
+      },
+      "posture": -2,
+      "ai": 5,
+      "summary": "Restricting data centers, strongest AI rules in US",
+      "count": 312,
+      "mw": 4200,
+      "ops": [
+        {
+          "n": "Equinix",
+          "v": 22
+        },
+        {
+          "n": "Digital Realty",
+          "v": 18
+        },
+        {
+          "n": "Google",
+          "v": 14
+        }
+      ],
+      "growth": [
+        2100,
+        2400,
+        2800,
+        3100,
+        3600,
+        4200
+      ],
+      "incentives": false,
+      "moratorium": "Local moratoria in 4 counties",
+      "preempt": true,
+      "bills": [
+        {
+          "n": "SB 53",
+          "t": "Transparency in Frontier AI Act",
+          "tags": [
+            "frontier",
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 57",
+          "t": "Data center grid-cost transparency",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "AB 93",
+          "t": "Water-use disclosure for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2026"
+        },
+        {
+          "n": "SB 243",
+          "t": "Companion chatbot safeguards for minors",
+          "tags": [
+            "chatbots"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "AB 2655",
+          "t": "Deceptive election deepfakes",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Enjoined in part"
+        },
+        {
+          "n": "SB 1047-B",
+          "t": "Frontier model safety duties",
+          "tags": [
+            "frontier"
+          ],
+          "s": "pending",
+          "d": "Governor decision by Sep 30"
+        },
+        {
+          "n": "AB 412",
+          "t": "Data center siting review",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        }
+      ],
+      "local": [
+        {
+          "p": "Monterey Park",
+          "a": "Ban on new hyperscale sites in residential zones"
+        },
+        {
+          "p": "Commerce",
+          "a": "12-month permitting freeze"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/CA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "CO",
+      "name": "Colorado",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "grades": {
+        "discrimination": [
+          3,
+          "SB 24-205 imposes cross-sector high-risk duties; enforcement by AG only."
+        ],
+        "transparency": [
+          3,
+          "Consumers must be told when a high-risk system made a consequential decision."
+        ],
+        "deepfakes": [
+          2,
+          "Election disclosure with pre-vote window."
+        ]
+      },
+      "posture": 0,
+      "ai": 6,
+      "summary": "First comprehensive AI law; neutral on compute",
+      "count": 58,
+      "mw": 620,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 28
+        },
+        {
+          "n": "Novva",
+          "v": 19
+        },
+        {
+          "n": "Google",
+          "v": 12
+        }
+      ],
+      "growth": [
+        380,
+        410,
+        460,
+        520,
+        570,
+        620
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "preempt": true,
+      "bills": [
+        {
+          "n": "SB 24-205",
+          "t": "Colorado AI Act — high-risk system duties",
+          "tags": [
+            "discrimination",
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jun 30, 2026"
+        },
+        {
+          "n": "HB 24-1147",
+          "t": "Deepfake disclosures in elections",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective May 2024"
+        },
+        {
+          "n": "HB 26-1015",
+          "t": "Data center energy reporting",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan 14"
+        }
+      ],
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/CO"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "CT",
+      "name": "Connecticut",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 1,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 51,
+      "mw": 777,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 26
+        },
+        {
+          "n": "QTS",
+          "v": 21
+        }
+      ],
+      "growth": [
+        422,
+        485,
+        557,
+        616,
+        682,
+        777
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1957",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 1446",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/CT"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "DE",
+      "name": "Delaware",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 4,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 47,
+      "mw": 448,
+      "ops": [
+        {
+          "n": "Digital Realty",
+          "v": 15
+        },
+        {
+          "n": "DataBank",
+          "v": 10
+        },
+        {
+          "n": "Google",
+          "v": 12
+        }
+      ],
+      "growth": [
+        220,
+        261,
+        305,
+        339,
+        386,
+        448
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 140",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 1215",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 142",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/DE"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "FL",
+      "name": "Florida",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 69,
+      "mw": 1193,
+      "ops": [
+        {
+          "n": "Vantage",
+          "v": 27
+        },
+        {
+          "n": "Flexential",
+          "v": 33
+        }
+      ],
+      "growth": [
+        585,
+        716,
+        819,
+        915,
+        1001,
+        1193
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "HB 107",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 1188",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "SB 292",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "proposed",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/FL"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "GA",
+      "name": "Georgia",
+      "q": {
+        "key": "throttle",
+        "label": "Full throttle",
+        "color": "#D4A15E"
+      },
+      "posture": 1,
+      "ai": 1,
+      "summary": "Fast growth, legislature split on incentives",
+      "count": 170,
+      "mw": 3100,
+      "ops": [
+        {
+          "n": "Microsoft",
+          "v": 22
+        },
+        {
+          "n": "QTS",
+          "v": 18
+        },
+        {
+          "n": "Switch",
+          "v": 10
+        }
+      ],
+      "growth": [
+        1400,
+        1700,
+        2100,
+        2500,
+        2800,
+        3100
+      ],
+      "incentives": true,
+      "moratorium": "Incentive pause bill vetoed 2024",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "SB 34",
+          "t": "Utility cost shift protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1192",
+          "t": "Suspend sales tax exemption",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Reintroduced; hearing Feb"
+        },
+        {
+          "n": "SB 9",
+          "t": "AI-generated election content",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "proposed",
+          "d": "Died in committee"
+        }
+      ],
+      "local": [
+        {
+          "p": "Atlanta",
+          "a": "Zoning bar on data centers near transit"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/GA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "HI",
+      "name": "Hawaii",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 2,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 14,
+      "mw": 278,
+      "ops": [
+        {
+          "n": "Google",
+          "v": 16
+        },
+        {
+          "n": "Vantage",
+          "v": 17
+        }
+      ],
+      "growth": [
+        150,
+        170,
+        197,
+        218,
+        237,
+        278
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 1381",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 1266",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "HB 172",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/HI"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "ID",
+      "name": "Idaho",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 4,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 87,
+      "mw": 1683,
+      "ops": [
+        {
+          "n": "AWS",
+          "v": 28
+        },
+        {
+          "n": "Digital Realty",
+          "v": 15
+        },
+        {
+          "n": "DataBank",
+          "v": 21
+        }
+      ],
+      "growth": [
+        989,
+        1118,
+        1224,
+        1336,
+        1455,
+        1683
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 952",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 1366",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 267",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "SB 612",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "HB 283",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/ID"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "IL",
+      "name": "Illinois",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 4,
+      "summary": "Employment AI law; incentives tied to sustainability",
+      "count": 135,
+      "mw": 2200,
+      "ops": [
+        {
+          "n": "Digital Realty",
+          "v": 21
+        },
+        {
+          "n": "Equinix",
+          "v": 19
+        },
+        {
+          "n": "CyrusOne",
+          "v": 13
+        }
+      ],
+      "growth": [
+        1500,
+        1600,
+        1750,
+        1900,
+        2050,
+        2200
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "HB 3773",
+          "t": "AI in employment decisions",
+          "tags": [
+            "employment",
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 1591",
+          "t": "Green data center incentive conditions",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 4875",
+          "t": "Digital replicas and deepfakes",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2025"
+        },
+        {
+          "n": "HB 3773-A",
+          "t": "Amend AI in employment law",
+          "tags": [
+            "employment"
+          ],
+          "s": "pending",
+          "d": "Veto session Nov"
+        }
+      ],
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/IL"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "IN",
+      "name": "Indiana",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 3,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 73,
+      "mw": 768,
+      "ops": [
+        {
+          "n": "Vantage",
+          "v": 21
+        },
+        {
+          "n": "AWS",
+          "v": 24
+        },
+        {
+          "n": "Flexential",
+          "v": 12
+        }
+      ],
+      "growth": [
+        413,
+        466,
+        530,
+        592,
+        655,
+        768
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 783",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 115",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan"
+        },
+        {
+          "n": "SB 410",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/IN"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "IA",
+      "name": "Iowa",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 2,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 82,
+      "mw": 1459,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 30
+        },
+        {
+          "n": "QTS",
+          "v": 25
+        },
+        {
+          "n": "Digital Realty",
+          "v": 10
+        }
+      ],
+      "growth": [
+        857,
+        959,
+        1081,
+        1183,
+        1295,
+        1459
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "HB 813",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 1623",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "HB 640",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/IA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "KS",
+      "name": "Kansas",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 4,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 62,
+      "mw": 1069,
+      "ops": [
+        {
+          "n": "QTS",
+          "v": 35
+        },
+        {
+          "n": "Vantage",
+          "v": 30
+        }
+      ],
+      "growth": [
+        519,
+        605,
+        699,
+        810,
+        905,
+        1069
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 812",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 709",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 1200",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "HB 1182",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/KS"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "KY",
+      "name": "Kentucky",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 1,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 71,
+      "mw": 451,
+      "ops": [
+        {
+          "n": "Vantage",
+          "v": 31
+        },
+        {
+          "n": "Digital Realty",
+          "v": 14
+        },
+        {
+          "n": "Flexential",
+          "v": 15
+        }
+      ],
+      "growth": [
+        219,
+        263,
+        310,
+        345,
+        384,
+        451
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1636",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/KY"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "LA",
+      "name": "Louisiana",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 53,
+      "mw": 529,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 26
+        },
+        {
+          "n": "Google",
+          "v": 32
+        },
+        {
+          "n": "DataBank",
+          "v": 10
+        }
+      ],
+      "growth": [
+        309,
+        354,
+        398,
+        436,
+        465,
+        529
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1328",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 541",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 303",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 163",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/LA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "ME",
+      "name": "Maine",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 0,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 50,
+      "mw": 706,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 32
+        },
+        {
+          "n": "Digital Realty",
+          "v": 31
+        }
+      ],
+      "growth": [
+        342,
+        421,
+        494,
+        557,
+        620,
+        706
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 1198",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/ME"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MD",
+      "name": "Maryland",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 78,
+      "mw": 1061,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 32
+        },
+        {
+          "n": "Digital Realty",
+          "v": 24
+        },
+        {
+          "n": "QTS",
+          "v": 12
+        }
+      ],
+      "growth": [
+        566,
+        649,
+        741,
+        838,
+        917,
+        1061
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 372",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 525",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 1320",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 233",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "SB 603",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MD"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MA",
+      "name": "Massachusetts",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 4,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 73,
+      "mw": 880,
+      "ops": [
+        {
+          "n": "Vantage",
+          "v": 34
+        },
+        {
+          "n": "QTS",
+          "v": 32
+        }
+      ],
+      "growth": [
+        470,
+        532,
+        601,
+        665,
+        755,
+        880
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1073",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1640",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1013",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "HB 884",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "proposed",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MI",
+      "name": "Michigan",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 2,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 26,
+      "mw": 421,
+      "ops": [
+        {
+          "n": "Meta",
+          "v": 29
+        },
+        {
+          "n": "Flexential",
+          "v": 11
+        }
+      ],
+      "growth": [
+        246,
+        284,
+        316,
+        344,
+        377,
+        421
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 338",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 1640",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "SB 1471",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MI"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MN",
+      "name": "Minnesota",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 64,
+      "mw": 1202,
+      "ops": [
+        {
+          "n": "QTS",
+          "v": 25
+        },
+        {
+          "n": "Microsoft",
+          "v": 33
+        },
+        {
+          "n": "Equinix",
+          "v": 9
+        }
+      ],
+      "growth": [
+        581,
+        704,
+        828,
+        948,
+        1041,
+        1202
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 203",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 855",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1507",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 355",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "HB 1331",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "SB 1539",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "proposed",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": true,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MN"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MS",
+      "name": "Mississippi",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 1,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 12,
+      "mw": 89,
+      "ops": [
+        {
+          "n": "Google",
+          "v": 22
+        },
+        {
+          "n": "Vantage",
+          "v": 37
+        },
+        {
+          "n": "QTS",
+          "v": 11
+        }
+      ],
+      "growth": [
+        47,
+        55,
+        61,
+        69,
+        75,
+        89
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1068",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MS"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MO",
+      "name": "Missouri",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 36,
+      "mw": 695,
+      "ops": [
+        {
+          "n": "Equinix",
+          "v": 25
+        },
+        {
+          "n": "AWS",
+          "v": 10
+        },
+        {
+          "n": "DataBank",
+          "v": 18
+        }
+      ],
+      "growth": [
+        406,
+        458,
+        506,
+        565,
+        621,
+        695
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "HB 1516",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 1078",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 1146",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 1507",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        },
+        {
+          "n": "HB 1138",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        },
+        {
+          "n": "SB 697",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MO"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "MT",
+      "name": "Montana",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 2,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 74,
+      "mw": 584,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 21
+        },
+        {
+          "n": "Vantage",
+          "v": 14
+        },
+        {
+          "n": "Google",
+          "v": 12
+        }
+      ],
+      "growth": [
+        282,
+        332,
+        386,
+        440,
+        493,
+        584
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 481",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1963",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "proposed",
+          "d": "Floor vote pending"
+        },
+        {
+          "n": "SB 692",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/MT"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NE",
+      "name": "Nebraska",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 70,
+      "mw": 1133,
+      "ops": [
+        {
+          "n": "Vantage",
+          "v": 10
+        },
+        {
+          "n": "AWS",
+          "v": 34
+        },
+        {
+          "n": "Flexential",
+          "v": 19
+        }
+      ],
+      "growth": [
+        660,
+        737,
+        819,
+        893,
+        987,
+        1133
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "HB 590",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1963",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1159",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 1002",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NE"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NV",
+      "name": "Nevada",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 2,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 38,
+      "mw": 418,
+      "ops": [
+        {
+          "n": "Digital Realty",
+          "v": 28
+        },
+        {
+          "n": "Google",
+          "v": 30
+        },
+        {
+          "n": "Flexential",
+          "v": 9
+        }
+      ],
+      "growth": [
+        202,
+        247,
+        287,
+        325,
+        357,
+        418
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 112",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 1164",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NV"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NH",
+      "name": "New Hampshire",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 0,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 75,
+      "mw": 1331,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 38
+        },
+        {
+          "n": "Digital Realty",
+          "v": 10
+        }
+      ],
+      "growth": [
+        776,
+        875,
+        980,
+        1089,
+        1168,
+        1331
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 729",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NH"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NJ",
+      "name": "New Jersey",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 1,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 18,
+      "mw": 338,
+      "ops": [
+        {
+          "n": "Google",
+          "v": 37
+        },
+        {
+          "n": "Vantage",
+          "v": 33
+        }
+      ],
+      "growth": [
+        163,
+        200,
+        230,
+        262,
+        287,
+        338
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "HB 966",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NJ"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NM",
+      "name": "New Mexico",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 3,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 23,
+      "mw": 146,
+      "ops": [
+        {
+          "n": "Meta",
+          "v": 34
+        },
+        {
+          "n": "Flexential",
+          "v": 27
+        }
+      ],
+      "growth": [
+        70,
+        83,
+        98,
+        111,
+        125,
+        146
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 768",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1298",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 983",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "HB 1687",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NM"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NY",
+      "name": "New York",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Frontier model law plus grid-cost pushback",
+      "count": 210,
+      "mw": 1900,
+      "ops": [
+        {
+          "n": "Equinix",
+          "v": 20
+        },
+        {
+          "n": "Digital Realty",
+          "v": 17
+        },
+        {
+          "n": "Sabey",
+          "v": 11
+        }
+      ],
+      "growth": [
+        1300,
+        1400,
+        1500,
+        1600,
+        1750,
+        1900
+      ],
+      "incentives": false,
+      "moratorium": "Crypto-mining moratorium extended to cover new fossil-powered loads",
+      "preempt": true,
+      "bills": [
+        {
+          "n": "S 6953",
+          "t": "RAISE Act — frontier model safety",
+          "tags": [
+            "frontier",
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective 2026"
+        },
+        {
+          "n": "S 6394",
+          "t": "Grid cost allocation for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Mar 1, 2026"
+        },
+        {
+          "n": "S 1042",
+          "t": "Deepfake election disclosures",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective 2024"
+        },
+        {
+          "n": "A 3265",
+          "t": "Data center water reporting",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "local": [
+        {
+          "p": "Niagara Falls",
+          "a": "Noise ordinance for compute facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NY"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "NC",
+      "name": "North Carolina",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 4,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 37,
+      "mw": 561,
+      "ops": [
+        {
+          "n": "Equinix",
+          "v": 11
+        },
+        {
+          "n": "Microsoft",
+          "v": 20
+        },
+        {
+          "n": "QTS",
+          "v": 17
+        }
+      ],
+      "growth": [
+        299,
+        350,
+        396,
+        438,
+        486,
+        561
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1764",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1516",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 393",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "HB 984",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/NC"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "ND",
+      "name": "North Dakota",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 4,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 8,
+      "mw": 125,
+      "ops": [
+        {
+          "n": "Microsoft",
+          "v": 11
+        },
+        {
+          "n": "Flexential",
+          "v": 15
+        }
+      ],
+      "growth": [
+        60,
+        72,
+        85,
+        95,
+        105,
+        125
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 444",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 1081",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 1520",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        },
+        {
+          "n": "SB 1739",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/ND"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "OH",
+      "name": "Ohio",
+      "q": {
+        "key": "throttle",
+        "label": "Full throttle",
+        "color": "#D4A15E"
+      },
+      "posture": 1,
+      "ai": 1,
+      "summary": "Central Ohio boom; utility tariff now conditions hookups",
+      "count": 150,
+      "mw": 2900,
+      "ops": [
+        {
+          "n": "AWS",
+          "v": 30
+        },
+        {
+          "n": "Google",
+          "v": 18
+        },
+        {
+          "n": "Meta",
+          "v": 14
+        }
+      ],
+      "growth": [
+        900,
+        1200,
+        1600,
+        2000,
+        2400,
+        2900
+      ],
+      "incentives": true,
+      "moratorium": "AEP large-load tariff requires 85% minimum payment",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "PUCO 24-508",
+          "t": "Large-load minimum demand charges (tariff order)",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Oct 2025"
+        },
+        {
+          "n": "HB 96",
+          "t": "Budget — state AI task force",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 2025"
+        },
+        {
+          "n": "HB 15",
+          "t": "Data center incentive review",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Interim hearings"
+        }
+      ],
+      "local": [
+        {
+          "p": "New Albany",
+          "a": "Rezoned 900 acres for campus expansion"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/OH"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "OK",
+      "name": "Oklahoma",
+      "q": {
+        "key": "slow",
+        "label": "Slow lane",
+        "color": "#B0776A"
+      },
+      "posture": -1,
+      "ai": 1,
+      "summary": "Cooling on data centers, minimal AI rules",
+      "count": 10,
+      "mw": 74,
+      "ops": [
+        {
+          "n": "Google",
+          "v": 14
+        },
+        {
+          "n": "Meta",
+          "v": 36
+        }
+      ],
+      "growth": [
+        39,
+        46,
+        52,
+        57,
+        63,
+        74
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1770",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/OK"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "OR",
+      "name": "Oregon",
+      "q": {
+        "key": "brakes",
+        "label": "Full brakes",
+        "color": "#5C62A8"
+      },
+      "posture": -1,
+      "ai": 5,
+      "summary": "Cooling on data centers, meaningful AI rules",
+      "count": 81,
+      "mw": 890,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 9
+        }
+      ],
+      "growth": [
+        429,
+        500,
+        580,
+        663,
+        733,
+        890
+      ],
+      "incentives": false,
+      "moratorium": "Local moratorium in 1 county",
+      "bills": [
+        {
+          "n": "SB 291",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1542",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 1772",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1309",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/OR"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "PA",
+      "name": "Pennsylvania",
+      "q": {
+        "key": "throttle",
+        "label": "Full throttle",
+        "color": "#D4A15E"
+      },
+      "posture": 0,
+      "ai": 0,
+      "summary": "Neutral on data centers, minimal AI rules",
+      "count": 44,
+      "mw": 803,
+      "ops": [
+        {
+          "n": "Digital Realty",
+          "v": 30
+        },
+        {
+          "n": "Google",
+          "v": 11
+        },
+        {
+          "n": "QTS",
+          "v": 18
+        }
+      ],
+      "growth": [
+        426,
+        497,
+        560,
+        621,
+        680,
+        803
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1888",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "SB 614",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/PA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "RI",
+      "name": "Rhode Island",
+      "q": {
+        "key": "throttle",
+        "label": "Full throttle",
+        "color": "#D4A15E"
+      },
+      "posture": 0,
+      "ai": 2,
+      "summary": "Neutral on data centers, minimal AI rules",
+      "count": 38,
+      "mw": 476,
+      "ops": [
+        {
+          "n": "Digital Realty",
+          "v": 11
+        },
+        {
+          "n": "Vantage",
+          "v": 10
+        },
+        {
+          "n": "Meta",
+          "v": 14
+        }
+      ],
+      "growth": [
+        228,
+        280,
+        323,
+        363,
+        409,
+        476
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1462",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 1242",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/RI"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "SC",
+      "name": "South Carolina",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 4,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 48,
+      "mw": 551,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 24
+        },
+        {
+          "n": "QTS",
+          "v": 8
+        }
+      ],
+      "growth": [
+        319,
+        362,
+        401,
+        439,
+        480,
+        551
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1517",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 1328",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "pending",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "SB 1272",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/SC"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "SD",
+      "name": "South Dakota",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 4,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 20,
+      "mw": 240,
+      "ops": [
+        {
+          "n": "Meta",
+          "v": 23
+        },
+        {
+          "n": "Flexential",
+          "v": 9
+        },
+        {
+          "n": "Equinix",
+          "v": 14
+        }
+      ],
+      "growth": [
+        127,
+        146,
+        168,
+        186,
+        202,
+        240
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1402",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 213",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 964",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "SB 966",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "SB 1082",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "proposed",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/SD"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "TN",
+      "name": "Tennessee",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 3,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 27,
+      "mw": 519,
+      "ops": [
+        {
+          "n": "Equinix",
+          "v": 25
+        },
+        {
+          "n": "Flexential",
+          "v": 19
+        },
+        {
+          "n": "Digital Realty",
+          "v": 16
+        }
+      ],
+      "growth": [
+        299,
+        347,
+        383,
+        424,
+        464,
+        519
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 138",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1758",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1553",
+          "t": "Deepfake election disclosure",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "pending",
+          "d": "Session opens Jan"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/TN"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "TX",
+      "name": "Texas",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "grades": {
+        "gov": [
+          3,
+          "TRAIGA sets agency impact-assessment and disclosure duties."
+        ],
+        "transparency": [
+          2,
+          "Disclosure to consumers in several public-facing uses."
+        ],
+        "dc": [
+          3,
+          "SB 6 shifts interconnection cost to large loads."
+        ]
+      },
+      "posture": 3,
+      "ai": 3,
+      "summary": "Aggressive buildout, targeted AI rules only",
+      "count": 390,
+      "mw": 6900,
+      "ops": [
+        {
+          "n": "Microsoft",
+          "v": 24
+        },
+        {
+          "n": "Oracle",
+          "v": 16
+        },
+        {
+          "n": "CyrusOne",
+          "v": 12
+        }
+      ],
+      "growth": [
+        2600,
+        3200,
+        3900,
+        4800,
+        5800,
+        6900
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "HB 149",
+          "t": "Texas Responsible AI Governance Act",
+          "tags": [
+            "gov",
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 6",
+          "t": "Large-load grid interconnection rules",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Sep 1, 2025"
+        },
+        {
+          "n": "HB 1500",
+          "t": "Sales tax exemption for data centers (extended)",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 751",
+          "t": "Deepfakes in political advertising",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Sep 1, 2023"
+        },
+        {
+          "n": "HB 2210",
+          "t": "Curtailment obligations for >75 MW loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "local": [
+        {
+          "p": "Abilene",
+          "a": "Tax abatement for 1.2 GW campus"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/TX"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "UT",
+      "name": "Utah",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "grades": {
+        "transparency": [
+          1,
+          "Disclosure on request for generative AI interactions."
+        ],
+        "chatbots": [
+          2,
+          "Mental-health chatbot safeguards including crisis protocols."
+        ]
+      },
+      "posture": 2,
+      "ai": 4,
+      "summary": "Pro-build, light-touch AI disclosure regime",
+      "count": 44,
+      "mw": 780,
+      "ops": [
+        {
+          "n": "Meta",
+          "v": 34
+        },
+        {
+          "n": "Novva",
+          "v": 21
+        },
+        {
+          "n": "NSA (federal)",
+          "v": 15
+        }
+      ],
+      "growth": [
+        420,
+        470,
+        530,
+        610,
+        690,
+        780
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "SB 149",
+          "t": "AI Policy Act — generative AI disclosure",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "enacted",
+          "d": "Amended 2025"
+        },
+        {
+          "n": "HB 452",
+          "t": "Mental health chatbot safeguards",
+          "tags": [
+            "chatbots",
+            "health"
+          ],
+          "s": "enacted",
+          "d": "Effective May 7, 2025"
+        },
+        {
+          "n": "SB 132",
+          "t": "Large-load contract flexibility",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective May 7, 2025"
+        }
+      ],
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/UT"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "VT",
+      "name": "Vermont",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 4,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 77,
+      "mw": 961,
+      "ops": [
+        {
+          "n": "DataBank",
+          "v": 37
+        },
+        {
+          "n": "Meta",
+          "v": 31
+        }
+      ],
+      "growth": [
+        456,
+        560,
+        654,
+        725,
+        811,
+        961
+      ],
+      "incentives": false,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1032",
+          "t": "Automated hiring notice",
+          "tags": [
+            "employment"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 1126",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "HB 1142",
+          "t": "Water-use disclosure for facilities >20 MW",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/VT"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "VA",
+      "name": "Virginia",
+      "q": {
+        "key": "throttle",
+        "label": "Full throttle",
+        "color": "#D4A15E"
+      },
+      "posture": 1,
+      "ai": 2,
+      "summary": "World's largest cluster, incentives now under review",
+      "count": 640,
+      "mw": 9800,
+      "ops": [
+        {
+          "n": "AWS",
+          "v": 31
+        },
+        {
+          "n": "Microsoft",
+          "v": 17
+        },
+        {
+          "n": "QTS",
+          "v": 9
+        }
+      ],
+      "growth": [
+        5400,
+        6100,
+        7000,
+        7900,
+        8800,
+        9800
+      ],
+      "incentives": true,
+      "moratorium": "Study of tax exemption sunset underway",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "HB 2035",
+          "t": "Data center siting noise and water standards",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "HB 2124",
+          "t": "Synthetic media in elections",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2024"
+        },
+        {
+          "n": "SB 192",
+          "t": "Condition tax exemption on efficiency",
+          "tags": [
+            "dc"
+          ],
+          "s": "pending",
+          "d": "2027 session prefile"
+        },
+        {
+          "n": "HB 2094",
+          "t": "High-risk AI developer duties",
+          "tags": [
+            "discrimination",
+            "transparency"
+          ],
+          "s": "proposed",
+          "d": "Vetoed 2025; reintroduction expected"
+        }
+      ],
+      "local": [
+        {
+          "p": "Prince William County",
+          "a": "Digital Gateway rezoning litigation"
+        },
+        {
+          "p": "Loudoun County",
+          "a": "Zoning overlay limits by-right siting"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/VA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "WA",
+      "name": "Washington",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 3,
+      "summary": "Home to big tech; incentives narrowed, AI task force active",
+      "count": 110,
+      "mw": 1400,
+      "ops": [
+        {
+          "n": "Microsoft",
+          "v": 33
+        },
+        {
+          "n": "Sabey",
+          "v": 16
+        },
+        {
+          "n": "Amazon",
+          "v": 14
+        }
+      ],
+      "growth": [
+        1000,
+        1050,
+        1150,
+        1250,
+        1300,
+        1400
+      ],
+      "incentives": true,
+      "moratorium": "Rural tax exemption capped",
+      "preempt": false,
+      "bills": [
+        {
+          "n": "HB 1168",
+          "t": "AI Task Force",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Report due Dec 31"
+        },
+        {
+          "n": "SB 5862",
+          "t": "Data center tax preference accountability",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 5152",
+          "t": "Synthetic media in campaigns",
+          "tags": [
+            "deepfakes"
+          ],
+          "s": "enacted",
+          "d": "Effective 2023"
+        },
+        {
+          "n": "HB 1622",
+          "t": "Chatbot disclosure to minors",
+          "tags": [
+            "chatbots"
+          ],
+          "s": "proposed",
+          "d": "Prefiled"
+        }
+      ],
+      "local": [
+        {
+          "p": "Quincy",
+          "a": "Water rights dispute with hyperscalers"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/WA"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "WV",
+      "name": "West Virginia",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 4,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 41,
+      "mw": 639,
+      "ops": [
+        {
+          "n": "Digital Realty",
+          "v": 15
+        },
+        {
+          "n": "QTS",
+          "v": 21
+        },
+        {
+          "n": "Flexential",
+          "v": 32
+        }
+      ],
+      "growth": [
+        303,
+        365,
+        434,
+        486,
+        537,
+        639
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "SB 1657",
+          "t": "Utility cost-allocation protections",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 1487",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 315",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "SB 1777",
+          "t": "AI in insurance underwriting",
+          "tags": [
+            "health",
+            "discrimination"
+          ],
+          "s": "proposed",
+          "d": "Interim study due Dec 1"
+        },
+        {
+          "n": "HB 712",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "pending",
+          "d": "Floor vote pending"
+        }
+      ],
+      "preempt": false,
+      "local": [
+        {
+          "p": "County seat",
+          "a": "Zoning review for large-load facilities"
+        }
+      ],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/WV"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "WI",
+      "name": "Wisconsin",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 3,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 50,
+      "mw": 442,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 24
+        },
+        {
+          "n": "Equinix",
+          "v": 22
+        },
+        {
+          "n": "Digital Realty",
+          "v": 23
+        }
+      ],
+      "growth": [
+        232,
+        274,
+        309,
+        344,
+        382,
+        442
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 1688",
+          "t": "Government AI inventory and procurement rules",
+          "tags": [
+            "gov"
+          ],
+          "s": "enacted",
+          "d": "Effective Jan 1, 2026"
+        },
+        {
+          "n": "SB 487",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 267",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        },
+        {
+          "n": "HB 1462",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "pending",
+          "d": "Interim study due Dec 1"
+        }
+      ],
+      "preempt": false,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/WI"
+          }
+        ]
+      }
+    },
+    {
+      "abbr": "WY",
+      "name": "Wyoming",
+      "q": {
+        "key": "regulate",
+        "label": "Build & regulate",
+        "color": "#4A8C82"
+      },
+      "posture": 0,
+      "ai": 5,
+      "summary": "Neutral on data centers, meaningful AI rules",
+      "count": 46,
+      "mw": 788,
+      "ops": [
+        {
+          "n": "Flexential",
+          "v": 12
+        },
+        {
+          "n": "Microsoft",
+          "v": 10
+        }
+      ],
+      "growth": [
+        373,
+        456,
+        522,
+        583,
+        666,
+        788
+      ],
+      "incentives": true,
+      "moratorium": "None",
+      "bills": [
+        {
+          "n": "HB 509",
+          "t": "Algorithmic pricing transparency",
+          "tags": [
+            "transparency"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "SB 156",
+          "t": "AI chatbot disclosure to consumers",
+          "tags": [
+            "transparency",
+            "chatbots"
+          ],
+          "s": "enacted",
+          "d": "Effective Jul 1, 2025"
+        },
+        {
+          "n": "SB 1398",
+          "t": "Sales tax exemption for data center equipment",
+          "tags": [
+            "dc"
+          ],
+          "s": "enacted",
+          "d": "Effective Oct 1, 2025"
+        },
+        {
+          "n": "HB 402",
+          "t": "Frontier model incident reporting",
+          "tags": [
+            "frontier"
+          ],
+          "s": "proposed",
+          "d": "Floor vote pending"
+        },
+        {
+          "n": "HB 609",
+          "t": "Grid-impact study requirement for large loads",
+          "tags": [
+            "dc"
+          ],
+          "s": "proposed",
+          "d": "Committee hearing Oct 14"
+        }
+      ],
+      "preempt": true,
+      "local": [],
+      "sources": {
+        "build": [
+          {
+            "label": "Epoch AI",
+            "url": "https://epoch.ai"
+          },
+          {
+            "label": "PUC dockets",
+            "url": "#"
+          }
+        ],
+        "gov": [
+          {
+            "label": "IAPP",
+            "url": "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/"
+          },
+          {
+            "label": "LegiScan",
+            "url": "https://legiscan.com/WY"
+          }
+        ]
+      }
+    }
+  ],
+  "TOPICS": [
+    {
+      "k": "frontier",
+      "rubric": [
+        "No obligations on large-model developers.",
+        "Voluntary framework or study of frontier risks.",
+        "Incident reporting or disclosure duties for the largest developers.",
+        "Mandatory safety frameworks and testing, with agency enforcement.",
+        "Pre-deployment safety duties with penalties and whistleblower protections."
+      ],
+      "label": "Frontier duties",
+      "icon": "⚙",
+      "desc": "Obligations on developers of the largest general-purpose models: publishing safety frameworks, testing for catastrophic risk, reporting critical incidents to the state, and whistleblower protections for lab employees."
+    },
+    {
+      "k": "transparency",
+      "rubric": [
+        "No AI disclosure duties.",
+        "Disclosure required in one narrow use, such as election ads or chatbots.",
+        "Disclosure across several consumer-facing uses.",
+        "General duty to notify when AI drives a consequential decision.",
+        "Notice, explanation, and appeal rights across sectors, with enforcement."
+      ],
+      "label": "Transparency",
+      "icon": "◎",
+      "desc": "Duties to tell people when AI is in the loop: notices that content is AI-generated, disclosure when a consequential decision was automated, and documentation that developers must hand to deployers."
+    },
+    {
+      "k": "chatbots",
+      "rubric": [
+        "No rules for conversational AI.",
+        "Bots must identify themselves as AI.",
+        "Disclosure plus self-harm response protocols.",
+        "Age-specific limits on companion features and data use.",
+        "Audits and a private right of action for harms to minors."
+      ],
+      "label": "Chatbots & minors",
+      "icon": "☺",
+      "desc": "Rules for conversational and companion AI, especially with children: identity disclosure, self-harm protocols, limits on engagement-maximizing design, and parental controls."
+    },
+    {
+      "k": "gov",
+      "rubric": [
+        "No rules on agency use of AI.",
+        "Task force or inventory of systems in use.",
+        "Procurement standards and published inventories.",
+        "Impact assessments before deployment and human review of decisions.",
+        "Binding prohibitions on high-risk uses with independent oversight."
+      ],
+      "label": "Government use",
+      "icon": "▤",
+      "desc": "How state agencies may buy and use AI: inventories of systems in use, procurement standards, impact assessments before deployment, and human review of automated decisions."
+    },
+    {
+      "k": "dc",
+      "rubric": [
+        "No data-center-specific rules.",
+        "Reporting of energy or water use.",
+        "Grid-impact studies or siting review for large loads.",
+        "Cost-allocation rules shifting grid costs to operators; conditioned incentives.",
+        "Moratoria or binding caps on new large-load interconnection."
+      ],
+      "label": "DC energy & water",
+      "icon": "⚡",
+      "desc": "Data center build-out policy: grid interconnection and cost-allocation rules for large loads, water and energy reporting, siting review, and the tax incentives that attract or condition new campuses."
+    },
+    {
+      "k": "discrimination",
+      "rubric": [
+        "No AI-specific anti-discrimination rules.",
+        "Existing civil-rights law clarified to cover algorithms.",
+        "Bias audits required in one domain, such as housing or lending.",
+        "Cross-sector high-risk duties: risk management and impact assessments.",
+        "Full high-risk regime with AG enforcement and consumer rights."
+      ],
+      "label": "Algorithmic discrimination",
+      "icon": "⚖",
+      "desc": "Protections against biased outcomes from high-risk systems in housing, lending, education, and similar domains: risk management programs, impact assessments, and a right to appeal."
+    },
+    {
+      "k": "deepfakes",
+      "rubric": [
+        "No synthetic-media rules.",
+        "Disclosure on AI-generated political ads.",
+        "Bans on deceptive election deepfakes in a window before voting.",
+        "Adds remedies for non-consensual intimate imagery and platform duties.",
+        "Criminal penalties, takedown duties, and provenance requirements."
+      ],
+      "label": "Deepfakes & elections",
+      "icon": "▣",
+      "desc": "Restrictions on synthetic media: disclosure or bans for deceptive political content near elections, and remedies for non-consensual intimate imagery and digital replicas."
+    },
+    {
+      "k": "employment",
+      "rubric": [
+        "No rules for AI in hiring or the workplace.",
+        "Notice to candidates that AI screening is used.",
+        "Notice plus consent or opt-out for automated decisions.",
+        "Bias audits of screening tools and limits on proxy data.",
+        "Audits, surveillance limits, and a private right of action."
+      ],
+      "label": "Employment",
+      "icon": "⌂",
+      "desc": "AI in hiring, promotion, and workplace monitoring: notice to candidates and workers, bias audits of screening tools, and limits on using proxies for protected characteristics."
+    },
+    {
+      "k": "health",
+      "rubric": [
+        "No AI-specific rules in health or insurance.",
+        "Disclosure when providers use generative AI in communications.",
+        "Human review required for coverage denials.",
+        "AI may not be the sole basis for clinical or claims decisions.",
+        "Licensing, audit, and liability regime for clinical AI."
+      ],
+      "label": "Health & insurance",
+      "icon": "+",
+      "desc": "AI in clinical and coverage decisions: disclosure when providers use generative AI, human review of utilization and claims denials, and limits on automated underwriting."
+    }
+  ],
+  "TIERS": [
+    "None",
+    "Light",
+    "Moderate",
+    "Strong",
+    "Comprehensive"
+  ],
+  "VERIFIED": "Aug 28, 2026"
+}
