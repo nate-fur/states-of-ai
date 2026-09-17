@@ -1,0 +1,9 @@
+[project]
+name = "state-ai-index-pipelines"
+version = "0.1.0"
+description = "Fixture-first ingestion pipelines for StateAI Index"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
