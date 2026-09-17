@@ -24,10 +24,12 @@ const DEAD_ZONE = 4;
 // A pan range narrower than this is not worth a drag; pin the map instead.
 const PAN_SLACK = 24;
 
-const clamp = (lo: number, v: number, hi: number) => Math.max(lo, Math.min(hi, v));
-
-function baseDrawerPx(vw: number, compare: boolean): number {
-  return compare ? clamp(560, vw * 0.6, 760) : clamp(520, vw * 0.4, 560);
+// The handoff spec scales the drawer with the viewport (clamp(520, 40vw, 560)
+// single / clamp(560, 60vw, 760) compare). That made the panel resize with the
+// window, so it is pinned at the top of each range; the viewport cap below
+// still applies on narrow screens.
+function baseDrawerPx(compare: boolean): number {
+  return compare ? 760 : 560;
 }
 
 type Geom = { panX: number; drawerPx: number; vw: number };
@@ -119,7 +121,13 @@ export function Broadsheet() {
   // Bumped once the map's geometry has rendered so a fresh load with a state in
   // the URL re-clamps against real paths instead of the empty viewport.
   const [geoReady, setGeoReady] = useState(0);
-  const [vw, setVw] = useState(1280);
+  // The viewport is unknown until mount, so the SSR pass renders against a
+  // placeholder. Width-dependent transitions stay off until the measured
+  // layout has been committed, otherwise a fresh load with a state in the URL
+  // tweens the drawer (and the stage margins) from the placeholder width.
+  const [measuredVw, setVw] = useState<number | null>(null);
+  const [settled, setSettled] = useState(false);
+  const vw = measuredVw ?? 1280;
   const vpRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
   const pendingReveal = useRef<{ abbr: string; wasClosed: boolean } | null>(null);
@@ -134,17 +142,25 @@ export function Broadsheet() {
   } | null>(null);
   const counts = useMemo(() => countQuadrants(STATES), []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const measure = () => setVw(window.innerWidth);
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
 
+  useEffect(() => {
+    if (settled || measuredVw === null) return;
+    // Let the measured width paint before transitions turn on, so the browser
+    // never sees the placeholder-to-measured change as a tween.
+    const id = requestAnimationFrame(() => setSettled(true));
+    return () => cancelAnimationFrame(id);
+  }, [settled, measuredVw]);
+
   const byAbbr = BY_ABBR;
 
   // Drawer geometry (prototype: base width + detail rail, capped at the viewport).
-  const base = baseDrawerPx(vw, !!compare);
+  const base = baseDrawerPx(!!compare);
   const detailW = detail ? Math.max(0, Math.min(380, vw - base)) : 0;
   const drawerW = Math.min(vw, base + detailW);
   const drawerPx = drawer ? drawerW : 0;
@@ -385,7 +401,7 @@ export function Broadsheet() {
           style={{
             marginLeft: stageLeft,
             marginRight: stageInset,
-            transition: `margin .45s ${EASE}`,
+            transition: settled ? `margin .45s ${EASE}` : "none",
           }}
         >
           <div
@@ -431,7 +447,9 @@ export function Broadsheet() {
               marginLeft: showCaption ? 28 : 0,
               width: showCaption ? 340 : 0,
               opacity: showCaption ? 1 : 0,
-              transition: `opacity .3s ease, width .45s ${EASE}, margin .45s ${EASE}`,
+              transition: settled
+                ? `opacity .3s ease, width .45s ${EASE}, margin .45s ${EASE}`
+                : "none",
             }}
           >
             <span className="block w-[340px] text-pretty">
@@ -451,7 +469,9 @@ export function Broadsheet() {
           maxWidth: "100vw",
           transform: drawer ? "translateX(0)" : "translateX(104%)",
           gridTemplateColumns: `${detailW}px minmax(0,1fr)`,
-          transition: `transform .45s ${EASE}, width .4s ${EASE}, grid-template-columns .4s ${EASE}`,
+          transition: settled
+            ? `transform .45s ${EASE}, width .4s ${EASE}, grid-template-columns .4s ${EASE}`
+            : `transform .45s ${EASE}`,
         }}
       >
         {/* The rail stays mounted (with the last selection) so the column can

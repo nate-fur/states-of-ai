@@ -247,6 +247,18 @@ export function StateMap({
               strokeWidth={s.active ? 2.5 : 1.6}
               strokeLinejoin="round"
               pointerEvents="none"
+              // A selection present at load (state in the URL) rides in with
+              // its state instead of appearing before it; after the intro the
+              // outline is immediate.
+              style={
+                s.active
+                  ? {
+                      animation: stateAnim(s.delay),
+                      transformBox: "fill-box",
+                      transformOrigin: "center",
+                    }
+                  : undefined
+              }
             />
           ))}
           {/* Group opacity keeps the 0.6 tint while labelIn animates the line's own opacity. */}
