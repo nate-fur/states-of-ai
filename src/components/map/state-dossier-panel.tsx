@@ -107,7 +107,7 @@ export function StateDossierPanel({
 
   return (
     <div
-      className={`flex min-w-0 flex-col ${compact ? "px-0" : "pr-5 pt-5"}`}
+      className={`flex min-w-[300px] flex-col ${compact ? "px-0" : "pr-5 pt-5"}`}
       style={{ flex: "1 1 320px" }}
     >
       <div

@@ -27,6 +27,26 @@ export function Broadsheet() {
   const vpRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
   const counts = useMemo(() => countQuadrants(STATES), []);
+  const [drawerWidth, setDrawerWidth] = useState(560);
+  const [detailWidth, setDetailWidth] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const vw = window.innerWidth;
+      const base = compare
+        ? Math.max(560, Math.min(760, vw * 0.6))
+        : Math.max(520, Math.min(560, vw * 0.4));
+      const detailW = detail
+        ? Math.max(0, Math.min(380, vw - base))
+        : 0;
+      setDetailWidth(detailW);
+      setDrawerWidth(Math.min(vw, base + detailW));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [compare, detail, drawer]);
+
   const byAbbr = useMemo(
     () => Object.fromEntries(STATES.map((s) => [s.abbr, s])),
     [],
@@ -53,25 +73,9 @@ export function Broadsheet() {
     setDetail(null);
   }, [selected, compare]);
 
-  const baseDrawerPx = () => {
-    if (typeof window === "undefined") return 560;
-    const vw = window.innerWidth;
-    return compare
-      ? Math.max(560, Math.min(760, vw * 0.6))
-      : Math.max(520, Math.min(560, vw * 0.4));
-  };
-  const detailPx = () => {
-    if (!detail || typeof window === "undefined") return 0;
-    return Math.max(0, Math.min(380, window.innerWidth - baseDrawerPx()));
-  };
-  const drawerWidth = drawer ? Math.min(
-    typeof window !== "undefined" ? window.innerWidth : 1200,
-    baseDrawerPx() + detailPx(),
-  ) : 0;
-
   const maxShift = () => {
     const el = vpRef.current;
-    if (!el || !drawerWidth) return 0;
+    if (!el || !drawer || !drawerWidth) return 0;
     const r = el.getBoundingClientRect();
     return Math.max(0, r.right - (window.innerWidth - drawerWidth) + 28);
   };
@@ -134,7 +138,9 @@ export function Broadsheet() {
   };
 
   const stageW =
-    typeof window !== "undefined" ? window.innerWidth - drawerWidth : 1200;
+    typeof window !== "undefined"
+      ? window.innerWidth - (drawer ? drawerWidth : 0)
+      : 1200;
   const showCaption = stageW >= 800;
 
   return (
@@ -223,17 +229,19 @@ export function Broadsheet() {
           maxWidth: "100vw",
           transform: drawer ? "translateX(0)" : "translateX(104%)",
           gridTemplateColumns: detail
-            ? `${detailPx()}px minmax(0,1fr)`
-            : "0px minmax(0,1fr)",
+            ? `${detailWidth}px minmax(320px,1fr)`
+            : "minmax(320px,1fr)",
         }}
       >
-        <DetailRail
-          detail={detail}
-          state={detail ? byAbbr[detail.abbr] : undefined}
-          onClose={() => setDetail(null)}
-          onDetail={setDetail}
-        />
-        <div className="min-w-0 overflow-y-auto px-7 pb-16">
+        {detail ? (
+          <DetailRail
+            detail={detail}
+            state={byAbbr[detail.abbr]}
+            onClose={() => setDetail(null)}
+            onDetail={setDetail}
+          />
+        ) : null}
+        <div className="min-w-[320px] overflow-y-auto px-7 pb-16">
           <div className="sticky top-0 z-[1] flex items-center justify-between gap-3 border-b border-hair bg-paper py-3.5 pb-2.5 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
             <span>{compare ? "State diff" : "State dossier"}</span>
             <div className="flex items-center gap-2">

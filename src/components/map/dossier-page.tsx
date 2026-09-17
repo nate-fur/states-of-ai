@@ -38,21 +38,24 @@ export function DossierPage({
 
   return (
     <div
-      className="mx-auto grid h-screen w-fit max-w-[100vw] text-ink transition-[grid-template-columns] duration-[450ms] ease-[cubic-bezier(.2,.7,.2,1)]"
+      className="mx-auto grid h-screen max-w-[100vw] text-ink transition-[grid-template-columns] duration-[450ms] ease-[cubic-bezier(.2,.7,.2,1)]"
       style={{
         gridTemplateColumns: detail
-          ? "min(420px, calc(100vw - 560px)) minmax(0,560px)"
-          : "0px minmax(0,560px)",
+          ? "minmax(280px, 420px) minmax(480px, 560px)"
+          : "minmax(480px, 560px)",
+        width: "fit-content",
       }}
     >
-      <DetailRail
-        detail={detail}
-        state={detail ? STATES.find((s) => s.abbr === detail.abbr) : undefined}
-        onClose={() => setDetail(null)}
-        onDetail={setDetail}
-        widthClass="w-full min-w-[280px]"
-      />
-      <div className="min-w-0 overflow-y-auto border-x border-hair px-7 pb-16">
+      {detail ? (
+        <DetailRail
+          detail={detail}
+          state={detail ? STATES.find((s) => s.abbr === detail.abbr) : undefined}
+          onClose={() => setDetail(null)}
+          onDetail={setDetail}
+          widthClass="w-full min-w-[280px]"
+        />
+      ) : null}
+      <div className="min-w-[480px] overflow-y-auto border-x border-hair px-7 pb-16">
         <div className="sticky top-0 z-[1] flex items-center justify-between gap-3 border-b border-hair bg-paper py-3.5 pb-2.5 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
           <span className="flex items-center gap-3">
             <Link href="/" className="text-mute no-underline hover:text-ink">
