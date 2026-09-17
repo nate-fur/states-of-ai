@@ -88,7 +88,22 @@ async function replaceFixtureData(ctx: SeedContext) {
   await Promise.all(states.map(([code, name]) => ctx.db.insert("states", { code, name })));
   await Promise.all(billDefinitions.map(async (definition, offset) => {
     const raw = makeBill(definition, offset);
-    await ctx.db.insert("bills", { ...raw, product_status: raw.product_status as "proposed" | "enacted", raw });
+    // Indexed columns only — history/sponsors/texts/progress stay under `raw`.
+    await ctx.db.insert("bills", {
+      bill_id: raw.bill_id,
+      number: raw.number,
+      title: raw.title,
+      status: raw.status,
+      status_date: raw.status_date,
+      last_action: raw.last_action,
+      last_action_date: raw.last_action_date,
+      url: raw.url,
+      state: raw.state,
+      chamber: raw.chamber,
+      session: raw.session,
+      product_status: raw.product_status as "proposed" | "enacted",
+      raw,
+    });
   }));
   await Promise.all(dataCenters.map((center) => ctx.db.insert("datacenters", { ...center, raw: center })));
   return { states: states.length, bills: billDefinitions.length, datacenters: dataCenters.length };
