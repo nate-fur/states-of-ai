@@ -100,29 +100,29 @@ export function StateMap({
     };
   }, [byName]);
 
+  // Paths keep a stable DOM order. Hover/active strokes are drawn in an overlay
+  // so a state is never re-inserted between mousedown and mouseup (which would
+  // swallow the click on fast pointer moves and on touch).
   const shapes = useMemo(() => {
-    return geo
-      .map((g) => {
-        const s = byAbbr[g.abbr]!;
-        const active = g.abbr === selected || g.abbr === compare;
-        const hov = hover === g.abbr;
-        return {
-          ...g,
-          bg: s.q.color,
-          active,
-          stroke: active ? "#14181D" : "#F7F8FA",
-          sw: active ? 2.5 : hov ? 1.6 : 1,
-          opacity: hover && !hov && !active ? 0.6 : 1,
-        };
-      })
-      .sort(
-        (a, b) =>
-          Number(a.active) - Number(b.active) ||
-          Number(hover === a.abbr) - Number(hover === b.abbr),
-      );
+    return geo.map((g) => {
+      const s = byAbbr[g.abbr]!;
+      const active = g.abbr === selected || g.abbr === compare;
+      const hov = hover === g.abbr;
+      return {
+        ...g,
+        bg: s.q.color,
+        active,
+        hov,
+        opacity: hover && !hov && !active ? 0.6 : 1,
+      };
+    });
   }, [geo, byAbbr, selected, compare, hover]);
 
   const leaders = shapes.filter((s) => s.leader);
+  const outlines = [
+    ...shapes.filter((s) => s.hov && !s.active),
+    ...shapes.filter((s) => s.active),
+  ];
 
   return (
     <div
@@ -144,16 +144,28 @@ export function StateMap({
           {shapes.map((s) => (
             <path
               key={s.abbr}
+              data-abbr={s.abbr}
               d={s.d}
               fill={s.bg}
-              stroke={s.stroke}
-              strokeWidth={s.sw}
+              stroke="#F7F8FA"
+              strokeWidth={1}
               strokeLinejoin="round"
               opacity={s.opacity}
               className="cursor-pointer transition-opacity duration-150"
               onClick={() => onSelect(s.abbr)}
               onMouseEnter={() => setHover(s.abbr)}
               onMouseLeave={() => setHover(null)}
+            />
+          ))}
+          {outlines.map((s) => (
+            <path
+              key={`o-${s.abbr}`}
+              d={s.d}
+              fill="none"
+              stroke={s.active ? "#14181D" : "#F7F8FA"}
+              strokeWidth={s.active ? 2.5 : 1.6}
+              strokeLinejoin="round"
+              pointerEvents="none"
             />
           ))}
           {leaders.map((l) => (

@@ -116,7 +116,18 @@
   text-transform: uppercase;
 }
 
-@keyframes mapFadeUp {
+/* Two identical keyframe names so alternating the class restarts the entrance. */
+@keyframes mapFadeUpA {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes mapFadeUpB {
   from {
     opacity: 0;
     transform: translateY(14px);
@@ -128,9 +139,118 @@
 }
 
 .map-fade-up,
-.map-fade-up-a,
+.map-fade-up-a {
+  animation: mapFadeUpA 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
 .map-fade-up-b {
-  animation: mapFadeUp 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: mapFadeUpB 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes diffFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.map-diff-fade {
+  animation: diffFade 0.25s ease both;
+  animation-delay: 0.1s;
+}
+
+@keyframes caretBlink {
+  0%,
+  100% {
+    visibility: visible;
+  }
+  50% {
+    visibility: hidden;
+  }
+}
+.map-caret {
+  animation: caretBlink 0.9s steps(1) infinite;
+}
+
+/* Number roll: old value slides up and out, new value slides in from below. */
+@keyframes numOutA {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+@keyframes numOutB {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+@keyframes numInA {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes numInB {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.map-num-out-a {
+  animation: numOutA 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-num-out-b {
+  animation: numOutB 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-num-in-a {
+  animation: numInA 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-num-in-b {
+  animation: numInB 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes rowInA {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rowInB {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.map-row-in-a {
+  animation: rowInA 0.4s ease both;
+}
+.map-row-in-b {
+  animation: rowInB 0.4s ease both;
 }
 
 @layer base {

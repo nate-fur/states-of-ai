@@ -48,6 +48,7 @@ export function AccordionSection({
   onToggle,
   children,
   delay = "0s",
+  bleed = 0,
 }: {
   title: string;
   note?: React.ReactNode;
@@ -55,6 +56,9 @@ export function AccordionSection({
   onToggle: () => void;
   children: React.ReactNode;
   delay?: string;
+  /** Horizontal padding (px) inside the clipped body so hover/active halos
+   *  that bleed past the content edge are not cut off. */
+  bleed?: number;
 }) {
   return (
     <>
@@ -76,7 +80,11 @@ export function AccordionSection({
       >
         <div
           className="min-h-0 overflow-hidden transition-opacity duration-[280ms]"
-          style={{ opacity: open ? 1 : 0 }}
+          style={{
+            opacity: open ? 1 : 0,
+            padding: bleed ? `0 ${bleed}px` : undefined,
+            margin: bleed ? `0 -${bleed}px` : undefined,
+          }}
         >
           {children}
         </div>
@@ -88,10 +96,14 @@ export function AccordionSection({
 export function SegmentBar({
   cells,
   height = 8,
+  stagger = "center",
 }: {
   cells: string[];
   height?: number;
+  /** "center": recolor from the middle outward (posture); "ltr": left to right (AI). */
+  stagger?: "center" | "ltr";
 }) {
+  const mid = Math.floor(cells.length / 2);
   return (
     <div
       className="grid gap-0.5"
@@ -106,11 +118,55 @@ export function SegmentBar({
           className="transition-colors duration-200"
           style={{
             background: color,
-            transitionDelay: `${Math.abs(i - Math.floor(cells.length / 2)) * 70}ms`,
+            transitionDelay: `${
+              stagger === "center" ? Math.max(0, Math.abs(i - mid) - 1) * 70 : i * 70
+            }ms`,
           }}
         />
       ))}
     </div>
+  );
+}
+
+/**
+ * Number roll (prototype `numOut`/`numIn`): the previous value slides up and
+ * out while the new value slides in from below. `seq` alternates keyframe
+ * names so consecutive changes restart the animation; pass `prev` undefined
+ * to render statically.
+ */
+export function RollNumber({
+  value,
+  prev,
+  seq,
+  align = "start",
+  className,
+}: {
+  value: string;
+  prev?: string;
+  seq: number;
+  align?: "start" | "end";
+  className?: string;
+}) {
+  const on = prev !== undefined;
+  const ab = seq % 2 ? "a" : "b";
+  return (
+    <span
+      className={cn("grid overflow-hidden", className)}
+      style={{ justifyContent: align }}
+    >
+      {on && (
+        <span
+          className={`map-num-out-${ab}`}
+          style={{ gridArea: "1 / 1", opacity: 0 }}
+          aria-hidden
+        >
+          {prev}
+        </span>
+      )}
+      <span className={on ? `map-num-in-${ab}` : undefined} style={{ gridArea: "1 / 1" }}>
+        {value}
+      </span>
+    </span>
   );
 }
 
@@ -131,7 +187,7 @@ export function GlyphTile({
 }) {
   return (
     <span
-      className="flex shrink-0 items-center justify-center leading-none"
+      className="flex shrink-0 items-center justify-center leading-none transition-[background,border-color,color] duration-200"
       style={{
         width: size,
         height: size,
@@ -165,7 +221,7 @@ export function DotScale({
         return (
           <span
             key={v}
-            className="box-border rounded-full transition-colors duration-200"
+            className="box-border rounded-full transition-[background,border-color] duration-[250ms]"
             style={{
               width: 7,
               height: 7,
@@ -212,10 +268,18 @@ export function QuadrantMini({
           className="relative shrink-0 font-map-mono text-[9px] uppercase tracking-[0.06em] text-mute"
           style={{ width: 9, height: size }}
         >
-          <span className="absolute top-0 left-0 origin-top-left -rotate-90 -translate-x-full leading-[9px] whitespace-nowrap">
+          {/* Inline transforms: the translate must run in the rotated frame,
+              which Tailwind's separate rotate/translate properties cannot express. */}
+          <span
+            className="absolute top-0 left-0 leading-[9px] whitespace-nowrap"
+            style={{ transformOrigin: "top left", transform: "rotate(-90deg) translateX(-100%)" }}
+          >
             Strong
           </span>
-          <span className="absolute bottom-0 left-0 origin-bottom-left -rotate-90 translate-y-full leading-[9px] whitespace-nowrap">
+          <span
+            className="absolute bottom-0 left-0 leading-[9px] whitespace-nowrap"
+            style={{ transformOrigin: "bottom left", transform: "rotate(-90deg) translateY(100%)" }}
+          >
             Weak
           </span>
         </div>
@@ -223,10 +287,10 @@ export function QuadrantMini({
           className="relative grid shrink-0 grid-cols-2 grid-rows-2 border border-ink box-border"
           style={{ width: size, height: size }}
         >
-          <span style={{ background: "#5C62A8", opacity: opacity("brakes") }} />
-          <span style={{ background: "#4A8C82", opacity: opacity("regulate") }} />
-          <span style={{ background: "#B0776A", opacity: opacity("slow") }} />
-          <span style={{ background: "#D4A15E", opacity: opacity("throttle") }} />
+          <span className="transition-opacity duration-[550ms]" style={{ background: "#5C62A8", opacity: opacity("brakes") }} />
+          <span className="transition-opacity duration-[550ms]" style={{ background: "#4A8C82", opacity: opacity("regulate") }} />
+          <span className="transition-opacity duration-[550ms]" style={{ background: "#B0776A", opacity: opacity("slow") }} />
+          <span className="transition-opacity duration-[550ms]" style={{ background: "#D4A15E", opacity: opacity("throttle") }} />
           {dual && a && b ? (
             <>
               <span

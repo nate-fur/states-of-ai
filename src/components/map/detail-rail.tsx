@@ -11,18 +11,24 @@ export function DetailRail({
   onClose,
   onDetail,
   widthClass = "w-[380px] max-w-full",
+  animKey = 0,
+  className = "",
 }: {
   detail: DetailSelection | null;
   state: StateRecord | undefined;
   onClose: () => void;
   onDetail: (d: DetailSelection) => void;
   widthClass?: string;
+  /** Alternate on each new selection so the entrance stagger re-runs. */
+  animKey?: number;
+  className?: string;
 }) {
   const data = buildDetail(detail, state, STATES);
+  const anim = animKey % 2 === 0 ? "map-fade-up-a" : "map-fade-up-b";
   if (!data) return null;
 
   return (
-    <div className="min-w-0 overflow-x-hidden overflow-y-auto border-r border-hair bg-paper-2">
+    <div className={`min-w-0 overflow-x-hidden overflow-y-auto border-r border-hair bg-paper-2 ${className}`}>
       <div className={`flex flex-col gap-[22px] px-7 pb-12 ${widthClass}`}>
         <div className="sticky top-0 z-[1] flex items-center justify-between gap-3 border-b border-hair bg-paper-2 py-3.5 pb-2.5 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
           <span>
@@ -33,7 +39,7 @@ export function DetailRail({
           </OutlineButton>
         </div>
 
-        <div className="map-fade-up flex items-center gap-3.5" style={{ animationDelay: "0.28s" }}>
+        <div className={`${anim} flex items-center gap-3.5`} style={{ animationDelay: "0.28s" }}>
           <GlyphTile
             glyph={data.glyph}
             bg={data.bg}
@@ -58,12 +64,12 @@ export function DetailRail({
         {data.kind === "bill" ? (
           <>
             <p
-              className="map-fade-up m-0 font-map-serif text-[22px] leading-[1.25] tracking-[-0.01em] text-pretty"
+              className={`${anim} m-0 font-map-serif text-[22px] leading-[1.25] tracking-[-0.01em] text-pretty`}
               style={{ animationDelay: "0.35s" }}
             >
               {data.title}
             </p>
-            <div className="map-fade-up flex flex-col" style={{ animationDelay: "0.42s" }}>
+            <div className={`${anim} flex flex-col`} style={{ animationDelay: "0.42s" }}>
               <div className="flex justify-between border-b border-ink pb-2 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
                 <span>Policy buckets</span>
                 <span>{data.buckets.length}</span>
@@ -90,13 +96,13 @@ export function DetailRail({
         ) : (
           <>
             <p
-              className="map-fade-up m-0 font-map-serif text-base leading-[1.5] text-ink-2 text-pretty"
+              className={`${anim} m-0 font-map-serif text-base leading-[1.5] text-ink-2 text-pretty`}
               style={{ animationDelay: "0.35s" }}
             >
               {data.desc}
             </p>
             <div
-              className="map-fade-up grid items-baseline gap-x-4 gap-y-2 border-y border-hair py-3 font-map-mono text-[12px]"
+              className={`${anim} grid items-baseline gap-x-4 gap-y-2 border-y border-hair py-3 font-map-mono text-[12px]`}
               style={{
                 gridTemplateColumns: "1fr auto",
                 animationDelay: "0.38s",
@@ -120,7 +126,7 @@ export function DetailRail({
                 </span>
               ) : null}
             </div>
-            <div className="map-fade-up flex flex-col" style={{ animationDelay: "0.42s" }}>
+            <div className={`${anim} flex flex-col`} style={{ animationDelay: "0.42s" }}>
               <div className="flex justify-between border-b border-ink pb-2 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
                 <span>Bills in {data.stateName}</span>
                 <span>{data.bills.length}</span>
@@ -158,7 +164,7 @@ export function DetailRail({
         )}
 
         <div
-          className="map-fade-up flex gap-3 font-map-mono text-[11px] text-mute"
+          className={`${anim} flex gap-3 font-map-mono text-[11px] text-mute`}
           style={{ animationDelay: "0.49s" }}
         >
           <a href={data.iappUrl} target="_blank" rel="noopener" className="text-mute">
