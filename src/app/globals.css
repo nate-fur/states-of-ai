@@ -10,6 +10,24 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-heading: var(--font-sans);
+  --font-map-serif: var(--font-newsreader), "Newsreader", Georgia, serif;
+  --font-map-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  --color-paper: #f7f8fa;
+  --color-paper-2: #f1f3f5;
+  --color-ink: #14181d;
+  --color-ink-2: #3c444c;
+  --color-mute: #5f6770;
+  --color-mute-2: #7b838c;
+  --color-dim: #9aa1a9;
+  --color-hair-2: #c4c9cf;
+  --color-hair: #d7dbe0;
+  --color-hair-3: #b9bfc7;
+  --color-hover: #eceef1;
+  --color-hover-2: #e4e7eb;
+  --color-q-brakes: #5c62a8;
+  --color-q-regulate: #4a8c82;
+  --color-q-slow: #b0776a;
+  --color-q-throttle: #d4a15e;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,54 +57,54 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
 }
 
 :root {
-  --background: #f8faf8;
-  --foreground: #172033;
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #f7f8fa;
+  --foreground: #14181d;
+  --font-sans: var(--font-newsreader), "Newsreader", Georgia, serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  --card: #f7f8fa;
+  --card-foreground: #14181d;
+  --popover: #f7f8fa;
+  --popover-foreground: #14181d;
+  --primary: #14181d;
+  --primary-foreground: #f7f8fa;
+  --secondary: #f1f3f5;
+  --secondary-foreground: #14181d;
+  --muted: #f1f3f5;
+  --muted-foreground: #5f6770;
+  --accent: #eceef1;
+  --accent-foreground: #14181d;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #d7dbe0;
+  --input: #d7dbe0;
+  --ring: #14181d;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0;
+  --sidebar: #f7f8fa;
+  --sidebar-foreground: #14181d;
+  --sidebar-primary: #14181d;
+  --sidebar-primary-foreground: #f7f8fa;
+  --sidebar-accent: #f1f3f5;
+  --sidebar-accent-foreground: #14181d;
+  --sidebar-border: #d7dbe0;
+  --sidebar-ring: #14181d;
 }
 
 .font-heading {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-newsreader), "Newsreader", Georgia, serif;
 }
 
 .eyebrow {
@@ -98,48 +116,174 @@
   text-transform: uppercase;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Two identical keyframe names so alternating the class restarts the entrance. */
+@keyframes mapFadeUpA {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes mapFadeUpB {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.map-fade-up,
+.map-fade-up-a {
+  animation: mapFadeUpA 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-fade-up-b {
+  animation: mapFadeUpB 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes diffFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.map-diff-fade {
+  animation: diffFade 0.25s ease both;
+  animation-delay: 0.1s;
+}
+
+@keyframes caretBlink {
+  0%,
+  100% {
+    visibility: visible;
+  }
+  50% {
+    visibility: hidden;
+  }
+}
+.map-caret {
+  animation: caretBlink 0.9s steps(1) infinite;
+}
+
+/* Number roll: old value slides up and out, new value slides in from below. */
+@keyframes numOutA {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+@keyframes numOutB {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+@keyframes numInA {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes numInB {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.map-num-out-a {
+  animation: numOutA 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-num-out-b {
+  animation: numOutB 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-num-in-a {
+  animation: numInA 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.map-num-in-b {
+  animation: numInB 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes rowInA {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes rowInB {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.map-row-in-a {
+  animation: rowInA 0.4s ease both;
+}
+.map-row-in-b {
+  animation: rowInB 0.4s ease both;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    border-radius: 0;
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
   }
   html {
     @apply font-sans;
+  }
+  /* The only horizontal clip. The map pans past the page column's left edge
+     and must be cut at the window, not the column (see MAP_STAGE_AND_PANNING).
+     `clip` rather than `hidden`: hidden would turn body into a scroll
+     container and break page-level position: sticky (the /diff header). */
+  html,
+  body {
+    overflow-x: clip;
+  }
+  a {
+    color: #14181d;
+    text-decoration: underline;
+    text-decoration-color: #b9bfc7;
+    text-underline-offset: 3px;
+  }
+  a:hover {
+    text-decoration-color: #14181d;
+  }
+  button,
+  select {
+    border-radius: 0;
   }
 }
