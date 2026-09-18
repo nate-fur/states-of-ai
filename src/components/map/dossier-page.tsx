@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { STATES } from "@/lib/map/data";
+import { SourceToggle, useMapData } from "./data-context";
 import type { DetailSelection } from "@/lib/map/types";
 import { DetailRail } from "./detail-rail";
 import { StateDossierPanel } from "./state-dossier-panel";
@@ -18,6 +18,7 @@ export function DossierPage({
 }) {
   const router = useRouter();
   const [detail, setDetail] = useState<DetailSelection | null>(null);
+  const { STATES } = useMapData();
   const selected = STATES.find((s) => s.abbr === abbr);
   const compareState = compare
     ? STATES.find((s) => s.abbr === compare)
@@ -64,6 +65,7 @@ export function DossierPage({
             <span>State dossier</span>
           </span>
           <div className="flex items-center gap-2">
+            <SourceToggle />
             <OutlineSelect
               value={abbr}
               onChange={(e) => {

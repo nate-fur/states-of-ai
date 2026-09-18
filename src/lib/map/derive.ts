@@ -57,6 +57,7 @@ export function gw(mw: number): string {
 
 export function growthPct(st: StateRecord): number {
   const g = st.growth;
+  if (!g[0]) return 0;
   return Math.round(((g[5]! - g[0]!) / g[0]!) * 100);
 }
 
@@ -206,9 +207,6 @@ export function legiscanUrl(abbr: string, keyword: string): string {
   return `https://legiscan.com/gaits/search?state=${abbr}&keyword=${encodeURIComponent(keyword)}`;
 }
 
-export const IAPP_URL =
-  "https://iapp.org/resources/article/us-state-ai-governance-legislation-tracker/";
-
 export function countQuadrants(
   states: StateRecord[],
 ): Record<QuadrantKey, number> {
@@ -263,8 +261,9 @@ export function buildDetail(
       statusColor: statusColor(bill.s, qc),
       title: bill.t,
       buckets,
-      iappUrl: IAPP_URL,
-      legiscanUrl: legiscanUrl(st.abbr, bill.n),
+      // Live bills carry their own LegiScan page; the seed falls back to a search.
+      legiscanUrl: bill.url ?? legiscanUrl(st.abbr, bill.n),
+      legiscanLabel: bill.url ? "View on LegiScan" : "LegiScan search",
     };
   }
   if ("k" in detail && detail.k) {
@@ -278,7 +277,7 @@ export function buildDetail(
       .map((b) => ({
         ...b,
         color: statusColor(b.s, qc),
-        url: legiscanUrl(st.abbr, b.n),
+        url: b.url ?? legiscanUrl(st.abbr, b.n),
       }));
     const line = statusLine(status, qc);
     return {
@@ -297,8 +296,8 @@ export function buildDetail(
       tierName: TIERS[g.tier] ?? "None",
       tierNum: String(g.tier),
       peersText: `${peers(st, topic.k, all)} of ${all.length} states`,
-      iappUrl: IAPP_URL,
       legiscanUrl: legiscanUrl(st.abbr, topic.label),
+      legiscanLabel: "LegiScan search",
     };
   }
   return null;

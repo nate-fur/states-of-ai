@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { geoAlbersUsa, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { FeatureCollection, Geometry } from "geojson";
-import { STATES } from "@/lib/map/data";
+import { useMapData } from "./data-context";
 import type { StateRecord } from "@/lib/map/types";
 
 const LABEL_OFFSETS: Record<string, [number, number]> = {
@@ -72,13 +72,14 @@ export function StateMap({
   const introDir = useRef<number | null>(null);
   const introEnded = useRef(0);
   const [introDone, setIntroDone] = useState(false);
+  const { STATES } = useMapData();
   const byName = useMemo(
     () => Object.fromEntries(STATES.map((s) => [s.name, s])),
-    [],
+    [STATES],
   );
   const byAbbr = useMemo(
     () => Object.fromEntries(STATES.map((s) => [s.abbr, s])),
-    [],
+    [STATES],
   );
 
   useEffect(() => {

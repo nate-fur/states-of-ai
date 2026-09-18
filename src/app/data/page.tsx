@@ -3,6 +3,7 @@ import { convexQuery, convexUrl } from "@/lib/convex";
 import { Tabs } from "./tabs";
 import { Table } from "./table";
 import { Facilities, type FacilityRow } from "./facilities";
+import { Bills, type BillRow } from "./bills";
 
 // Reads live from Convex on every request; nothing here is cached.
 export const dynamic = "force-dynamic";
@@ -10,7 +11,6 @@ export const dynamic = "force-dynamic";
 type Axis = { score: number; summary: string };
 type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
 type Category = { key: string; label: string; description: string; icon: string };
-type Bill = { externalId: string; state: string; number: string; title: string; status: string; date: string; url: string; categories: string[] };
 type Grade = { state: string; category: string; tier: number };
 type Usage = { api: string; month: string; calls: number };
 type Run = { job: string; startedAt: number; finishedAt?: number; ok?: boolean; summary: string };
@@ -30,7 +30,7 @@ export default async function DataPage() {
     convexQuery<State[]>("states:list"),
     convexQuery<Category[]>("regulationCategories:list"),
     convexQuery<FacilityRow[]>("facilities:list"),
-    convexQuery<Bill[]>("bills:list"),
+    convexQuery<BillRow[]>("bills:list"),
     convexQuery<Grade[]>("stateCategoryGrades:list"),
     convexQuery<Usage[]>("apiUsage:list"),
     convexQuery<Run[]>("pipelineRuns:list"),
@@ -68,13 +68,7 @@ export default async function DataPage() {
     {
       title: "Bills",
       count: bills.length,
-      content: (
-        <Table
-          rows={bills}
-          columns={["State", "Number", "Title", "Status", "Date", "Categories"]}
-          render={(b) => [b.state, b.number, b.title, b.status, b.date, b.categories.join(", ")]}
-        />
-      ),
+      content: <Bills rows={bills} categories={categories} />,
     },
     {
       title: "Grades",

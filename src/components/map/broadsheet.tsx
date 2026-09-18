@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { STATES } from "@/lib/map/data";
+import { SourceToggle, useMapData } from "./data-context";
 import { countQuadrants } from "@/lib/map/derive";
 import type { DetailSelection } from "@/lib/map/types";
 import { DetailRail } from "./detail-rail";
@@ -42,14 +42,10 @@ function baseDrawerPx(compare: boolean): number {
 type Geom = { panX: number; drawerPx: number; vw: number };
 type Bounds = { lo: number; hi: number; canPan: boolean };
 
-const BY_ABBR: Record<string, (typeof STATES)[number]> = Object.fromEntries(
-  STATES.map((s) => [s.abbr, s]),
-);
-
 // URL state codes are user-editable: accept any case, reject unknown codes.
-function stateParam(v: string | null): string | null {
+function stateParam(v: string | null, byAbbr: Record<string, unknown>): string | null {
   const abbr = v?.toUpperCase() ?? "";
-  return BY_ABBR[abbr] ? abbr : null;
+  return byAbbr[abbr] ? abbr : null;
 }
 
 // Union of every state path and label span inside the viewport, in window
@@ -105,8 +101,10 @@ function clampX(el: HTMLElement | null, g: Geom, x: number): number {
 export function Broadsheet() {
   const router = useRouter();
   const params = useSearchParams();
-  const selected = stateParam(params.get("s"));
-  const rawCompare = stateParam(params.get("c"));
+  const { STATES } = useMapData();
+  const byAbbr = useMemo(() => Object.fromEntries(STATES.map((s) => [s.abbr, s])), [STATES]);
+  const selected = stateParam(params.get("s"), byAbbr);
+  const rawCompare = stateParam(params.get("c"), byAbbr);
   const compare = rawCompare && rawCompare !== selected ? rawCompare : null;
   const drawer = !!selected;
 
@@ -149,7 +147,7 @@ export function Broadsheet() {
     moved: boolean;
     bounds: Bounds;
   } | null>(null);
-  const counts = useMemo(() => countQuadrants(STATES), []);
+  const counts = useMemo(() => countQuadrants(STATES), [STATES]);
 
   useLayoutEffect(() => {
     const measure = () => setVw(window.innerWidth);
@@ -166,7 +164,6 @@ export function Broadsheet() {
     return () => cancelAnimationFrame(id);
   }, [settled, measuredVw]);
 
-  const byAbbr = BY_ABBR;
 
   // Drawer geometry (prototype: base width + detail rail, capped at the viewport).
   const base = baseDrawerPx(!!compare);
@@ -399,12 +396,15 @@ export function Broadsheet() {
   return (
     <div className="mx-auto w-full min-h-screen max-w-[1480px] px-9 py-7 pb-16 text-ink">
       {/* Out of flow so the title row matches the design; sits under the drawer when it is open. */}
-      <Link
-        href="/data"
-        className="fixed top-3.5 right-7 z-[5] border border-ink bg-paper px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-ink no-underline hover:bg-ink hover:text-white"
-      >
-        Data
-      </Link>
+      <div className="fixed top-3.5 right-7 z-[5] flex items-center gap-2">
+        <SourceToggle />
+        <Link
+          href="/data"
+          className="border border-ink bg-paper px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-ink no-underline hover:bg-ink hover:text-white"
+        >
+          Data
+        </Link>
+      </div>
 
       <div className="border-b border-ink pb-[18px]">
         <h1 className="m-0 font-map-serif text-[clamp(34px,4.2vw,58px)] leading-none font-normal tracking-[-0.02em]">

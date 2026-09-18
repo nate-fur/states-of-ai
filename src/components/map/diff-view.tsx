@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { STATES } from "@/lib/map/data";
+import { useMapData } from "./data-context";
 import { buildDiff } from "@/lib/map/diff";
 import { fixedOffset } from "./motion";
-import { VERIFIED } from "@/lib/map/data";
 import {
   AccordionSection,
   DotScale,
@@ -39,6 +38,7 @@ export function DiffView({
     tierNum: string;
   } | null>(null);
 
+  const { STATES, caption } = useMapData();
   const sa = STATES.find((s) => s.abbr === a);
   const sb = STATES.find((s) => s.abbr === b);
   const data = useMemo(
@@ -385,7 +385,7 @@ export function DiffView({
 
       {!embedded && (
         <div className="pt-[18px] font-map-mono text-[11px] text-dim">
-          Sample data, illustrative only. Last verified {VERIFIED}.
+          {caption}
         </div>
       )}
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { STATES, TIERS, TOPICS, VERIFIED } from "@/lib/map/data";
+import { TIERS, TOPICS } from "@/lib/map/data";
+import { useMapData } from "./data-context";
 import {
   aiCells,
   billPool,
@@ -106,7 +107,8 @@ export function StateDossierPanel({
 
   const qc = state.q.color;
   const tl = topicLabelMap();
-  const { maxMw, median } = useMemo(() => capacityStats(STATES), []);
+  const { STATES, caption } = useMapData();
+  const { maxMw, median } = useMemo(() => capacityStats(STATES), [STATES]);
   const anim = animKey % 2 === 0 ? "map-fade-up-a" : "map-fade-up-b";
   const nums = numsOf(state);
   const prev = roll.prev ? numsOf(roll.prev) : undefined;
@@ -605,7 +607,7 @@ export function StateDossierPanel({
         className={`${anim} pt-[18px] font-map-mono text-[11px] text-dim`}
         style={{ animationDelay: "0.46s" }}
       >
-        Sample data, illustrative only. Last verified {VERIFIED}.
+        {caption}
       </div>
     </div>
   );

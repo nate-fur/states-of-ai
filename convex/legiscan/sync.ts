@@ -14,6 +14,7 @@ import {
   latestText,
   mapStatus,
   searchQuery,
+  textsNewestFirst,
   sinceFilter,
   type BillTextDoc,
 } from "./parse";
@@ -231,13 +232,21 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         continue;
       }
 
-      const doc = await getBillText(ctx, text.doc_id);
-      c.legiscanCalls++;
-
       // Convert to plain text once and keep it, so the classifier can be
-      // re-run later without another LegiScan call.
-      const plain = await toPlainText(ctx, doc);
-      if (!plain.trim()) throw new Error("empty text after conversion");
+      // re-run later without another LegiScan call. Some states file the
+      // final version as a scanned PDF with no text layer (Colorado's
+      // chaptered acts come off a Xerox), so fall back to the previous
+      // version when extraction comes back empty.
+      let doc: BillTextDoc | null = null;
+      let plain = "";
+      for (const version of textsNewestFirst(bill).slice(0, 3)) {
+        doc = await getBillText(ctx, version.doc_id);
+        c.legiscanCalls++;
+        plain = await toPlainText(ctx, doc);
+        if (plain.trim()) break;
+        console.warn(`${state} ${bill.bill_number}: ${version.type} ${version.doc_id} has no text (${doc.mime}); trying earlier version`);
+      }
+      if (!doc || !plain.trim()) throw new Error("no text in any version");
       const storageId = await ctx.storage.store(new Blob([plain], { type: "text/plain" }));
       await ctx.runMutation(internal.legiscan.db.saveBillText, {
         externalId,

@@ -14,6 +14,7 @@ export type MapBill = {
   tags: string[];
   s: BillStatus;
   d: string;
+  url?: string; // direct LegiScan bill page; absent in the seed
 };
 
 export type Topic = {

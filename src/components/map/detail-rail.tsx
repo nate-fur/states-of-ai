@@ -1,7 +1,7 @@
 "use client";
 
 import { buildDetail } from "@/lib/map/derive";
-import { STATES } from "@/lib/map/data";
+import { useMapData } from "./data-context";
 import type { DetailSelection, StateRecord } from "@/lib/map/types";
 import { GlyphTile, OutlineButton } from "./ui";
 
@@ -23,6 +23,7 @@ export function DetailRail({
   animKey?: number;
   className?: string;
 }) {
+  const { STATES } = useMapData();
   const data = buildDetail(detail, state, STATES);
   const anim = animKey % 2 === 0 ? "map-fade-up-a" : "map-fade-up-b";
   if (!data) return null;
@@ -31,12 +32,22 @@ export function DetailRail({
     <div className={`min-w-0 overflow-x-hidden overflow-y-auto border-r border-hair bg-paper-2 ${className}`}>
       <div className={`flex flex-col gap-[22px] px-7 pb-12 ${widthClass}`}>
         <div className="sticky top-0 z-[1] flex items-center justify-between gap-3 border-b border-hair bg-paper-2 py-3.5 pb-2.5 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
-          <span>
-            {data.stateName} · {data.kind === "bill" ? "bill" : "policy"}
+          <span className="min-w-0 truncate">
+            {data.abbr} · {data.kind === "bill" ? "bill" : "policy"}
           </span>
-          <OutlineButton aria-label="Close" className="flex h-7 w-7 items-center justify-center px-0 text-base leading-none" onClick={onClose}>
-            ×
-          </OutlineButton>
+          <span className="flex shrink-0 items-center gap-2">
+            <a
+              href={data.legiscanUrl}
+              target="_blank"
+              rel="noopener"
+              className="whitespace-nowrap border border-ink bg-ink px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-white no-underline hover:bg-paper hover:text-ink"
+            >
+              {data.legiscanLabel} ↗
+            </a>
+            <OutlineButton aria-label="Close" className="flex h-7 w-7 items-center justify-center px-0 text-base leading-none" onClick={onClose}>
+              ×
+            </OutlineButton>
+          </span>
         </div>
 
         <div className={`${anim} flex items-center gap-3.5`} style={{ animationDelay: "0.28s" }}>
@@ -129,43 +140,28 @@ export function DetailRail({
                 </p>
               ) : (
                 data.bills.map((b) => (
-                  <div
+                  // Opens the bill's own panel; the external link lives in that panel's header.
+                  <button
                     key={b.n}
-                    className="grid items-baseline gap-x-3.5 gap-y-1 border-b border-hair py-3"
+                    type="button"
+                    onClick={() => onDetail({ abbr: data.abbr, bill: b.n })}
+                    className="grid items-baseline gap-x-3.5 gap-y-1 border-0 border-b border-hair bg-transparent px-1.5 py-3 -mx-1.5 text-left text-ink hover:bg-hover-2"
                     style={{ gridTemplateColumns: "78px 1fr" }}
                   >
-                    <a
-                      href={b.url}
-                      target="_blank"
-                      rel="noopener"
-                      className="whitespace-nowrap font-map-mono text-[13px] font-medium"
-                    >
-                      {b.n}
-                    </a>
-                    <div className="flex min-w-0 flex-col gap-[3px]">
+                    <span className="whitespace-nowrap font-map-mono text-[13px] font-medium">{b.n}</span>
+                    <span className="flex min-w-0 flex-col gap-[3px]">
                       <span className="text-[15px] leading-[1.35] text-pretty">{b.t}</span>
                       <span className="font-map-mono text-[11px]" style={{ color: b.color }}>
                         {b.s} · {b.d}
                       </span>
-                    </div>
-                  </div>
+                    </span>
+                  </button>
                 ))
               )}
             </div>
           </>
         )}
 
-        <div
-          className={`${anim} flex gap-3 font-map-mono text-[11px] text-mute`}
-          style={{ animationDelay: "0.49s" }}
-        >
-          <a href={data.iappUrl} target="_blank" rel="noopener" className="text-mute">
-            IAPP tracker
-          </a>
-          <a href={data.legiscanUrl} target="_blank" rel="noopener" className="text-mute">
-            LegiScan search
-          </a>
-        </div>
       </div>
     </div>
   );

@@ -150,6 +150,11 @@ export function mapStatus(code: number): BillStatus | null {
 
 // --- Text ---
 
+/** Text entries newest first: by date, then doc_id (some states send no dates). */
+export function textsNewestFirst(bill: Bill): BillText[] {
+  return [...(bill.texts ?? [])].sort((a, b) => b.date.localeCompare(a.date) || b.doc_id - a.doc_id);
+}
+
 /** The text entry with the latest date; ties go to the higher doc_id. */
 export function latestText(bill: Bill): BillText | null {
   let best: BillText | null = null;
