@@ -65,6 +65,11 @@ type Bill = {
   date: string;            // ISO date of that status
   url: string;
   categories: string[];    // RegulationCategory.key[]
+  session: string;         // "2025-2026 Regular Session"
+  changeHash: string;      // LegiScan change_hash, for incremental runs
+  textHash: string;        // LegiScan text_hash of the text the classifier read
+  summary: string;         // written by the classifier
+  keyPoints: string[];     // written by the classifier
 };
 ```
 

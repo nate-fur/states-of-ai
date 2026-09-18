@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { convexQuery, convexUrl } from "@/lib/convex";
 import { Tabs } from "./tabs";
+import { Table } from "./table";
+import { Facilities, type FacilityRow } from "./facilities";
 
 // Reads live from Convex on every request; nothing here is cached.
 export const dynamic = "force-dynamic";
@@ -8,9 +10,10 @@ export const dynamic = "force-dynamic";
 type Axis = { score: number; summary: string };
 type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
 type Category = { key: string; label: string; description: string; icon: string };
-type Facility = { externalId: string; state: string; name: string; operator: string; status: string; capacityMw: number | null };
 type Bill = { externalId: string; state: string; number: string; title: string; status: string; date: string; url: string; categories: string[] };
 type Grade = { state: string; category: string; tier: number };
+type Usage = { api: string; month: string; calls: number };
+type Run = { job: string; startedAt: number; finishedAt?: number; ok?: boolean; summary: string };
 
 const axis = (a?: Axis) => (a ? `${a.score > 0 ? "+" : ""}${a.score}` : "—");
 
@@ -23,12 +26,14 @@ export default async function DataPage() {
     );
   }
 
-  const [states, categories, facilities, bills, grades] = await Promise.all([
+  const [states, categories, facilities, bills, grades, usage, runs] = await Promise.all([
     convexQuery<State[]>("states:list"),
     convexQuery<Category[]>("regulationCategories:list"),
-    convexQuery<Facility[]>("facilities:list"),
+    convexQuery<FacilityRow[]>("facilities:list"),
     convexQuery<Bill[]>("bills:list"),
     convexQuery<Grade[]>("stateCategoryGrades:list"),
+    convexQuery<Usage[]>("apiUsage:list"),
+    convexQuery<Run[]>("pipelineRuns:list"),
   ]);
   states.sort((a, b) => a.code.localeCompare(b.code));
 
@@ -58,13 +63,7 @@ export default async function DataPage() {
     {
       title: "Facilities",
       count: facilities.length,
-      content: (
-        <Table
-          rows={facilities}
-          columns={["State", "Name", "Operator", "Status", "MW"]}
-          render={(f) => [f.state, f.name, f.operator, f.status, f.capacityMw ?? "—"]}
-        />
-      ),
+      content: <Facilities rows={facilities} />,
     },
     {
       title: "Bills",
@@ -82,6 +81,29 @@ export default async function DataPage() {
       count: grades.length,
       content: (
         <Table rows={grades} columns={["State", "Category", "Tier"]} render={(g) => [g.state, g.category, g.tier]} />
+      ),
+    },
+    {
+      title: "API usage",
+      count: usage.length,
+      content: (
+        <Table rows={usage} columns={["API", "Month", "Calls"]} render={(u) => [u.api, u.month, u.calls]} />
+      ),
+    },
+    {
+      title: "Pipeline runs",
+      count: runs.length,
+      content: (
+        <Table
+          rows={runs}
+          columns={["Job", "Started", "Result", "Summary"]}
+          render={(r) => [
+            r.job,
+            new Date(r.startedAt).toISOString().replace("T", " ").slice(0, 16),
+            r.finishedAt === undefined ? "running" : r.ok ? "ok" : "failed",
+            r.summary,
+          ]}
+        />
       ),
     },
   ];
@@ -109,44 +131,5 @@ function Shell({ children }: { children: React.ReactNode }) {
       </div>
       <div className="pt-6">{children}</div>
     </main>
-  );
-}
-
-function Table<T>({
-  rows,
-  columns,
-  render,
-}: {
-  rows: T[];
-  columns: string[];
-  render: (row: T) => React.ReactNode[];
-}) {
-  return (
-    <section>
-      {rows.length === 0 ? (
-        <p className="py-4 font-map-mono text-[12px] text-dim">No rows yet.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-[14px] leading-[1.4]">
-            <thead>
-              <tr className="font-map-mono text-[11px] text-mute">
-                {columns.map((c, i) => (
-                  <th key={i} className="whitespace-nowrap py-2 pr-6 text-left font-normal">{c}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, i) => (
-                <tr key={i} className="border-t border-hair align-top">
-                  {render(row).map((cell, j) => (
-                    <td key={j} className={`py-2 pr-6 ${j === 0 ? "font-map-mono text-[12px]" : ""}`}>{cell}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
   );
 }

@@ -1,13 +1,13 @@
-import { mutation } from "./_generated/server";
+import { mutation, type MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
 import { CATEGORIES, STATES } from "./seedData";
 
-const TABLES = ["states", "facilities", "bills", "regulationCategories", "stateCategoryGrades"] as const;
+const TABLES = ["states", "facilities", "bills", "billTexts", "legiscanSkips", "regulationCategories", "stateCategoryGrades"] as const;
 type Table = (typeof TABLES)[number];
 
-async function clearTable(ctx: { db: any }, table: Table | "datacenters") {
+async function clearTable(ctx: MutationCtx, table: Table) {
   const rows = await ctx.db.query(table).collect();
-  await Promise.all(rows.map((row: { _id: string }) => ctx.db.delete(row._id)));
+  await Promise.all(rows.map((row) => ctx.db.delete(row._id)));
 }
 
 /** Replace states and regulation categories with the committed seed. Empties every other table. */
@@ -15,7 +15,6 @@ export const fixtures = mutation({
   args: {},
   handler: async (ctx) => {
     for (const table of TABLES) await clearTable(ctx, table);
-    await clearTable(ctx, "datacenters"); // table from the previous schema
     await Promise.all(STATES.map((s) => ctx.db.insert("states", s)));
     await Promise.all(CATEGORIES.map((c) => ctx.db.insert("regulationCategories", c)));
     return { states: STATES.length, regulationCategories: CATEGORIES.length };

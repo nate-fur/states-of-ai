@@ -52,6 +52,38 @@ export default defineSchema({
     date: v.string(), // ISO date of that status
     url: v.string(),
     categories: v.array(v.string()), // regulationCategories.key[]
+    session: v.string(), // e.g. "2025-2026 Regular Session"
+    changeHash: v.string(), // LegiScan change_hash; skip the bill when unchanged
+    textHash: v.string(), // LegiScan text_hash of the classified text
+    summary: v.string(), // written by the classifier
+    keyPoints: v.array(v.string()), // written by the classifier
+  })
+    .index("by_state", ["state"])
+    .index("by_external_id", ["externalId"]),
+
+  // Plain text of each saved bill, converted once from LegiScan's HTML or
+  // PDF, so the classifier can be re-run without another LegiScan call.
+  // The text itself lives in Convex file storage (no size cap); this row is
+  // the pointer. Replaced when the bill's text hash changes.
+  billTexts: defineTable({
+    externalId: v.string(), // LegiScan bill_id
+    state: v.string(),
+    textHash: v.string(),
+    mime: v.string(), // what LegiScan sent: text/html or application/pdf
+    storageId: v.id("_storage"),
+    chars: v.number(),
+  })
+    .index("by_external_id", ["externalId"])
+    .index("by_state", ["state"]),
+
+  // Bills the LegiScan job looked at and dropped (not about AI, vetoed or
+  // failed, no text yet), keyed by change hash so later runs skip them for
+  // free instead of fetching and classifying them again.
+  legiscanSkips: defineTable({
+    externalId: v.string(), // LegiScan bill_id
+    state: v.string(),
+    changeHash: v.string(),
+    reason: v.string(),
   })
     .index("by_state", ["state"])
     .index("by_external_id", ["externalId"]),
@@ -62,6 +94,22 @@ export default defineSchema({
     description: v.string(),
     icon: v.string(),
   }).index("by_key", ["key"]),
+
+  // One row per outside API per calendar month. The pipelines refuse to make
+  // a call once `calls` reaches the cap, so a bug cannot burn the quota.
+  apiUsage: defineTable({
+    api: v.string(), // "legiscan" | "openai" | "computeAtlas"
+    month: v.string(), // "YYYY-MM"
+    calls: v.number(),
+  }).index("by_api_month", ["api", "month"]),
+
+  pipelineRuns: defineTable({
+    job: v.string(),
+    startedAt: v.number(),
+    finishedAt: v.optional(v.number()),
+    ok: v.optional(v.boolean()),
+    summary: v.string(),
+  }).index("by_job", ["job"]),
 
   stateCategoryGrades: defineTable({
     state: v.string(), // states.code
