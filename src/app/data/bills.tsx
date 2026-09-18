@@ -11,7 +11,7 @@ export type BillRow = {
   status: string;
   date: string;
   url: string;
-  categories: string[];
+  regulationAreas: string[];
   summary?: string;
 };
 
@@ -21,23 +21,23 @@ const STATUSES = [
   ["proposed", "Proposed"],
 ] as const;
 
-/** Bills tab: status, state, and category chips filter the table. */
-export function Bills({ rows, categories }: { rows: BillRow[]; categories: { key: string; label: string }[] }) {
+/** Bills tab: status, state, and area chips filter the table. */
+export function Bills({ rows, areas }: { rows: BillRow[]; areas: { key: string; label: string }[] }) {
   const [status, setStatus] = useState<string | null>(null);
   const [state, setState] = useState<string | null>(null);
-  const [category, setCategory] = useState<string | null>(null);
+  const [area, setArea] = useState<string | null>(null);
 
   const states = useMemo(() => [...new Set(rows.map((r) => r.state))].sort(), [rows]);
-  const match = (r: BillRow, skip: "status" | "state" | "category") =>
+  const match = (r: BillRow, skip: "status" | "state" | "area") =>
     (skip === "status" || !status || r.status === status) &&
     (skip === "state" || !state || r.state === state) &&
-    (skip === "category" || !category || r.categories.includes(category));
+    (skip === "area" || !area || r.regulationAreas.includes(area));
 
   // Each chip row counts against the other two filters, so numbers stay honest.
   const byStatus = count(rows.filter((r) => match(r, "status")), (r) => [r.status]);
   const byState = count(rows.filter((r) => match(r, "state")), (r) => [r.state]);
-  const byCategory = count(rows.filter((r) => match(r, "category")), (r) => r.categories);
-  const shown = rows.filter((r) => match(r, "status") && match(r, "state") && match(r, "category"));
+  const byArea = count(rows.filter((r) => match(r, "area")), (r) => r.regulationAreas);
+  const shown = rows.filter((r) => match(r, "status") && match(r, "state") && match(r, "area"));
   const total = (m: Record<string, number>) => Object.values(m).reduce((a, b) => a + b, 0);
 
   return (
@@ -50,11 +50,11 @@ export function Bills({ rows, categories }: { rows: BillRow[]; categories: { key
         allCount={total(byStatus)}
       />
       <Chips
-        label="Category"
-        options={categories.map((c) => ({ key: c.key, label: c.label, count: byCategory[c.key] ?? 0 }))}
-        active={category}
-        onChange={setCategory}
-        allCount={rows.filter((r) => match(r, "category")).length}
+        label="Area"
+        options={areas.map((c) => ({ key: c.key, label: c.label, count: byArea[c.key] ?? 0 }))}
+        active={area}
+        onChange={setArea}
+        allCount={rows.filter((r) => match(r, "area")).length}
       />
       <Chips
         label="State"
@@ -65,7 +65,7 @@ export function Bills({ rows, categories }: { rows: BillRow[]; categories: { key
       />
       <Table
         rows={shown}
-        columns={["State", "Number", "Title", "Status", "Date", "Categories"]}
+        columns={["State", "Number", "Title", "Status", "Date", "Areas"]}
         render={(b) => [
           b.state,
           <a key="n" href={b.url} target="_blank" rel="noreferrer" className="text-ink underline decoration-hair underline-offset-2 hover:decoration-ink">
@@ -74,7 +74,7 @@ export function Bills({ rows, categories }: { rows: BillRow[]; categories: { key
           b.title,
           b.status,
           b.date,
-          b.categories.join(", "),
+          b.regulationAreas.join(", "),
         ]}
       />
     </div>

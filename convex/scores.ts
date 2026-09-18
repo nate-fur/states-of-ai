@@ -7,13 +7,13 @@ import { internalMutation } from "./_generated/server";
 // PLACEHOLDER FORMULAS. docs/pipeline.md says the formulas are not decided.
 // These exist so the pipeline runs end to end; replace them deliberately.
 
-const DATA_CENTER_CATEGORY = "dc";
+const DATA_CENTER_AREA = "dc";
 const MAX_TIER = 4;
 
-export function aiRegulationScore(tiers: number[], categoryCount: number): number {
-  if (categoryCount === 0) return 0;
+export function aiRegulationScore(tiers: number[], areaCount: number): number {
+  if (areaCount === 0) return 0;
   const total = tiers.reduce((a, b) => a + b, 0);
-  return Math.round((6 * total) / (categoryCount * MAX_TIER));
+  return Math.round((6 * total) / (areaCount * MAX_TIER));
 }
 
 export function dataCenterPostureScore(dcTier: number, operational: number, planned: number): number {
@@ -27,7 +27,7 @@ export function dataCenterPostureScore(dcTier: number, operational: number, plan
 export const recompute = internalMutation({
   args: { states: v.array(v.string()) },
   handler: async (ctx, { states }) => {
-    const categories = await ctx.db.query("regulationCategories").collect();
+    const areas = await ctx.db.query("regulationAreas").collect();
     for (const code of states) {
       const state = await ctx.db
         .query("states")
@@ -36,7 +36,7 @@ export const recompute = internalMutation({
       if (!state) continue;
 
       const grades = await ctx.db
-        .query("stateCategoryGrades")
+        .query("stateAreaGrades")
         .withIndex("by_state", (q) => q.eq("state", code))
         .collect();
       const facilities = await ctx.db
@@ -46,13 +46,13 @@ export const recompute = internalMutation({
 
       const operational = facilities.filter((f) => f.status === "operational").length;
       const planned = facilities.length - operational;
-      const dcTier = grades.find((g) => g.category === DATA_CENTER_CATEGORY)?.tier ?? 0;
+      const dcTier = grades.find((g) => g.regulationArea === DATA_CENTER_AREA)?.tier ?? 0;
       const graded = grades.filter((g) => g.tier > 0).length;
 
       await ctx.db.patch(state._id, {
         aiRegulation: {
-          score: aiRegulationScore(grades.map((g) => g.tier), categories.length),
-          summary: `Placeholder formula. ${graded} of ${categories.length} categories graded.`,
+          score: aiRegulationScore(grades.map((g) => g.tier), areas.length),
+          summary: `Placeholder formula. ${graded} of ${areas.length} areas graded.`,
         },
         dataCenterPosture: {
           score: dataCenterPostureScore(dcTier, operational, planned),

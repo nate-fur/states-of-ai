@@ -15,14 +15,14 @@ export const savedBills = internalQuery({
       .collect();
     const map: Record<
       string,
-      { changeHash: string; textHash: string; status: string; categories: string[] }
+      { changeHash: string; textHash: string; status: string; regulationAreas: string[] }
     > = {};
     for (const r of rows) {
       map[r.externalId] = {
         changeHash: r.changeHash,
         textHash: r.textHash,
         status: r.status,
-        categories: r.categories,
+        regulationAreas: r.regulationAreas,
       };
     }
     return map;
@@ -99,7 +99,7 @@ export const billsWithText = internalQuery({
         title: b.title,
         status: b.status,
         session: b.session,
-        categories: b.categories,
+        regulationAreas: b.regulationAreas,
         changeHash: b.changeHash,
         storageId: t?.storageId ?? null,
       });
@@ -121,44 +121,44 @@ export const billIds = internalQuery({
 
 /** Update only what the classifier decides. */
 export const patchClassification = internalMutation({
-  args: { externalId: v.string(), categories: v.array(v.string()), summary: v.string(), keyPoints: v.array(v.string()) },
+  args: { externalId: v.string(), regulationAreas: v.array(v.string()), summary: v.string(), keyPoints: v.array(v.string()) },
   handler: async (ctx, { externalId, ...patch }) => {
     const existing = await findBill(ctx, externalId);
     if (existing) await ctx.db.patch(existing._id, patch);
   },
 });
 
-/** Categories that currently have at least one saved bill in a state. */
-export const gradedCategories = internalQuery({
+/** Areas that currently have at least one saved bill in a state. */
+export const gradedAreas = internalQuery({
   args: { state: v.string() },
   handler: async (ctx, { state }) => {
     const bills = await ctx.db.query("bills").withIndex("by_state", (q) => q.eq("state", state)).collect();
-    const grades = await ctx.db.query("stateCategoryGrades").withIndex("by_state", (q) => q.eq("state", state)).collect();
+    const grades = await ctx.db.query("stateAreaGrades").withIndex("by_state", (q) => q.eq("state", state)).collect();
     const keys = new Set<string>();
-    for (const b of bills) b.categories.forEach((k) => keys.add(k));
-    for (const g of grades) keys.add(g.category); // re-grade to 0 if its bills went away
+    for (const b of bills) b.regulationAreas.forEach((k) => keys.add(k));
+    for (const g of grades) keys.add(g.regulationArea); // re-grade to 0 if its bills went away
     return [...keys];
   },
 });
 
-export const categories = internalQuery({
+export const areas = internalQuery({
   args: {},
   handler: async (ctx) => {
-    const rows = await ctx.db.query("regulationCategories").collect();
+    const rows = await ctx.db.query("regulationAreas").collect();
     return rows.map((r) => ({ key: r.key, label: r.label, description: r.description }));
   },
 });
 
-/** All of a state's saved bills tagged with one category, for the tier agent. */
-export const billsForCategory = internalQuery({
-  args: { state: v.string(), category: v.string() },
-  handler: async (ctx, { state, category }) => {
+/** All of a state's saved bills tagged with one area, for the tier agent. */
+export const billsForArea = internalQuery({
+  args: { state: v.string(), area: v.string() },
+  handler: async (ctx, { state, area }) => {
     const rows = await ctx.db
       .query("bills")
       .withIndex("by_state", (q) => q.eq("state", state))
       .collect();
     return rows
-      .filter((r) => r.categories.includes(category))
+      .filter((r) => r.regulationAreas.includes(area))
       .map((r) => ({
         number: r.number,
         title: r.title,
@@ -179,7 +179,7 @@ const billFields = {
   status: billStatus,
   date: v.string(),
   url: v.string(),
-  categories: v.array(v.string()),
+  regulationAreas: v.array(v.string()),
   session: v.string(),
   changeHash: v.string(),
   textHash: v.string(),
@@ -240,14 +240,14 @@ export const deleteBill = internalMutation({
 });
 
 export const upsertGrade = internalMutation({
-  args: { state: v.string(), category: v.string(), tier: v.number() },
-  handler: async (ctx, { state, category, tier }) => {
+  args: { state: v.string(), area: v.string(), tier: v.number() },
+  handler: async (ctx, { state, area, tier }) => {
     const rows = await ctx.db
-      .query("stateCategoryGrades")
+      .query("stateAreaGrades")
       .withIndex("by_state", (q) => q.eq("state", state))
       .collect();
-    const existing = rows.find((r) => r.category === category);
+    const existing = rows.find((r) => r.regulationArea === area);
     if (existing) await ctx.db.patch(existing._id, { tier });
-    else await ctx.db.insert("stateCategoryGrades", { state, category, tier });
+    else await ctx.db.insert("stateAreaGrades", { state, regulationArea: area, tier });
   },
 });

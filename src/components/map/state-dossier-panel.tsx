@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { TIERS, TOPICS } from "@/lib/map/data";
+import { TIERS, AREAS } from "@/lib/map/data";
 import { useMapData } from "./data-context";
 import {
   aiCells,
@@ -17,7 +17,7 @@ import {
   sign,
   sortedBills,
   statusColor,
-  topicLabelMap,
+  areaLabelMap,
 } from "@/lib/map/derive";
 import type { DetailSelection, StateRecord } from "@/lib/map/types";
 import {
@@ -106,7 +106,7 @@ export function StateDossierPanel({
   const { text: typedName, caret } = useTypewriter(state.name);
 
   const qc = state.q.color;
-  const tl = topicLabelMap();
+  const tl = areaLabelMap();
   const { STATES, caption } = useMapData();
   const { maxMw, median } = useMemo(() => capacityStats(STATES), [STATES]);
   const anim = animKey % 2 === 0 ? "map-fade-up-a" : "map-fade-up-b";
@@ -138,7 +138,7 @@ export function StateDossierPanel({
   const [legendRef, legendH] = useMeasuredHeight<HTMLDivElement>();
   const [billsRef, billsH] = useMeasuredHeight<HTMLDivElement>();
 
-  const topics = TOPICS.map((t) => {
+  const areas = AREAS.map((t) => {
     const status = bucketStatus(state, t.k);
     const active = detail?.abbr === state.abbr && "k" in detail && detail.k === t.k;
     const g = grade(state, t.k);
@@ -181,7 +181,7 @@ export function StateDossierPanel({
 
   const toggle = (k: OpenKey) => setOpen((cur) => (cur === k ? null : k));
 
-  const tipTopic = topics.find((t) => t.k === tip?.id);
+  const tipArea = areas.find((t) => t.k === tip?.id);
   const tipOn = !!tip?.on;
 
   return (
@@ -413,7 +413,7 @@ export function StateDossierPanel({
               gridAutoFlow: "column",
             }}
           >
-            {topics.map((t) => (
+            {areas.map((t) => (
               <button
                 key={t.k}
                 type="button"
@@ -455,7 +455,7 @@ export function StateDossierPanel({
               </button>
             ))}
           </div>
-          {tipTopic && tip && (
+          {tipArea && tip && (
             <span
               className="pointer-events-none fixed z-50 w-[220px] bg-ink px-3 py-2.5 text-left font-map-mono text-[11px] leading-[1.45] tracking-normal text-paper normal-case"
               style={{
@@ -467,8 +467,8 @@ export function StateDossierPanel({
               }}
             >
               <span className="flex justify-between gap-2">
-                <span className="tracking-[0.1em] uppercase">{tipTopic.tierName}</span>
-                <span className="text-dim">{tipTopic.g.tier}/4</span>
+                <span className="tracking-[0.1em] uppercase">{tipArea.tierName}</span>
+                <span className="text-dim">{tipArea.g.tier}/4</span>
               </span>
             </span>
           )}

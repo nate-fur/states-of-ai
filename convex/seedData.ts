@@ -1,7 +1,7 @@
-// Every state plus the nine regulation categories. Scores are not seeded;
+// Every state plus the nine regulation areas. Scores are not seeded;
 // they are derived from facilities, bills, and grades once those exist.
 
-export const CATEGORIES = [
+export const AREAS = [
   {
     key: "frontier",
     label: "Frontier duties",

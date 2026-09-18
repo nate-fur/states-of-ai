@@ -17,7 +17,7 @@ export type MapBill = {
   url?: string; // direct LegiScan bill page; absent in the seed
 };
 
-export type Topic = {
+export type RegulationArea = {
   k: string;
   label: string;
   icon: string;

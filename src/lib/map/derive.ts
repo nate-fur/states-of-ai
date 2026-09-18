@@ -1,4 +1,4 @@
-import { TIERS, TOPICS } from "./data";
+import { TIERS, AREAS } from "./data";
 import type {
   BillStatus,
   DetailSelection,
@@ -6,7 +6,7 @@ import type {
   Quadrant,
   QuadrantKey,
   StateRecord,
-  Topic,
+  RegulationArea,
 } from "./types";
 
 export const STATUS_ORDER: Record<BillStatus, number> = {
@@ -98,8 +98,8 @@ export function scaleDots(
   }));
 }
 
-export function topicLabelMap(topics: Topic[] = TOPICS): Record<string, string> {
-  return Object.fromEntries(topics.map((t) => [t.k, t.label]));
+export function areaLabelMap(areas: RegulationArea[] = AREAS): Record<string, string> {
+  return Object.fromEntries(areas.map((t) => [t.k, t.label]));
 }
 
 export function sortedBills(bills: MapBill[]): MapBill[] {
@@ -224,14 +224,14 @@ export function buildDetail(
   detail: DetailSelection | null,
   st: StateRecord | undefined,
   all: StateRecord[],
-  topics: Topic[] = TOPICS,
+  areas: RegulationArea[] = AREAS,
 ) {
   if (!detail || !st) return null;
   const qc = st.q.color;
   if ("bill" in detail && detail.bill) {
     const bill = st.bills.find((b) => b.n === detail.bill);
     if (!bill) return null;
-    const buckets = topics
+    const buckets = areas
       .filter((t) => bill.tags.includes(t.k))
       .map((t) => {
         const status = bucketStatus(st, t.k);
@@ -267,13 +267,13 @@ export function buildDetail(
     };
   }
   if ("k" in detail && detail.k) {
-    const topic = topics.find((t) => t.k === detail.k);
-    if (!topic) return null;
-    const status = bucketStatus(st, topic.k);
-    const g = grade(st, topic.k);
+    const area = areas.find((t) => t.k === detail.k);
+    if (!area) return null;
+    const status = bucketStatus(st, area.k);
+    const g = grade(st, area.k);
     const glyph = glyphForStatus(status);
     const bills = st.bills
-      .filter((b) => b.tags.includes(topic.k))
+      .filter((b) => b.tags.includes(area.k))
       .map((b) => ({
         ...b,
         color: statusColor(b.s, qc),
@@ -281,26 +281,26 @@ export function buildDetail(
       }));
     const line = statusLine(status, qc);
     return {
-      kind: "topic" as const,
+      kind: "area" as const,
       stateName: st.name,
       abbr: st.abbr,
-      label: topic.label,
-      glyph: topic.icon,
+      label: area.label,
+      glyph: area.icon,
       bg: glyph.bg,
       border: glyph.border,
       iconColor: glyph.icon,
-      desc: topic.desc,
+      desc: area.desc,
       statusText: line.text,
       statusColor: line.color,
       bills,
       tierName: TIERS[g.tier] ?? "None",
       tierNum: String(g.tier),
-      peersText: `${peers(st, topic.k, all)} of ${all.length} states`,
-      legiscanUrl: legiscanUrl(st.abbr, topic.label),
+      peersText: `${peers(st, area.k, all)} of ${all.length} states`,
+      legiscanUrl: legiscanUrl(st.abbr, area.label),
       legiscanLabel: "LegiScan search",
     };
   }
   return null;
 }
 
-export { TIERS, TOPICS };
+export { TIERS, AREAS };

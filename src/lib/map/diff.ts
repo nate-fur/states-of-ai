@@ -1,4 +1,4 @@
-import { TOPICS } from "./data";
+import { AREAS } from "./data";
 import {
   STATUS_ORDER,
   aiCells,
@@ -10,7 +10,7 @@ import {
   scaleDots,
   sign,
   statusColor,
-  topicLabelMap,
+  areaLabelMap,
 } from "./derive";
 import type { StateRecord } from "./types";
 
@@ -181,7 +181,7 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
   let onlyB = 0;
   let neither = 0;
 
-  const gov: DiffGovRow[] = TOPICS.map((t) => {
+  const gov: DiffGovRow[] = AREAS.map((t) => {
     const ta = grade(a, t.k).tier;
     const tb = grade(b, t.k).tier;
     const ha = ta > 0;
@@ -219,7 +219,7 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
     };
   }).sort((x, y) => y.gap - x.gap || (y.neither ? 0 : 1) - (x.neither ? 0 : 1));
 
-  const tl = topicLabelMap();
+  const tl = areaLabelMap();
   const MON = [
     "jan",
     "feb",

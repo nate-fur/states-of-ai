@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 
 type Axis = { score: number; summary: string };
 type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
-type Category = { key: string; label: string; description: string; icon: string };
-type Grade = { state: string; category: string; tier: number };
+type Area = { key: string; label: string; description: string; icon: string };
+type Grade = { state: string; regulationArea: string; tier: number };
 type Usage = { api: string; month: string; calls: number };
 type Run = { job: string; startedAt: number; finishedAt?: number; ok?: boolean; summary: string };
 
@@ -26,12 +26,12 @@ export default async function DataPage() {
     );
   }
 
-  const [states, categories, facilities, bills, grades, usage, runs] = await Promise.all([
+  const [states, areas, facilities, bills, grades, usage, runs] = await Promise.all([
     convexQuery<State[]>("states:list"),
-    convexQuery<Category[]>("regulationCategories:list"),
+    convexQuery<Area[]>("regulationAreas:list"),
     convexQuery<FacilityRow[]>("facilities:list"),
     convexQuery<BillRow[]>("bills:list"),
-    convexQuery<Grade[]>("stateCategoryGrades:list"),
+    convexQuery<Grade[]>("stateAreaGrades:list"),
     convexQuery<Usage[]>("apiUsage:list"),
     convexQuery<Run[]>("pipelineRuns:list"),
   ]);
@@ -50,11 +50,11 @@ export default async function DataPage() {
       ),
     },
     {
-      title: "Regulation categories",
-      count: categories.length,
+      title: "Regulation areas",
+      count: areas.length,
       content: (
         <Table
-          rows={categories}
+          rows={areas}
           columns={["", "Key", "Label", "Description"]}
           render={(c) => [c.icon, c.key, c.label, c.description]}
         />
@@ -68,13 +68,13 @@ export default async function DataPage() {
     {
       title: "Bills",
       count: bills.length,
-      content: <Bills rows={bills} categories={categories} />,
+      content: <Bills rows={bills} areas={areas} />,
     },
     {
       title: "Grades",
       count: grades.length,
       content: (
-        <Table rows={grades} columns={["State", "Category", "Tier"]} render={(g) => [g.state, g.category, g.tier]} />
+        <Table rows={grades} columns={["State", "Area", "Tier"]} render={(g) => [g.state, g.regulationArea, g.tier]} />
       ),
     },
     {

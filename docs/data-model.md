@@ -5,8 +5,8 @@ Four entities.
 ```
 State 1 ──< many Facility
 State 1 ──< many Bill
-Bill  >──< RegulationCategory        (many-to-many, keys on Bill)
-State >──< RegulationCategory        (many-to-many via StateCategoryGrade)
+Bill  >──< RegulationArea        (many-to-many, keys on Bill)
+State >──< RegulationArea        (many-to-many via StateAreaGrade)
 ```
 
 A State holds only facts about the state itself. Anything countable from its
@@ -64,7 +64,7 @@ type Bill = {
   status: "enacted" | "pending" | "proposed";
   date: string;            // ISO date of that status
   url: string;
-  categories: string[];    // RegulationCategory.key[]
+  regulationAreas: string[]; // RegulationArea.key[]
   session: string;         // "2025-2026 Regular Session"
   changeHash: string;      // LegiScan change_hash, for incremental runs
   textHash: string;        // LegiScan text_hash of the text the classifier read
@@ -73,10 +73,10 @@ type Bill = {
 };
 ```
 
-## RegulationCategory
+## RegulationArea
 
 ```ts
-type RegulationCategory = {
+type RegulationArea = {
   key: string;             // "deepfakes"
   label: string;           // "Deepfakes & elections"
   description: string;     // one line on what it covers
@@ -84,20 +84,20 @@ type RegulationCategory = {
 };
 ```
 
-## StateCategoryGrade
+## StateAreaGrade
 
-One row per state per category. Holds the hand-graded stringency for that
-category in that state. Bills are not attached here; "bills in this state for
-this category" is a filter on Bill.
+One row per state per area. Holds the hand-graded stringency for that
+area in that state. Bills are not attached here; "bills in this state for
+this area" is a filter on Bill.
 
 ```ts
-type StateCategoryGrade = {
+type StateAreaGrade = {
   state: string;           // State.code
-  category: string;        // RegulationCategory.key
+  regulationArea: string; // RegulationArea.key
   tier: 0 | 1 | 2 | 3 | 4;
 };
 ```
 
-Derived from grades and bills, not stored: the category's status label
+Derived from grades and bills, not stored: the area's status label
 (strongest bill status in the state), and "n of 50 states at this tier or
 above".

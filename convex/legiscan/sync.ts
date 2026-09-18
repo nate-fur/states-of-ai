@@ -5,8 +5,8 @@ import type { Id } from "../_generated/dataModel";
 import { envNumber, pipelinesEnabled } from "../pipelines";
 import { STATES } from "../seedData";
 import { getBill, getBillText, getSearchRaw, searchAllPages } from "./client";
-import { classifyBill, type Category } from "./classify";
-import { tierCategory } from "./tier";
+import { classifyBill, type Area } from "./classify";
+import { tierArea } from "./tier";
 import {
   base64ToString,
   byYear,
@@ -146,7 +146,7 @@ export const processBatch = internalAction({
   handler: async (ctx, args): Promise<BatchResult> => runBatch(ctx, args),
 });
 
-type SavedBills = Record<string, { changeHash: string; textHash: string; status: string; categories: string[] }>;
+type SavedBills = Record<string, { changeHash: string; textHash: string; status: string; regulationAreas: string[] }>;
 
 /** Convert what LegiScan sent into plain text. PDFs go through the Node action once. */
 async function toPlainText(ctx: ActionCtx, doc: BillTextDoc): Promise<string> {
@@ -175,7 +175,7 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
   const rest = args.queue.slice(batchSize);
   let stop = false;
 
-  const categories: Category[] = await ctx.runQuery(internal.legiscan.db.categories, {});
+  const areas: Area[] = await ctx.runQuery(internal.legiscan.db.areas, {});
   const saved: SavedBills = await ctx.runQuery(internal.legiscan.db.savedBills, { state });
 
   for (const cand of batch) {
@@ -204,7 +204,7 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
       const drop = async (reason: string) => {
         if (prev) {
           await ctx.runMutation(internal.legiscan.db.deleteBill, { externalId });
-          prev.categories.forEach((k) => touched.add(k));
+          prev.regulationAreas.forEach((k) => touched.add(k));
         }
         await ctx.runMutation(internal.legiscan.db.rememberSkip, { externalId, state, changeHash: bill.change_hash, reason });
         c.dropped++;
@@ -227,7 +227,7 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
       // Same text as last time: only the status moved, so skip the classifier.
       if (prev && prev.textHash === text.text_hash) {
         await ctx.runMutation(internal.legiscan.db.patchBillStatus, { ...meta, status });
-        if (prev.status !== status) prev.categories.forEach((k) => touched.add(k));
+        if (prev.status !== status) prev.regulationAreas.forEach((k) => touched.add(k));
         c.textUnchanged++;
         continue;
       }
@@ -265,7 +265,7 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         status,
         session: bill.session.session_name,
         text: plain,
-        categories,
+        areas,
       });
       c.openaiCalls++;
 
@@ -279,14 +279,14 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         ...meta,
         state,
         status,
-        categories: result.categories,
+        regulationAreas: result.regulationAreas,
         textHash: doc.text_hash,
         summary: result.summary,
         keyPoints: result.keyPoints,
       });
       c.saved++;
-      result.categories.forEach((k) => touched.add(k));
-      prev?.categories.forEach((k) => touched.add(k));
+      result.regulationAreas.forEach((k) => touched.add(k));
+      prev?.regulationAreas.forEach((k) => touched.add(k));
     } catch (err) {
       const message = `${externalId}: ${err instanceof Error ? err.message : String(err)}`;
       console.error(message);
@@ -314,17 +314,17 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
     return { counts: c, remaining: rest.length, done: false };
   }
 
-  // 7-8. Re-tier only the touched categories, once for the whole run.
+  // 7-8. Re-tier only the touched areas, once for the whole run.
   let retiered = 0;
   for (const key of touched) {
-    const category = categories.find((x) => x.key === key);
-    if (!category) continue;
+    const area = areas.find((x) => x.key === key);
+    if (!area) continue;
     try {
-      const bills = await ctx.runQuery(internal.legiscan.db.billsForCategory, { state, category: key });
-      const { tier, reason } = await tierCategory(ctx, { state, category, bills });
+      const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, area: key });
+      const { tier, reason } = await tierArea(ctx, { state, area, bills });
       c.openaiCalls++;
       console.log(`${state}/${key}: tier ${tier} (${reason})`);
-      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, category: key, tier });
+      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, area: key, tier });
       retiered++;
     } catch (err) {
       c.errors = [...c.errors, `tier ${key}: ${err instanceof Error ? err.message : String(err)}`].slice(-KEEP);

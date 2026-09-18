@@ -3,10 +3,10 @@ import { callWithSchema, type ContentPart } from "./openai";
 import { truncate, type BillStatus } from "./parse";
 
 // Classifier agent (step 5 of docs/pipeline.md). Reads the full bill text and
-// decides whether the bill is really about AI, which categories it covers,
+// decides whether the bill is really about AI, which areas it covers,
 // and writes the summary and key points.
 
-export type Category = { key: string; label: string; description: string };
+export type Area = { key: string; label: string; description: string };
 
 export type ClassifyInput = {
   state: string;
@@ -15,17 +15,17 @@ export type ClassifyInput = {
   status: BillStatus;
   session: string;
   text: string; // plain text, already converted from HTML or PDF
-  categories: Category[];
+  areas: Area[];
 };
 
 export type ClassifyResult = {
   relevant: boolean;
-  categories: string[];
+  regulationAreas: string[];
   summary: string;
   keyPoints: string[];
 };
 
-function schema(categories: Category[]) {
+function schema(areas: Area[]) {
   return {
     name: "classification",
     schema: {
@@ -36,10 +36,10 @@ function schema(categories: Category[]) {
           description:
             "true only if regulating, funding, studying, or governing AI, automated decision systems, synthetic media, chatbots, or data centers is a substantial purpose of the bill. false if AI is mentioned only in passing.",
         },
-        categories: {
+        regulationAreas: {
           type: "array",
-          description: "Regulation category keys the bill covers. Empty when not relevant.",
-          items: { type: "string", enum: categories.map((c) => c.key) },
+          description: "Regulation area keys the bill covers. Empty when not relevant.",
+          items: { type: "string", enum: areas.map((c) => c.key) },
         },
         summary: {
           type: "string",
@@ -51,22 +51,22 @@ function schema(categories: Category[]) {
           items: { type: "string" },
         },
       },
-      required: ["relevant", "categories", "summary", "keyPoints"],
+      required: ["relevant", "regulationAreas", "summary", "keyPoints"],
       additionalProperties: false,
     },
   };
 }
 
-function systemPrompt(categories: Category[]): string {
-  const list = categories.map((c) => `- ${c.key}: ${c.label}. ${c.description}`).join("\n");
+function systemPrompt(areas: Area[]): string {
+  const list = areas.map((c) => `- ${c.key}: ${c.label}. ${c.description}`).join("\n");
   return `You classify US state bills for a map of state AI policy.
 
 Read the bill text and decide:
 1. Is the bill really about AI? Search results are fuzzy. Many bills mention artificial intelligence, algorithms, chatbots, or data centers only in passing (a definition list, a one-line study item, an unrelated appropriation). Those are not relevant.
-2. If relevant, which regulation categories it covers. Use only the keys below. Pick every category the bill substantively addresses, usually one to three.
+2. If relevant, which regulation areas it covers. Use only the keys below. Pick every area the bill substantively addresses, usually one to three.
 3. A 2-3 sentence summary and 3-6 short key points, written plainly for a general reader.
 
-Regulation categories:
+Regulation areas:
 ${list}
 
 Answer with JSON matching the schema.`;
@@ -80,14 +80,14 @@ export function billContent(input: ClassifyInput): ContentPart[] {
 
 export async function classifyBill(ctx: ActionCtx, input: ClassifyInput): Promise<ClassifyResult> {
   const result = await callWithSchema<ClassifyResult>(ctx, {
-    system: systemPrompt(input.categories),
+    system: systemPrompt(input.areas),
     content: billContent(input),
-    schema: schema(input.categories),
+    schema: schema(input.areas),
   });
-  const known = new Set(input.categories.map((c) => c.key));
+  const known = new Set(input.areas.map((c) => c.key));
   return {
     relevant: Boolean(result.relevant),
-    categories: [...new Set((result.categories ?? []).filter((k) => known.has(k)))],
+    regulationAreas: [...new Set((result.regulationAreas ?? []).filter((k) => known.has(k)))],
     summary: result.summary ?? "",
     keyPoints: result.keyPoints ?? [],
   };

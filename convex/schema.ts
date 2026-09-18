@@ -51,7 +51,7 @@ export default defineSchema({
     status: billStatus,
     date: v.string(), // ISO date of that status
     url: v.string(),
-    categories: v.array(v.string()), // regulationCategories.key[]
+    regulationAreas: v.array(v.string()), // regulationAreas.key[]
     session: v.string(), // e.g. "2025-2026 Regular Session"
     changeHash: v.string(), // LegiScan change_hash; skip the bill when unchanged
     textHash: v.string(), // LegiScan text_hash of the classified text
@@ -88,7 +88,7 @@ export default defineSchema({
     .index("by_state", ["state"])
     .index("by_external_id", ["externalId"]),
 
-  regulationCategories: defineTable({
+  regulationAreas: defineTable({
     key: v.string(),
     label: v.string(),
     description: v.string(),
@@ -111,11 +111,11 @@ export default defineSchema({
     summary: v.string(),
   }).index("by_job", ["job"]),
 
-  stateCategoryGrades: defineTable({
+  stateAreaGrades: defineTable({
     state: v.string(), // states.code
-    category: v.string(), // regulationCategories.key
+    regulationArea: v.string(), // regulationAreas.key
     tier: v.number(), // 0 … 4
   })
     .index("by_state", ["state"])
-    .index("by_category", ["category"]),
+    .index("by_regulation_area", ["regulationArea"]),
 });

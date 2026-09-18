@@ -1,16 +1,16 @@
 import { v } from "convex/values";
 import { internalAction, type ActionCtx } from "../_generated/server";
 import { internal } from "../_generated/api";
-import { classifyBill, type Category } from "./classify";
-import { tierCategory } from "./tier";
+import { classifyBill, type Area } from "./classify";
+import { tierArea } from "./tier";
 
 // Re-run the agents over what is already in Convex. Neither touches LegiScan.
 //
 // `reclassify` re-runs the classifier on saved bills from their stored text,
 // then re-tiers and rescores whatever changed. Use it after changing the
-// classifier prompt, the categories, or the model.
+// classifier prompt, the areas, or the model.
 //
-// `retier` re-runs the tier agent for every graded category and rescores.
+// `retier` re-runs the tier agent for every graded area and rescores.
 // Use it after changing the tier prompt or model.
 
 const counts = v.object({
@@ -77,7 +77,7 @@ export const reclassifyBatch = internalAction({
     const rest = args.queue.slice(batchSize);
     let stop = false;
 
-    const categories: Category[] = await ctx.runQuery(internal.legiscan.db.categories, {});
+    const areas: Area[] = await ctx.runQuery(internal.legiscan.db.areas, {});
     const bills = await ctx.runQuery(internal.legiscan.db.billsWithText, { state, externalIds: batch });
 
     for (const bill of bills) {
@@ -94,7 +94,7 @@ export const reclassifyBatch = internalAction({
           status: bill.status,
           session: bill.session,
           text: await blob.text(),
-          categories,
+          areas,
         });
         c.openaiCalls++;
         c.classified++;
@@ -107,23 +107,23 @@ export const reclassifyBatch = internalAction({
             changeHash: bill.changeHash,
             reason: "not about AI (reclassify)",
           });
-          bill.categories.forEach((k) => touched.add(k));
+          bill.regulationAreas.forEach((k) => touched.add(k));
           c.dropped++;
           continue;
         }
 
-        const before = [...bill.categories].sort().join(",");
-        const after = [...result.categories].sort().join(",");
+        const before = [...bill.regulationAreas].sort().join(",");
+        const after = [...result.regulationAreas].sort().join(",");
         await ctx.runMutation(internal.legiscan.db.patchClassification, {
           externalId: bill.externalId,
-          categories: result.categories,
+          regulationAreas: result.regulationAreas,
           summary: result.summary,
           keyPoints: result.keyPoints,
         });
         // Summaries feed the tier agent too, so every reclassified bill's
-        // categories get re-tiered, not only the ones whose tags moved.
-        bill.categories.forEach((k) => touched.add(k));
-        result.categories.forEach((k) => touched.add(k));
+        // areas get re-tiered, not only the ones whose tags moved.
+        bill.regulationAreas.forEach((k) => touched.add(k));
+        result.regulationAreas.forEach((k) => touched.add(k));
         if (before !== after) c.changed++;
       } catch (err) {
         const message = `${bill.number}: ${err instanceof Error ? err.message : String(err)}`;
@@ -147,7 +147,7 @@ export const reclassifyBatch = internalAction({
       return { counts: c, remaining: rest.length, done: false };
     }
 
-    const retiered = await retierCategories(ctx, state, [...touched], categories, c);
+    const retiered = await retierAreas(ctx, state, [...touched], areas, c);
     await ctx.runMutation(internal.pipelineRuns.finish, {
       id: runId,
       ok: c.errors.length === 0,
@@ -157,7 +157,7 @@ export const reclassifyBatch = internalAction({
   },
 });
 
-/** Re-tier every graded category in one state (or all states) and rescore. */
+/** Re-tier every graded area in one state (or all states) and rescore. */
 export const retier = internalAction({
   args: { state: v.optional(v.string()) },
   handler: async (ctx, { state }): Promise<{ states: number }> => {
@@ -177,9 +177,9 @@ export const retierState = internalAction({
   handler: async (ctx, { state }): Promise<{ retiered: number; errors: string[] }> => {
     const runId = await ctx.runMutation(internal.pipelineRuns.start, { job: `retier:${state}` });
     const c: Counts = { classified: 0, changed: 0, dropped: 0, missingText: 0, openaiCalls: 0, errors: [] };
-    const categories: Category[] = await ctx.runQuery(internal.legiscan.db.categories, {});
-    const keys: string[] = await ctx.runQuery(internal.legiscan.db.gradedCategories, { state });
-    const retiered = await retierCategories(ctx, state, keys, categories, c);
+    const areas: Area[] = await ctx.runQuery(internal.legiscan.db.areas, {});
+    const keys: string[] = await ctx.runQuery(internal.legiscan.db.gradedAreas, { state });
+    const retiered = await retierAreas(ctx, state, keys, areas, c);
     await ctx.runMutation(internal.pipelineRuns.finish, {
       id: runId,
       ok: c.errors.length === 0,
@@ -189,24 +189,24 @@ export const retierState = internalAction({
   },
 });
 
-/** Steps 7 to 10 of the bills job for a given set of categories. */
-async function retierCategories(
+/** Steps 7 to 10 of the bills job for a given set of areas. */
+async function retierAreas(
   ctx: ActionCtx,
   state: string,
   keys: string[],
-  categories: Category[],
+  areas: Area[],
   c: Counts,
 ): Promise<number> {
   let retiered = 0;
   for (const key of keys) {
-    const category = categories.find((x) => x.key === key);
-    if (!category) continue;
+    const area = areas.find((x) => x.key === key);
+    if (!area) continue;
     try {
-      const bills = await ctx.runQuery(internal.legiscan.db.billsForCategory, { state, category: key });
-      const { tier, reason } = await tierCategory(ctx, { state, category, bills });
+      const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, area: key });
+      const { tier, reason } = await tierArea(ctx, { state, area, bills });
       c.openaiCalls++;
       console.log(`${state}/${key}: tier ${tier} (${reason})`);
-      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, category: key, tier });
+      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, area: key, tier });
       retiered++;
     } catch (err) {
       c.errors = [...c.errors, `tier ${key}: ${err instanceof Error ? err.message : String(err)}`].slice(-KEEP);

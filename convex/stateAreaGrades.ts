@@ -6,8 +6,8 @@ export const list = query({
   handler: (ctx, { state }) =>
     state
       ? ctx.db
-          .query("stateCategoryGrades")
+          .query("stateAreaGrades")
           .withIndex("by_state", (q) => q.eq("state", state))
           .collect()
-      : ctx.db.query("stateCategoryGrades").collect(),
+      : ctx.db.query("stateAreaGrades").collect(),
 });

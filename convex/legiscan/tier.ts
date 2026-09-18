@@ -1,9 +1,9 @@
 import type { ActionCtx } from "../_generated/server";
 import { callWithSchema } from "./openai";
-import type { Category } from "./classify";
+import type { Area } from "./classify";
 
 // Tier agent (step 7 of docs/pipeline.md). Given every saved bill in one
-// (state, category), it grades how strong that state's rules are.
+// (state, area), it grades how strong that state's rules are.
 
 export const TIER_NAMES = ["None", "Light", "Moderate", "Strong", "Comprehensive"] as const;
 
@@ -53,17 +53,17 @@ function describe(b: TierBill): string {
   return `- ${b.number} [${b.status.toUpperCase()}, ${b.date}, ${b.session}] ${b.title}\n  ${b.summary}\n${points}`;
 }
 
-export async function tierCategory(
+export async function tierArea(
   ctx: ActionCtx,
-  args: { state: string; category: Category; bills: TierBill[] },
+  args: { state: string; area: Area; bills: TierBill[] },
 ): Promise<TierResult> {
-  const { state, category, bills } = args;
+  const { state, area, bills } = args;
   const sorted = [...bills].sort((a, b) => a.status.localeCompare(b.status) || b.date.localeCompare(a.date));
   const list = sorted.length ? sorted.map(describe).join("\n") : "(no bills)";
   const text = `State: ${state}
-Category: ${category.label} (${category.key}). ${category.description}
+Area: ${area.label} (${area.key}). ${area.description}
 
-Bills in this state tagged with the category:
+Bills in this state tagged with the area:
 ${list}
 
 Assign the tier.`;

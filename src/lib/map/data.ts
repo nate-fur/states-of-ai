@@ -1,8 +1,8 @@
 import seed from "./seed.json";
-import type { StateRecord, Topic } from "./types";
+import type { StateRecord, RegulationArea } from "./types";
 
 export const TIERS = seed.TIERS as string[];
-export const TOPICS = seed.TOPICS as Topic[];
+export const AREAS = seed.AREAS as RegulationArea[];
 export const STATES = seed.STATES as StateRecord[];
 export const VERIFIED = seed.VERIFIED as string;
 

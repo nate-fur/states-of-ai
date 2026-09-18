@@ -1,7 +1,7 @@
 import "server-only";
 import { convexQuery, convexUrl } from "@/lib/convex";
 import { quadrant } from "./derive";
-import { TOPICS } from "./data";
+import { AREAS } from "./data";
 import type { MapBill, StateRecord } from "./types";
 
 // Builds the map's StateRecord shape from what the pipelines put in Convex.
@@ -10,8 +10,8 @@ import type { MapBill, StateRecord } from "./types";
 type Axis = { score: number; summary: string };
 type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
 type Facility = { state: string; operator: string; status: string; capacityMw: number | null };
-type Bill = { state: string; number: string; title: string; status: MapBill["s"]; date: string; url: string; categories: string[] };
-type Grade = { state: string; category: string; tier: number };
+type Bill = { state: string; number: string; title: string; status: MapBill["s"]; date: string; url: string; regulationAreas: string[] };
+type Grade = { state: string; regulationArea: string; tier: number };
 
 export type LiveMapData = { STATES: StateRecord[]; VERIFIED: string };
 
@@ -30,10 +30,10 @@ export async function loadLiveMapData(): Promise<LiveMapData | null> {
     convexQuery<State[]>("states:list"),
     convexQuery<Facility[]>("facilities:list"),
     convexQuery<Bill[]>("bills:list"),
-    convexQuery<Grade[]>("stateCategoryGrades:list"),
+    convexQuery<Grade[]>("stateAreaGrades:list"),
   ]);
 
-  const topicKeys = new Set(TOPICS.map((t) => t.k));
+  const areaKeys = new Set(AREAS.map((t) => t.k));
   const byState = <T extends { state: string }>(rows: T[]) => {
     const out: Record<string, T[]> = {};
     for (const r of rows) (out[r.state] ??= []).push(r);
@@ -61,12 +61,12 @@ export async function loadLiveMapData(): Promise<LiveMapData | null> {
       const posture = s.dataCenterPosture?.score ?? 0;
       const ai = s.aiRegulation?.score ?? 0;
       const grade: Record<string, [number, string]> = {};
-      for (const g of gradesByState[s.code] ?? []) grade[g.category] = [g.tier, ""];
+      for (const g of gradesByState[s.code] ?? []) grade[g.regulationArea] = [g.tier, ""];
 
       const mapBills: MapBill[] = (billsByState[s.code] ?? []).map((b) => ({
         n: b.number,
         t: b.title,
-        tags: b.categories.filter((k) => topicKeys.has(k)),
+        tags: b.regulationAreas.filter((k) => areaKeys.has(k)),
         s: b.status,
         d: prettyDate(b.date),
         url: b.url,

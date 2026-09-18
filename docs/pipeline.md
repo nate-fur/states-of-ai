@@ -35,11 +35,11 @@ For each state:
 2. Compare each result's change hash to the one saved in Convex. Skip bills whose hash has not changed. Keep new bills and bills whose hash is different. Bills dropped on an earlier run (not about AI, vetoed or failed, no text yet) are remembered with their hash too, so they are skipped for free until something about them changes. The remaining bills are worked through in small scheduled batches, since one Convex action cannot run longer than ten minutes.
 3. For each remaining bill, get the full details. Batch these requests.
 4. Get the latest text of each bill. Titles are often vague, so the classifier needs the full text. LegiScan returns it as HTML or PDF depending on the state. HTML is stripped to plain text. PDF is converted to plain text once with a PDF library. The full text is stored in Convex file storage, with no size cap, so the classifier can be re-run later without another LegiScan call. Each text also has a hash. If the text hash matches the saved one, skip the classifier and only update the bill's status. If it differs, the stored text is replaced.
-5. Run a classifier agent on each bill. First it decides if the bill is really about AI. Search results are fuzzy, and some bills only mention AI in passing. Those are dropped. Bills that were vetoed or failed are dropped too. For the rest, it picks which regulation categories the bill covers and writes a summary and key points.
+5. Run a classifier agent on each bill. First it decides if the bill is really about AI. Search results are fuzzy, and some bills only mention AI in passing. Those are dropped. Bills that were vetoed or failed are dropped too. For the rest, it picks which regulation areas the bill covers and writes a summary and key points.
 6. Save the bills to Convex, including the change hash and text hash.
-7. Only re-tier categories that had a new or updated bill in this run. Skip the rest. For each of those categories, load all of that state's bills in the category and run a second agent. It assigns a tier for the state in that category.
+7. Only re-tier areas that had a new or updated bill in this run. Skip the rest. For each of those areas, load all of that state's bills in the area and run a second agent. It assigns a tier for the state in that area.
 8. Save the tiers to Convex.
-9. Recompute the state scores for any state whose tiers changed. The AI regulation score (0 to 6) comes from the state's tiers across all categories. The data center posture score (-3 to +3) comes from the data center tier plus the state's facilities. Both use a plain formula, not an agent. The formulas are not decided yet.
+9. Recompute the state scores for any state whose tiers changed. The AI regulation score (0 to 6) comes from the state's tiers across all areas. The data center posture score (-3 to +3) comes from the data center tier plus the state's facilities. Both use a plain formula, not an agent. The formulas are not decided yet.
 10. Save the scores to Convex.
 
 ```mermaid
@@ -53,16 +53,16 @@ flowchart TD
   TH -- no --> CL[Classifier agent]
   CL --> R{Really about AI and not vetoed or failed?}
   R -- no --> X2[Drop]
-  R -- yes --> SV[Save bill, categories, summary, key points, hashes]
+  R -- yes --> SV[Save bill, areas, summary, key points, hashes]
   ST --> SV
-  SV --> CH{Any category with a new or updated bill?}
+  SV --> CH{Any area with a new or updated bill?}
   CH -- no --> X3[Done]
-  CH -- yes --> TR[Tier agent per changed category]
+  CH -- yes --> TR[Tier agent per changed area]
   TR --> SC[Recompute state scores]
   SC --> X4[Done]
 ```
 
-Re-running the agents without LegiScan: `reclassify` re-runs the classifier on every saved bill from its stored text, then re-tiers and rescores what changed. `retier` re-runs the tier agent on every graded category and rescores. Use them after changing a prompt, the categories, or the model. Both cost OpenAI calls only.
+Re-running the agents without LegiScan: `reclassify` re-runs the classifier on every saved bill from its stored text, then re-tiers and rescores what changed. `retier` re-runs the tier agent on every graded area and rescores. Use them after changing a prompt, the areas, or the model. Both cost OpenAI calls only.
 
 How the hashes work: LegiScan gives every bill a change hash that updates when anything about the bill changes, and every bill text a text hash. Saving both lets a run tell what is new without a date filter. Search calls are cheap. Details, text, and classifier calls are not, so the hashes are what keep later runs small.
 

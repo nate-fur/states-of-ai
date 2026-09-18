@@ -82,7 +82,7 @@ export function DetailRail({
             </p>
             <div className={`${anim} flex flex-col`} style={{ animationDelay: "0.42s" }}>
               <div className="flex justify-between border-b border-ink pb-2 font-map-mono text-[11px] uppercase tracking-[0.1em] text-mute">
-                <span>Policy buckets</span>
+                <span>Regulation areas</span>
                 <span>{data.buckets.length}</span>
               </div>
               {data.buckets.map((t) => (
