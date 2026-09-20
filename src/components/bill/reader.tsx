@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMounted } from "./use-mounted";
 import { cite, countText, parseBill, type BillLine } from "@/lib/bill/parse";
+import { clusters, foldPlan } from "@/lib/bill/fold";
 import { displayTitle, type BillDetail } from "@/lib/bill/types";
 import { useMapData } from "@/components/map/data-context";
 import { InfoDot, useInfoTip } from "./info-tip";
@@ -13,12 +14,16 @@ import { useBillDetail } from "./use-bill-detail";
 // The Bill Reader (handoff section 3). One component rendered two ways:
 // embedded in the map as an overlay, or standalone at /bill/[state]/[number].
 // The left rail lists takeaways grouped by regulation area; the right column
-// is the parsed text. Selecting a takeaway highlights the provisions it cites
-// and dims everything else.
+// is the parsed text. Selecting a takeaway highlights the provisions it cites,
+// dims the rest of their neighbourhoods, and folds everything in between
+// (handoff 3, src/lib/bill/fold.ts) so a citation 250 lines away is one
+// fold bar away instead of a scroll through dimmed text.
 
 const EASE_STD = "cubic-bezier(.4,0,.2,1)";
 const EASE_OUT = "cubic-bezier(.2,.7,.2,1)";
 const HL_BG = "rgba(212,161,94,.18)";
+const SCATTER = "#A8763A";
+const FOLD_HATCH = "repeating-linear-gradient(135deg,#F1F3F5 0 6px,#FCFCFD 6px 12px)";
 
 type Flat = {
   k: string; // regulation area key
@@ -26,11 +31,13 @@ type Flat = {
   title: string;
   text: string;
   ids: string[];
+  idxs: number[]; // line positions of the ids that resolve, in text order
 };
 
 function plural(n: number, word: string): string {
   return `${n} ${word}${n === 1 ? "" : "s"}`;
 }
+
 
 function scrollWithin(el: HTMLElement, container: HTMLElement | null, offset: number) {
   if (container) {
@@ -71,16 +78,25 @@ export function BillReader({
 
   const text = data?.text ?? null;
   const lines: BillLine[] = useMemo(() => (text ? parseBill(text) : []), [text]);
-  const pos = useMemo(() => Object.fromEntries(lines.map((l, i) => [l.id, i])), [lines]);
+  // First occurrence wins: a few cross-reference lists parse as duplicate ids.
+  const pos = useMemo(() => {
+    const out: Record<string, number> = {};
+    lines.forEach((l, i) => {
+      if (!(l.id in out)) out[l.id] = i;
+    });
+    return out;
+  }, [lines]);
 
   // Takeaways in order of first appearance in the text; grouped by area below.
   const T: Flat[] = useMemo(() => {
     const flat: Flat[] = [];
     for (const a of data?.regulationAreas ?? []) {
-      for (const t of a.takeaways) flat.push({ k: a.regulationArea, orig: flat.length, title: t.title, text: t.text, ids: t.sectionIds });
+      for (const t of a.takeaways) {
+        const idxs = t.sectionIds.map((id) => pos[id]).filter((i): i is number => i !== undefined).sort((a, b) => a - b);
+        flat.push({ k: a.regulationArea, orig: flat.length, title: t.title, text: t.text, ids: t.sectionIds, idxs });
+      }
     }
-    const at = (t: Flat) => (t.ids[0] !== undefined ? (pos[t.ids[0]] ?? 1e9) : 1e9);
-    return flat.sort((a, b) => at(a) - at(b));
+    return flat.sort((a, b) => (a.idxs[0] ?? 1e9) - (b.idxs[0] ?? 1e9));
   }, [data, pos]);
   const supp = useMemo(() => {
     const out: Record<string, number[]> = {};
@@ -96,21 +112,24 @@ export function BillReader({
 
   // Selection state, keyed by bill so a new bill starts clean, with the host
   // focus applied during render (derived state) rather than in an effect.
-  type Sel = { bill: string; activeT: number | null; closedG: Record<string, boolean>; focusApplied: string | null };
-  const [sel, setSel] = useState<Sel>({ bill, activeT: null, closedG: {}, focusApplied: null });
+  // `opened` is the set of fold bars expanded in place; it resets whenever the
+  // selection changes.
+  type Sel = { bill: string; activeT: number | null; closedG: Record<string, boolean>; opened: Record<string, boolean>; focusApplied: string | null };
+  const [sel, setSel] = useState<Sel>({ bill, activeT: null, closedG: {}, opened: {}, focusApplied: null });
   let cur: Sel = sel;
-  if (cur.bill !== bill) cur = { bill, activeT: null, closedG: {}, focusApplied: null };
+  if (cur.bill !== bill) cur = { bill, activeT: null, closedG: {}, opened: {}, focusApplied: null };
   if (focus && data && cur.focusApplied !== focus) {
     const id = focus.split("|")[0];
     const i = T.findIndex((t) => t.ids[0] === id);
-    cur = i >= 0 ? { ...cur, focusApplied: focus, activeT: i, closedG: { ...cur.closedG, [T[i]!.k]: false } } : { ...cur, focusApplied: focus };
+    cur = i >= 0 ? { ...cur, focusApplied: focus, activeT: i, opened: {}, closedG: { ...cur.closedG, [T[i]!.k]: false } } : { ...cur, focusApplied: focus };
   }
   if (cur !== sel) setSel(cur);
-  const { activeT, closedG } = cur;
+  const { activeT, closedG, opened } = cur;
   const setActiveT = (next: number | null | ((c: number | null) => number | null)) =>
-    setSel((s) => ({ ...s, activeT: typeof next === "function" ? next(s.activeT) : next }));
+    setSel((s) => ({ ...s, activeT: typeof next === "function" ? next(s.activeT) : next, opened: {} }));
   const setClosedG = (fn: (c: Record<string, boolean>) => Record<string, boolean>) =>
     setSel((s) => ({ ...s, closedG: fn(s.closedG) }));
+  const openFold = (key: string) => setSel((s) => ({ ...s, opened: { ...s.opened, [key]: true } }));
 
   // Once a focus has been applied, bring the passage and the rail row into view.
   const focusApplied = cur.focusApplied;
@@ -136,7 +155,7 @@ export function BillReader({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (activeT !== null) setSel((s) => ({ ...s, activeT: null }));
+      if (activeT !== null) setSel((s) => ({ ...s, activeT: null, opened: {} }));
       else if (embedded && onClose) onClose();
     };
     window.addEventListener("keydown", onKey);
@@ -149,7 +168,8 @@ export function BillReader({
     if (next !== null) {
       const t = T[next]!;
       setClosedG((s) => ({ ...s, [t.k]: false }));
-      if (t.ids[0]) setTimeout(() => scrollToId("bt-" + t.ids[0], 140), 30);
+      const first = t.idxs[0] !== undefined ? lines[t.idxs[0]] : undefined;
+      if (first) setTimeout(() => scrollToId("bt-" + first.id, 140), 30);
     }
   };
 
@@ -159,18 +179,21 @@ export function BillReader({
     return keys
       .map((k) => {
         const items = T.map((t, i) => ({ t, i })).filter(({ t }) => t.k === k);
-        const first = items[0]?.t.ids[0];
         return {
           k,
           items,
           summary: data?.regulationAreas.find((a) => a.regulationArea === k)?.summary ?? "",
-          first: first !== undefined ? (pos[first] ?? 1e9) : 1e9,
+          first: items[0]?.t.idxs[0] ?? 1e9,
         };
       })
       .sort((a, b) => a.first - b.first);
-  }, [data, T, pos]);
+  }, [data, T]);
 
-  const active = activeT !== null ? T[activeT] : null;
+  const active = activeT !== null ? (T[activeT] ?? null) : null;
+  // Number of separate neighbourhoods each takeaway's citations fall in.
+  const places = useMemo(() => T.map((t) => clusters(t.idxs).length), [T]);
+  const activeIdxs = active?.idxs;
+  const chunks = useMemo(() => (activeIdxs ? foldPlan(lines, activeIdxs, opened) : []), [lines, activeIdxs, opened]);
   const counts = text ? countText(text, lines) : null;
   const billRec = data?.bill;
   const title = billRec ? displayTitle(billRec) : number;
@@ -179,8 +202,78 @@ export function BillReader({
   const provenance = ["Text from LegiScan", data?.textInfo?.textType, data?.textInfo?.textDate].filter(Boolean).join(" · ");
   const hint =
     active === null
-      ? "Select a takeaway to see where the bill supports it. Highlighted passages are clickable."
-      : "Click the takeaway again, or press Esc, to clear.";
+      ? "Select a takeaway to see every place the bill supports it."
+      : "Everything the takeaway doesn't cite is folded. Expand a fold to read around it, or press Esc to clear.";
+
+  const renderLine = (l: BillLine, i: number) => {
+    const top = l.kind === "section" || l.kind === "act" || l.kind === "chapter";
+    const act = l.kind === "act";
+    const ch = l.kind === "chapter";
+    const prose = l.kind === "prose";
+    const hl = !!active && active.ids.includes(l.id);
+    const dimmed = dimOthers && !!active && !hl;
+    const cited = !!supp[l.id];
+    return (
+      <div
+        key={"l" + i}
+        id={"bt-" + l.id}
+        onClick={() => {
+          const hit = supp[l.id];
+          if (!hit) return;
+          setActiveT((cur) => (cur === hit[0] ? null : hit[0]!));
+        }}
+        className="grid items-baseline gap-x-4"
+        style={{
+          gridTemplateColumns: `${ch ? 108 : 72}px minmax(0,1fr)`,
+          padding: `${top ? 7 : 6}px 0 ${top ? 7 : 6}px ${l.kind === "sub" ? (l.depth - 1) * 26 : 0}px`,
+          marginTop: act || ch ? 28 : l.kind === "section" ? 22 : 0,
+          borderTop: act ? "1px solid #14181D" : 0,
+          background: hl ? HL_BG : "transparent",
+          boxShadow: hl ? "inset 2px 0 0 #14181D" : "none",
+          opacity: dimmed ? 0.38 : 1,
+          cursor: cited ? "pointer" : "default",
+          transition: "background .35s ease, box-shadow .35s ease, opacity .35s ease",
+        }}
+      >
+        <span
+          className="whitespace-nowrap text-right font-map-mono font-medium leading-[1.55]"
+          style={{ fontSize: top ? 14 : 12.5, color: top ? "#14181D" : l.depth >= 3 ? "#9AA1A9" : "#5F6770" }}
+        >
+          {l.label}
+        </span>
+        <span className="flex min-w-0 flex-col gap-1">
+          <span
+            className="font-map-serif leading-[1.55] text-pretty"
+            style={{
+              fontSize: act || ch ? 13 : prose ? 18 : l.kind === "section" && l.text ? 18 : 17,
+              color: act || ch ? "#5F6770" : "#14181D",
+              fontWeight: ch ? 500 : 400,
+              fontStyle: prose ? "italic" : "normal",
+              letterSpacing: act || ch ? "0.06em" : 0,
+            }}
+          >
+            {l.text}
+          </span>
+        </span>
+      </div>
+    );
+  };
+
+  // A folded run: full-width hatched bar naming what it hides; expands in place.
+  const renderFold = (key: string, label: string) => (
+    <button
+      key={key}
+      type="button"
+      onClick={() => openFold(key)}
+      className="my-[18px] flex w-full cursor-pointer items-center justify-between gap-4 border-0 border-y border-hair px-3 py-[9px] text-left font-map-mono text-[11px] tracking-[0.04em] text-mute hover:text-ink"
+      style={{ background: FOLD_HATCH, transition: "color .15s ease" }}
+    >
+      <span>{label}</span>
+      <span className="whitespace-nowrap text-dim">Expand ↓</span>
+    </button>
+  );
+
+  const placeCount = activeT !== null ? (places[activeT] ?? 0) : 0;
 
   return (
     <div
@@ -290,6 +383,7 @@ export function BillReader({
                     {g.items.map(({ t, i }) => {
                       const isActive = activeT === i;
                       const citation = t.ids.length === 0 ? "" : t.ids.length === 1 ? cite(t.ids[0]!) : `${cite(t.ids[0]!)} +${t.ids.length - 1}`;
+                      const scattered = (places[i] ?? 0) > 1;
                       return (
                         <button
                           key={i}
@@ -313,8 +407,16 @@ export function BillReader({
                             {t.text}
                           </span>
                           {citation && (
-                            <span className="pt-0.5 font-map-mono text-[11px]" style={{ color: isActive ? "rgba(255,255,255,.6)" : "#9AA1A9" }}>
-                              {citation}
+                            <span
+                              className="flex justify-between gap-2.5 pt-0.5 font-map-mono text-[11px]"
+                              style={{ color: isActive ? "rgba(255,255,255,.6)" : "#9AA1A9" }}
+                            >
+                              <span>{citation}</span>
+                              {scattered && (
+                                <span className="whitespace-nowrap" style={{ color: isActive ? "rgba(255,255,255,.6)" : SCATTER }}>
+                                  {plural(places[i]!, "place")}
+                                </span>
+                              )}
                             </span>
                           )}
                         </button>
@@ -333,61 +435,34 @@ export function BillReader({
           <div className="flex max-w-[820px] flex-col gap-[26px] pt-11 pb-[120px]" style={{ paddingLeft: "clamp(20px,4vw,56px)", paddingRight: "clamp(20px,4vw,56px)" }}>
             <h1 className="m-0 font-map-serif text-[36px] leading-[1.02] font-normal tracking-[-0.025em] text-balance">{title}</h1>
             <div className="border-t border-ink" />
+            {active && (
+              <div className="sticky top-[52px] z-[4] flex flex-wrap items-baseline justify-between gap-4 bg-ink px-3.5 py-3 font-map-mono text-[11px] uppercase tracking-[0.06em] text-[#F7F8FA]">
+                {/* The takeaway title leads; the coverage count is the quieter aside. */}
+                <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
+                  <span className="min-w-0 font-map-serif text-[15px] normal-case tracking-normal">{active.title}</span>
+                  <span className="whitespace-nowrap" style={{ color: "rgba(255,255,255,.55)" }}>
+                    {placeCount === 0 ? "(not tied to a passage)" : `(found in ${plural(placeCount, "place")})`}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveT(null)}
+                  className="flex-none cursor-pointer whitespace-nowrap border bg-transparent px-2 py-1 font-map-mono text-[10px] uppercase tracking-[0.08em] text-[#F7F8FA] hover:bg-[#F7F8FA] hover:text-ink"
+                  style={{ borderColor: "rgba(255,255,255,.4)", transition: "background .15s ease, color .15s ease" }}
+                >
+                  Show whole bill
+                </button>
+              </div>
+            )}
             {text ? (
               <div className="flex flex-col">
-                {lines.map((l) => {
-                  const top = l.kind === "section" || l.kind === "act" || l.kind === "chapter";
-                  const act = l.kind === "act";
-                  const ch = l.kind === "chapter";
-                  const prose = l.kind === "prose";
-                  const hl = !!active && active.ids.includes(l.id);
-                  const dimmed = dimOthers && !!active && !hl;
-                  const cited = !!supp[l.id];
-                  return (
-                    <div
-                      key={l.id}
-                      id={"bt-" + l.id}
-                      onClick={() => {
-                        const hit = supp[l.id];
-                        if (!hit) return;
-                        setActiveT((cur) => (cur === hit[0] ? null : hit[0]!));
-                      }}
-                      className="grid items-baseline gap-x-4"
-                      style={{
-                        gridTemplateColumns: `${ch ? 108 : 72}px minmax(0,1fr)`,
-                        padding: `${top ? 7 : 6}px 0 ${top ? 7 : 6}px ${l.kind === "sub" ? (l.depth - 1) * 26 : 0}px`,
-                        marginTop: act || ch ? 28 : l.kind === "section" ? 22 : 0,
-                        borderTop: act ? "1px solid #14181D" : 0,
-                        background: hl ? HL_BG : "transparent",
-                        boxShadow: hl ? "inset 2px 0 0 #14181D" : "none",
-                        opacity: dimmed ? 0.38 : 1,
-                        cursor: cited ? "pointer" : "default",
-                        transition: "background .35s ease, box-shadow .35s ease, opacity .35s ease",
-                      }}
-                    >
-                      <span
-                        className="whitespace-nowrap text-right font-map-mono font-medium leading-[1.55]"
-                        style={{ fontSize: top ? 14 : 12.5, color: top ? "#14181D" : l.depth >= 3 ? "#9AA1A9" : "#5F6770" }}
-                      >
-                        {l.label}
-                      </span>
-                      <span className="flex min-w-0 flex-col gap-1">
-                        <span
-                          className="font-map-serif leading-[1.55] text-pretty"
-                          style={{
-                            fontSize: act || ch ? 13 : prose ? 18 : l.kind === "section" && l.text ? 18 : 17,
-                            color: act || ch ? "#5F6770" : "#14181D",
-                            fontWeight: ch ? 500 : 400,
-                            fontStyle: prose ? "italic" : "normal",
-                            letterSpacing: act || ch ? "0.06em" : 0,
-                          }}
-                        >
-                          {l.text}
-                        </span>
-                      </span>
-                    </div>
-                  );
-                })}
+                {active
+                  ? chunks.map((c) =>
+                      c.kind === "fold"
+                        ? renderFold(c.key, c.label)
+                        : lines.slice(c.from, c.to + 1).map((l, j) => renderLine(l, c.from + j)),
+                    )
+                  : lines.map(renderLine)}
               </div>
             ) : (
               <p className="m-0 font-map-mono text-[12px] text-dim">{loading ? "Loading…" : "No text on file for this bill."}</p>
