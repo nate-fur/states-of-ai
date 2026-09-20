@@ -13,11 +13,14 @@ import {
   htmlToText,
   latestText,
   mapStatus,
+  normalizeBillNumber,
   searchQuery,
   textsNewestFirst,
   sinceFilter,
+  type BillText,
   type BillTextDoc,
 } from "./parse";
+import { countText } from "../../src/lib/bill/parse";
 
 // LegiScan bills job (docs/pipeline.md, "LegiScan bills").
 //
@@ -191,7 +194,7 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
       const status = mapStatus(bill.status);
       const meta = {
         externalId,
-        number: bill.bill_number,
+        number: normalizeBillNumber(bill.bill_number),
         title: bill.title,
         date: bill.status_date,
         url: bill.url,
@@ -238,15 +241,17 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
       // chaptered acts come off a Xerox), so fall back to the previous
       // version when extraction comes back empty.
       let doc: BillTextDoc | null = null;
+      let used: BillText | null = null;
       let plain = "";
       for (const version of textsNewestFirst(bill).slice(0, 3)) {
         doc = await getBillText(ctx, version.doc_id);
+        used = version;
         c.legiscanCalls++;
         plain = await toPlainText(ctx, doc);
         if (plain.trim()) break;
         console.warn(`${state} ${bill.bill_number}: ${version.type} ${version.doc_id} has no text (${doc.mime}); trying earlier version`);
       }
-      if (!doc || !plain.trim()) throw new Error("no text in any version");
+      if (!doc || !used || !plain.trim()) throw new Error("no text in any version");
       const storageId = await ctx.storage.store(new Blob([plain], { type: "text/plain" }));
       await ctx.runMutation(internal.legiscan.db.saveBillText, {
         externalId,
@@ -255,6 +260,9 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         mime: doc.mime,
         storageId,
         chars: plain.length,
+        ...countText(plain),
+        textDate: used.date,
+        textType: used.type,
       });
 
       // 5. Classifier.
@@ -274,18 +282,18 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         continue;
       }
 
-      // 6. Save.
+      // 6. Save the bill and its per-area summaries and takeaways.
       await ctx.runMutation(internal.legiscan.db.upsertBill, {
         ...meta,
         state,
         status,
-        regulationAreas: result.regulationAreas,
         textHash: doc.text_hash,
-        summary: result.summary,
-        keyPoints: result.keyPoints,
+        shortTitle: result.shortTitle,
+        gist: result.gist,
+        regulationAreas: result.regulationAreas,
       });
       c.saved++;
-      result.regulationAreas.forEach((k) => touched.add(k));
+      result.regulationAreas.forEach((a) => touched.add(a.key));
       prev?.regulationAreas.forEach((k) => touched.add(k));
     } catch (err) {
       const message = `${externalId}: ${err instanceof Error ? err.message : String(err)}`;
@@ -320,11 +328,11 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
     const area = areas.find((x) => x.key === key);
     if (!area) continue;
     try {
-      const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, area: key });
-      const { tier, reason } = await tierArea(ctx, { state, area, bills });
+      const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, regulationArea: key });
+      const { tier, note, basisBillIds } = await tierArea(ctx, { state, area, bills });
       c.openaiCalls++;
-      console.log(`${state}/${key}: tier ${tier} (${reason})`);
-      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, area: key, tier });
+      console.log(`${state}/${key}: tier ${tier} (${note})`);
+      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, regulationArea: key, tier, note, basisBillIds });
       retiered++;
     } catch (err) {
       c.errors = [...c.errors, `tier ${key}: ${err instanceof Error ? err.message : String(err)}`].slice(-KEEP);

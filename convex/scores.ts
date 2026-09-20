@@ -36,7 +36,7 @@ export const recompute = internalMutation({
       if (!state) continue;
 
       const grades = await ctx.db
-        .query("stateAreaGrades")
+        .query("stateRegulationAreaGrades")
         .withIndex("by_state", (q) => q.eq("state", code))
         .collect();
       const facilities = await ctx.db

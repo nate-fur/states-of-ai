@@ -6,6 +6,7 @@ import { useState } from "react";
 import { SourceToggle, useMapData } from "./data-context";
 import type { DetailSelection } from "@/lib/map/types";
 import { DetailRail } from "./detail-rail";
+import { BillReaderOverlay } from "@/components/bill/reader";
 import { StateDossierPanel } from "./state-dossier-panel";
 import { OutlineSelect } from "./ui";
 
@@ -18,6 +19,14 @@ export function DossierPage({
 }) {
   const router = useRouter();
   const [detail, setDetail] = useState<DetailSelection | null>(null);
+  const [reader, setReader] = useState<{ on: boolean; key: string | null; focus: string | null }>({
+    on: false,
+    key: null,
+    focus: null,
+  });
+  const openReader = (key: string, focus?: string) =>
+    setReader({ on: true, key, focus: focus ? `${focus}|${Date.now()}` : null });
+  const closeReader = () => setReader((r) => ({ ...r, on: false, focus: null }));
   const { STATES } = useMapData();
   const selected = STATES.find((s) => s.abbr === abbr);
   const compareState = compare
@@ -53,6 +62,7 @@ export function DossierPage({
           state={detail ? STATES.find((s) => s.abbr === detail.abbr) : undefined}
           onClose={() => setDetail(null)}
           onDetail={setDetail}
+          onOpenReader={openReader}
           widthClass="w-full min-w-[280px]"
         />
       ) : null}
@@ -121,6 +131,7 @@ export function DossierPage({
           )}
         </div>
       </div>
+      <BillReaderOverlay open={reader.on} billKey={reader.key} focus={reader.focus} onClose={closeReader} />
     </div>
   );
 }

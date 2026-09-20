@@ -194,6 +194,14 @@ const ENTITIES: Record<string, string> = {
   quot: '"',
   apos: "'",
   nbsp: " ",
+  sect: "§",
+  mdash: "—",
+  ndash: "–",
+  ldquo: "“",
+  rdquo: "”",
+  lsquo: "‘",
+  rsquo: "’",
+  hellip: "…",
 };
 
 /** Strip tags from bill HTML and collapse whitespace. */
@@ -202,7 +210,9 @@ export function htmlToText(html: string): string {
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
     .replace(/<br\s*\/?>|<\/(p|div|li|tr|h\d)>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
     .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+    .replace(/\u00a0/g, " ")
     .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m)
     .replace(/[ \t\r\f\v]+/g, " ")
     .replace(/\s*\n\s*/g, "\n")
@@ -213,4 +223,9 @@ export const MAX_TEXT_CHARS = 200_000; // per model call; the stored text is nev
 
 export function truncate(text: string, max = MAX_TEXT_CHARS): string {
   return text.length <= max ? text : text.slice(0, max) + "\n[... truncated ...]";
+}
+
+/** "SB243" -> "SB 243". LegiScan sends bill numbers without the space. */
+export function normalizeBillNumber(n: string): string {
+  return n.replace(/^([A-Z]+)(\d)/, "$1 $2");
 }

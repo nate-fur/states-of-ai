@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { TIERS, AREAS } from "@/lib/map/data";
+import { TIERS } from "@/lib/map/data";
 import { useMapData } from "./data-context";
 import {
   aiCells,
@@ -106,8 +106,8 @@ export function StateDossierPanel({
   const { text: typedName, caret } = useTypewriter(state.name);
 
   const qc = state.q.color;
-  const tl = areaLabelMap();
-  const { STATES, caption } = useMapData();
+  const { STATES, AREAS, caption } = useMapData();
+  const tl = areaLabelMap(AREAS);
   const { maxMw, median } = useMemo(() => capacityStats(STATES), [STATES]);
   const anim = animKey % 2 === 0 ? "map-fade-up-a" : "map-fade-up-b";
   const nums = numsOf(state);

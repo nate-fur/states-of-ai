@@ -14,6 +14,7 @@ import { SourceToggle, useMapData } from "./data-context";
 import { countQuadrants } from "@/lib/map/derive";
 import type { DetailSelection } from "@/lib/map/types";
 import { DetailRail } from "./detail-rail";
+import { BillReaderOverlay } from "@/components/bill/reader";
 import { DiffView } from "./diff-view";
 import { StateDossierPanel } from "./state-dossier-panel";
 import { StateMap } from "./state-map";
@@ -46,6 +47,22 @@ type Bounds = { lo: number; hi: number; canPan: boolean };
 function stateParam(v: string | null, byAbbr: Record<string, unknown>): string | null {
   const abbr = v?.toUpperCase() ?? "";
   return byAbbr[abbr] ? abbr : null;
+}
+
+// Detail rail selection in the URL: "bill:SB 243" or "k:frontier".
+function detailParam(v: string | null, abbr: string | null): DetailSelection | null {
+  if (!v || !abbr) return null;
+  const i = v.indexOf(":");
+  if (i < 0) return null;
+  const kind = v.slice(0, i);
+  const id = v.slice(i + 1);
+  if (kind === "bill" && id) return { abbr, bill: id };
+  if (kind === "k" && id) return { abbr, k: id };
+  return null;
+}
+function detailToParam(d: DetailSelection | null): string | null {
+  if (!d) return null;
+  return "bill" in d && d.bill ? `bill:${d.bill}` : "k" in d && d.k ? `k:${d.k}` : null;
 }
 
 // Union of every state path and label span inside the viewport, in window
@@ -117,8 +134,20 @@ export function Broadsheet() {
     s: string | null;
     c: string | null;
     seq: number;
-  }>({ detail: null, last: null, s: null, c: null, seq: 0 });
+  }>(() => {
+    // A fresh load with ?d= restores the panel.
+    const d = detailParam(params.get("d"), selected);
+    return { detail: d, last: d, s: selected, c: compare, seq: d ? 1 : 0 };
+  });
   const detail = rail.s === selected && rail.c === compare ? rail.detail : null;
+  // Bill Reader overlay. `key` stays set while closed so the exit animation
+  // plays; it is cleared when the drawer closes. ?r=1&f= restores it on load.
+  const [reader, setReader] = useState<{ on: boolean; key: string | null; focus: string | null }>(() => {
+    const d = detailParam(params.get("d"), selected);
+    if (!d || params.get("r") !== "1" || !("bill" in d) || !d.bill) return { on: false, key: null, focus: null };
+    const f = params.get("f");
+    return { on: true, key: `${d.abbr}:${d.bill}`, focus: f ? `${f}|${Date.now()}` : null };
+  });
   const [panX, setPanX] = useState(0);
   const [animPan, setAnimPan] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -178,15 +207,13 @@ export function Broadsheet() {
   });
 
   const setQuery = useCallback(
-    (next: { s?: string | null; c?: string | null }) => {
+    (next: { s?: string | null; c?: string | null; d?: string | null; r?: string | null; f?: string | null }) => {
       const p = new URLSearchParams(params.toString());
-      if (next.s !== undefined) {
-        if (next.s) p.set("s", next.s);
-        else p.delete("s");
-      }
-      if (next.c !== undefined) {
-        if (next.c) p.set("c", next.c);
-        else p.delete("c");
+      for (const k of ["s", "c", "d", "r", "f"] as const) {
+        const v = next[k];
+        if (v === undefined) continue;
+        if (v) p.set(k, v);
+        else p.delete(k);
       }
       const q = p.toString();
       router.replace(q ? `/?${q}` : "/", { scroll: false });
@@ -247,15 +274,32 @@ export function Broadsheet() {
     return () => cancelAnimationFrame(id);
   }, [selected, compare, drawer, drawerPx, vw, geoReady, animateTo]);
 
-  const setDetail = (d: DetailSelection | null) => {
+  const setRailDetail = useCallback((d: DetailSelection | null, s: string | null, c: string | null) => {
     setRail((r) => ({
       detail: d,
       last: d ?? r.last,
-      s: selected,
-      c: compare,
+      s,
+      c,
       seq: d ? r.seq + 1 : r.seq,
     }));
+  }, []);
+  const setDetail = (d: DetailSelection | null) => {
+    setRailDetail(d, selected, compare);
+    setReader((r) => ({ ...r, on: false, focus: null }));
+    setQuery({ d: detailToParam(d), r: null, f: null });
   };
+
+  // Reader flows (handoff section 4). The nonce lets the panel re-apply the
+  // same focus twice; only the section id goes in the URL.
+  const openReader = (key: string, focus?: string) => {
+    setReader({ on: true, key, focus: focus ? `${focus}|${Date.now()}` : null });
+    setQuery({ r: "1", f: focus ?? null });
+  };
+  const closeReader = useCallback(() => {
+    setReader((r) => (r.on ? { ...r, on: false, focus: null } : r));
+    setQuery({ r: null, f: null });
+  }, [setQuery]);
+
 
   const onSelect = (abbr: string) => {
     if (suppressClick.current) return;
@@ -374,7 +418,8 @@ export function Broadsheet() {
   }, []);
 
   const closeDrawer = () => {
-    setQuery({ s: null, c: null });
+    setReader({ on: false, key: null, focus: null });
+    setQuery({ s: null, c: null, d: null, r: null, f: null });
     setPicking(false);
     setAnimPan(true);
     setPanX(0);
@@ -518,6 +563,7 @@ export function Broadsheet() {
             state={detailState}
             onClose={() => setDetail(null)}
             onDetail={setDetail}
+            onOpenReader={openReader}
             animKey={rail.seq}
             widthClass="w-[380px]"
           />
@@ -570,6 +616,8 @@ export function Broadsheet() {
           ) : null}
         </div>
       </div>
+
+      <BillReaderOverlay open={reader.on && drawer} billKey={drawer ? reader.key : null} focus={reader.focus} onClose={closeReader} />
     </div>
   );
 }

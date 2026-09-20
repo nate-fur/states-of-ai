@@ -4,6 +4,7 @@ import { Tabs } from "./tabs";
 import { Table } from "./table";
 import { Facilities, type FacilityRow } from "./facilities";
 import { Bills, type BillRow } from "./bills";
+import { Takeaways, type TakeawayRow } from "./takeaways";
 
 // Reads live from Convex on every request; nothing here is cached.
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 type Axis = { score: number; summary: string };
 type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
 type Area = { key: string; label: string; description: string; icon: string };
-type Grade = { state: string; regulationArea: string; tier: number };
+type Grade = { state: string; regulationArea: string; tier: number; note?: string; basisBillIds?: string[]; gradedAt?: string };
 type Usage = { api: string; month: string; calls: number };
 type Run = { job: string; startedAt: number; finishedAt?: number; ok?: boolean; summary: string };
 
@@ -26,16 +27,18 @@ export default async function DataPage() {
     );
   }
 
-  const [states, areas, facilities, bills, grades, usage, runs] = await Promise.all([
+  const [states, areas, facilities, bills, grades, takeaways, usage, runs] = await Promise.all([
     convexQuery<State[]>("states:list"),
     convexQuery<Area[]>("regulationAreas:list"),
     convexQuery<FacilityRow[]>("facilities:list"),
     convexQuery<BillRow[]>("bills:list"),
-    convexQuery<Grade[]>("stateAreaGrades:list"),
+    convexQuery<Grade[]>("stateRegulationAreaGrades:list"),
+    convexQuery<TakeawayRow[]>("billRegulationAreas:list").catch(() => [] as TakeawayRow[]),
     convexQuery<Usage[]>("apiUsage:list"),
     convexQuery<Run[]>("pipelineRuns:list"),
   ]);
   states.sort((a, b) => a.code.localeCompare(b.code));
+  const billNumbers = Object.fromEntries(bills.map((b) => [b.externalId, b.number]));
 
   const tabs = [
     {
@@ -71,10 +74,26 @@ export default async function DataPage() {
       content: <Bills rows={bills} areas={areas} />,
     },
     {
+      title: "Takeaways",
+      count: takeaways.length,
+      content: <Takeaways rows={takeaways} areas={areas} billNumbers={billNumbers} />,
+    },
+    {
       title: "Grades",
       count: grades.length,
       content: (
-        <Table rows={grades} columns={["State", "Area", "Tier"]} render={(g) => [g.state, g.regulationArea, g.tier]} />
+        <Table
+          rows={grades}
+          columns={["State", "Area", "Tier", "Note", "Basis", "Graded"]}
+          render={(g) => [
+            g.state,
+            g.regulationArea,
+            g.tier,
+            g.note ?? "",
+            (g.basisBillIds ?? []).map((id) => billNumbers[id] ?? id).join(", "),
+            g.gradedAt ?? "",
+          ]}
+        />
       ),
     },
     {

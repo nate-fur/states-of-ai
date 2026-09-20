@@ -2,5 +2,8 @@ import { query } from "./_generated/server";
 
 export const list = query({
   args: {},
-  handler: (ctx) => ctx.db.query("regulationAreas").collect(),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("regulationAreas").collect();
+    return rows.sort((a, b) => a.order - b.order);
+  },
 });

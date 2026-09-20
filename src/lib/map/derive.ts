@@ -236,6 +236,7 @@ export function buildDetail(
       .map((t) => {
         const status = bucketStatus(st, t.k);
         const g = glyphForStatus(status);
+        const a = bill.areaSummaries?.[t.k];
         return {
           k: t.k,
           label: t.label,
@@ -245,8 +246,12 @@ export function buildDetail(
           bg: g.bg,
           border: g.border,
           iconColor: g.icon,
+          // Falls back to the area description when no annotation is on file (seed).
+          summary: a?.summary || t.desc,
+          takeaways: a?.takeaways ?? 0,
         };
-      });
+      })
+      .sort((a, b) => b.takeaways - a.takeaways);
     const g = glyphForStatus(bill.s === "enacted" ? 0 : 3);
     return {
       kind: "bill" as const,
@@ -260,6 +265,9 @@ export function buildDetail(
       statusText: `${bill.s.charAt(0).toUpperCase()}${bill.s.slice(1)} · ${bill.d}`,
       statusColor: statusColor(bill.s, qc),
       title: bill.t,
+      gist: bill.gist ?? "",
+      hasText: !!bill.hasText,
+      textMeta: bill.textMeta ?? "",
       buckets,
       // Live bills carry their own LegiScan page; the seed falls back to a search.
       legiscanUrl: bill.url ?? legiscanUrl(st.abbr, bill.n),
@@ -278,8 +286,16 @@ export function buildDetail(
         ...b,
         color: statusColor(b.s, qc),
         url: b.url ?? legiscanUrl(st.abbr, b.n),
+        summary: b.areaSummaries?.[area.k]?.summary ?? "",
+        hasText: !!b.hasText,
       }));
     const line = statusLine(status, qc);
+    const count = bills.length;
+    const stateSummary =
+      g.note ||
+      (count
+        ? `${count === 1 ? "One bill" : `${count} bills`} in ${st.name} touch this policy; no summary written yet.`
+        : `No ${st.name} legislation tracked in this policy.`);
     return {
       kind: "area" as const,
       stateName: st.name,
@@ -295,6 +311,8 @@ export function buildDetail(
       bills,
       tierName: TIERS[g.tier] ?? "None",
       tierNum: String(g.tier),
+      rubric: area.rubric?.[g.tier] ?? "",
+      stateSummary,
       peersText: `${peers(st, area.k, all)} of ${all.length} states`,
       legiscanUrl: legiscanUrl(st.abbr, area.label),
       legiscanLabel: "LegiScan search",

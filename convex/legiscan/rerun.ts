@@ -3,6 +3,7 @@ import { internalAction, type ActionCtx } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { classifyBill, type Area } from "./classify";
 import { tierArea } from "./tier";
+import { countText } from "../../src/lib/bill/parse";
 
 // Re-run the agents over what is already in Convex. Neither touches LegiScan.
 //
@@ -87,13 +88,16 @@ export const reclassifyBatch = internalAction({
         continue;
       }
       try {
+        const text = await blob.text();
+        // The text is in hand, so refresh the parse counts the reader shows.
+        await ctx.runMutation(internal.legiscan.db.patchTextCounts, { externalId: bill.externalId, ...countText(text) });
         const result = await classifyBill(ctx, {
           state,
           number: bill.number,
           title: bill.title,
           status: bill.status,
           session: bill.session,
-          text: await blob.text(),
+          text,
           areas,
         });
         c.openaiCalls++;
@@ -113,17 +117,19 @@ export const reclassifyBatch = internalAction({
         }
 
         const before = [...bill.regulationAreas].sort().join(",");
-        const after = [...result.regulationAreas].sort().join(",");
-        await ctx.runMutation(internal.legiscan.db.patchClassification, {
+        const after = result.regulationAreas.map((a) => a.key).sort().join(",");
+        await ctx.runMutation(internal.legiscan.db.saveClassification, {
           externalId: bill.externalId,
+          state,
+          textHash: bill.textHash,
+          shortTitle: result.shortTitle,
+          gist: result.gist,
           regulationAreas: result.regulationAreas,
-          summary: result.summary,
-          keyPoints: result.keyPoints,
         });
         // Summaries feed the tier agent too, so every reclassified bill's
         // areas get re-tiered, not only the ones whose tags moved.
         bill.regulationAreas.forEach((k) => touched.add(k));
-        result.regulationAreas.forEach((k) => touched.add(k));
+        result.regulationAreas.forEach((a) => touched.add(a.key));
         if (before !== after) c.changed++;
       } catch (err) {
         const message = `${bill.number}: ${err instanceof Error ? err.message : String(err)}`;
@@ -202,11 +208,11 @@ async function retierAreas(
     const area = areas.find((x) => x.key === key);
     if (!area) continue;
     try {
-      const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, area: key });
-      const { tier, reason } = await tierArea(ctx, { state, area, bills });
+      const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, regulationArea: key });
+      const { tier, note, basisBillIds } = await tierArea(ctx, { state, area, bills });
       c.openaiCalls++;
-      console.log(`${state}/${key}: tier ${tier} (${reason})`);
-      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, area: key, tier });
+      console.log(`${state}/${key}: tier ${tier} (${note})`);
+      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, regulationArea: key, tier, note, basisBillIds });
       retiered++;
     } catch (err) {
       c.errors = [...c.errors, `tier ${key}: ${err instanceof Error ? err.message : String(err)}`].slice(-KEEP);

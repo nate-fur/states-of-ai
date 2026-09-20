@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { STATES as SEED_STATES, VERIFIED as SEED_VERIFIED } from "@/lib/map/data";
-import type { StateRecord } from "@/lib/map/types";
+import { AREAS as SEED_AREAS, STATES as SEED_STATES, VERIFIED as SEED_VERIFIED } from "@/lib/map/data";
+import type { RegulationArea, StateRecord } from "@/lib/map/types";
 
 // The map can read either the checked-in seed JSON or what the pipelines put
 // in Convex. Both are loaded up front; the toggle just switches which one
@@ -13,8 +13,11 @@ import { SOURCE_COOKIE, type MapSource } from "@/lib/map/source";
 
 export type { MapSource };
 
+export type LiveData = { STATES: StateRecord[]; AREAS: RegulationArea[]; VERIFIED: string };
+
 type MapData = {
   STATES: StateRecord[];
+  AREAS: RegulationArea[];
   VERIFIED: string;
   source: MapSource;
   setSource: (s: MapSource) => void;
@@ -30,7 +33,7 @@ export function MapDataProvider({
   initialSource,
   children,
 }: {
-  live: { STATES: StateRecord[]; VERIFIED: string } | null;
+  live: LiveData | null;
   initialSource: MapSource;
   children: React.ReactNode;
 }) {
@@ -42,6 +45,7 @@ export function MapDataProvider({
   const useLive = source === "live" && live !== null;
   const value: MapData = {
     STATES: useLive ? live.STATES : SEED_STATES,
+    AREAS: useLive && live.AREAS.length ? live.AREAS : SEED_AREAS,
     VERIFIED: useLive ? live.VERIFIED : SEED_VERIFIED,
     source: useLive ? "live" : "seed",
     setSource,

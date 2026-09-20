@@ -10,11 +10,17 @@ export type Quadrant = {
 
 export type MapBill = {
   n: string;
+  /** Display title: the classifier's short title when present, else LegiScan's. */
   t: string;
   tags: string[];
   s: BillStatus;
   d: string;
   url?: string; // direct LegiScan bill page; absent in the seed
+  gist?: string; // 1-2 plain sentences; live only
+  hasText?: boolean; // true when the full text is on file, so the reader can open
+  textMeta?: string; // "4 takeaways · 6 sections · 927 words"
+  /** Per-area one-liner and takeaway count, keyed by regulation area. */
+  areaSummaries?: Record<string, { summary: string; takeaways: number }>;
 };
 
 export type RegulationArea = {
@@ -22,6 +28,9 @@ export type RegulationArea = {
   label: string;
   icon: string;
   desc: string;
+  /** One line per tier, index = tier 0…4. */
+  rubric?: string[];
+  order?: number;
 };
 
 export type SourceLink = { label: string; url: string };
