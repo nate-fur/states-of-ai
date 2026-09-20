@@ -18,7 +18,6 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - [ ] Decide the data center posture formula (-3 to +3) from tier + facilities
 - [ ] Replace the "Scores use placeholder formulas" copy once the formulas land
 - [ ] First full pipeline run against live LegiScan (check `apiUsage` before reclassifying; ~430 OpenAI calls)
-- [ ] Empty states for UI areas with no data (e.g. a state with no bills says so instead of rendering blank)
 - [ ] Rework takeaway generation for long bills. Quality degrades when a bill yields many takeaways; each bill's per-area takeaways should highlight the right sections and subsections in full and not skip sections that belong
 - [ ] Better way to view takeaways that span many sections across a whole bill
 - [ ] Stable regeneration: reclassifying a bill with the same system should not change its summary, gist, or takeaways. Users should never see a different set after a rerun. Approach unclear, likely tricky (pin model + temperature 0, seed, cache by textHash + prompt hash, or only regenerate when text changes)
@@ -29,6 +28,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Done
 
+- [x] Empty states in the dossier (no data centers, no operating capacity, no bills) and the diff's merged bill list
 - [x] Map mode toggle (Combined / Compute / Regulation) with single-hue ramps, swapped legend, dossier coupling, and `?mode=` in the URL
 - [x] Data model rebuilt and Convex seeded from scratch
 - [x] LegiScan and Compute Atlas pipelines as Convex crons

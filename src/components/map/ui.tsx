@@ -65,6 +65,13 @@ export function SegmentedControl<K extends string>({
   );
 }
 
+/** One-line placeholder for a section with nothing to show (mono 12px, dim). */
+export function EmptyNote({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={cn("m-0 font-map-mono text-[12px] leading-[1.5] text-dim", className)}>{children}</p>
+  );
+}
+
 export function OutlineSelect({
   className,
   children,

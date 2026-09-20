@@ -7,6 +7,7 @@ import { fixedOffset } from "./motion";
 import {
   AccordionSection,
   DotScale,
+  EmptyNote,
   GlyphTile,
   OutlineButton,
   OutlineSelect,
@@ -346,6 +347,9 @@ export function DiffView({
         note={data.billsNote}
       >
         <div className="flex flex-col py-1 pb-3">
+          {data.bills.length === 0 && (
+            <EmptyNote className="py-3">No bills tracked in either state.</EmptyNote>
+          )}
           {data.bills.map((bill) => (
             <div
               key={`${bill.stateName}-${bill.n}`}

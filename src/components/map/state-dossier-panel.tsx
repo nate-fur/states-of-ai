@@ -30,6 +30,7 @@ import {
 import {
   AccordionSection,
   DotScale,
+  EmptyNote,
   GlyphTile,
   QuadrantMini,
   RollNumber,
@@ -199,6 +200,11 @@ export function StateDossierPanel({
 
   const toggle = (k: OpenKey) => setOpen((cur) => (cur === k ? null : k));
 
+  // Empty states (FEATURES.md): say so instead of rendering zeros and blanks.
+  const noSites = state.sites.completed + state.sites.pipeline === 0 && state.mw === 0;
+  const noOps = state.ops.length === 0;
+  const noBills = state.bills.length === 0;
+
   const tipArea = areas.find((t) => t.k === tip?.id);
   const tipOn = !!tip?.on;
 
@@ -290,6 +296,11 @@ export function StateDossierPanel({
           </span>
         }
       >
+        {noSites ? (
+          <div className="py-4 pb-5">
+            <EmptyNote>No data centers tracked in {state.name}.</EmptyNote>
+          </div>
+        ) : (
         <div className="flex flex-col gap-[18px] py-4 pb-5">
           <div className="grid grid-cols-3 gap-4 font-map-mono">
             <div className="flex flex-col gap-1.5">
@@ -362,6 +373,11 @@ export function StateDossierPanel({
                 />
               ))}
             </svg>
+            {noOps ? (
+              <EmptyNote className="min-w-0 flex-1">
+                No operating capacity on record. Sites are planned or their capacity is undisclosed.
+              </EmptyNote>
+            ) : (
             <div
               className="min-w-0 flex-1 overflow-hidden"
               style={{
@@ -402,8 +418,10 @@ export function StateDossierPanel({
                 ))}
               </div>
             </div>
+            )}
           </div>
         </div>
+        )}
       </AccordionSection>
 
       <AccordionSection
@@ -493,6 +511,7 @@ export function StateDossierPanel({
           <div className="-mt-1.5 flex justify-between font-map-mono text-[10px] text-dim">
             <span>Stringency tier 0–4 · enacted law only</span>
           </div>
+          {noBills && <EmptyNote>No AI legislation tracked in {state.name}.</EmptyNote>}
           <div
             className="-my-[9px] grid"
             style={{
@@ -579,6 +598,9 @@ export function StateDossierPanel({
             }}
           >
             <div ref={billsRef} className="flex flex-col py-1 pb-3">
+              {noBills && (
+                <EmptyNote className="py-3">No bills tracked in {state.name}.</EmptyNote>
+              )}
               {bills.map((b) => (
                 <button
                   key={b.n}
