@@ -5,6 +5,7 @@ import { geoAlbersUsa, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { FeatureCollection, Geometry } from "geojson";
 import { useMapData } from "./data-context";
+import { fillFor, isDarkFill, type MapMode } from "@/lib/map/mode";
 import type { StateRecord } from "@/lib/map/types";
 
 const LABEL_OFFSETS: Record<string, [number, number]> = {
@@ -45,6 +46,7 @@ export function StateMap({
   selected,
   compare,
   onSelect,
+  mode = "combined",
   panX = 0,
   animPan = false,
   cursor = "default",
@@ -56,6 +58,8 @@ export function StateMap({
   selected: string | null;
   compare: string | null;
   onSelect: (abbr: string) => void;
+  /** Fill scheme: quadrant colors, or one ramp for a single axis. */
+  mode?: MapMode;
   panX?: number;
   animPan?: boolean;
   cursor?: string;
@@ -186,13 +190,15 @@ export function StateMap({
       const hov = hover === g.abbr;
       return {
         ...g,
-        bg: s.q.color,
+        bg: fillFor(mode, s),
+        // Light ramp shades can't carry a white label; those flip to ink.
+        dark: isDarkFill(mode, s),
         active,
         hov,
         opacity: hover && !hov && !active ? 0.6 : 1,
       };
     });
-  }, [geo, byAbbr, selected, compare, hover]);
+  }, [geo, byAbbr, selected, compare, hover, mode]);
 
   const leaders = shapes.filter((s) => s.leader);
   const outlines = [
@@ -227,8 +233,9 @@ export function StateMap({
               strokeWidth={1}
               strokeLinejoin="round"
               opacity={s.opacity}
-              className="cursor-pointer transition-opacity duration-150"
+              className="cursor-pointer"
               style={{
+                transition: "opacity .15s, fill .3s ease",
                 animation: stateAnim(s.delay),
                 transformBox: "fill-box",
                 transformOrigin: "center",
@@ -290,10 +297,13 @@ export function StateMap({
                 animation: labelAnim(s.delay),
                 left: `${(s.lx / 9.6).toFixed(2)}%`,
                 top: `${(s.ly / 6).toFixed(2)}%`,
-                color: s.leader ? "#14181D" : "#fff",
+                color: s.leader || !s.dark ? "#14181D" : "#fff",
                 textShadow: s.leader
                   ? "0 0 3px #F7F8FA"
-                  : "0 0 3px rgba(20,24,29,0.7), 0 0 1px rgba(20,24,29,0.9)",
+                  : s.dark
+                    ? "0 0 3px rgba(20,24,29,0.7), 0 0 1px rgba(20,24,29,0.9)"
+                    : "0 0 3px #F7F8FA, 0 0 2px #F7F8FA",
+                transition: "color .3s ease, text-shadow .3s ease",
               }}
             >
               {s.abbr}

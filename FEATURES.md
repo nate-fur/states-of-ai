@@ -19,7 +19,6 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - [ ] Replace the "Scores use placeholder formulas" copy once the formulas land
 - [ ] First full pipeline run against live LegiScan (check `apiUsage` before reclassifying; ~430 OpenAI calls)
 - [ ] Empty states for UI areas with no data (e.g. a state with no bills says so instead of rendering blank)
-- [ ] Map mode toggle: combined scores (existing), compute only, regulation only. Single-axis modes use one hue with shades marking where the state lands on that spectrum
 - [ ] Rework takeaway generation for long bills. Quality degrades when a bill yields many takeaways; each bill's per-area takeaways should highlight the right sections and subsections in full and not skip sections that belong
 - [ ] Better way to view takeaways that span many sections across a whole bill
 - [ ] Stable regeneration: reclassifying a bill with the same system should not change its summary, gist, or takeaways. Users should never see a different set after a rerun. Approach unclear, likely tricky (pin model + temperature 0, seed, cache by textHash + prompt hash, or only regenerate when text changes)
@@ -30,6 +29,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Done
 
+- [x] Map mode toggle (Combined / Compute / Regulation) with single-hue ramps, swapped legend, dossier coupling, and `?mode=` in the URL
 - [x] Data model rebuilt and Convex seeded from scratch
 - [x] LegiScan and Compute Atlas pipelines as Convex crons
 - [x] Map wired to live Convex data with a seed/live toggle

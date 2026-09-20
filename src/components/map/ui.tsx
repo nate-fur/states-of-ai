@@ -23,6 +23,48 @@ export function OutlineButton({
   );
 }
 
+/**
+ * Segmented control (handoff "Mode toggle"): one ink outline around flush
+ * buttons, a 1px ink divider between them, the active segment inverted.
+ */
+export function SegmentedControl<K extends string>({
+  value,
+  options,
+  onChange,
+  className,
+  ariaLabel,
+}: {
+  value: K;
+  options: { key: K; label: string }[];
+  onChange: (k: K) => void;
+  className?: string;
+  ariaLabel?: string;
+}) {
+  return (
+    <div role="radiogroup" aria-label={ariaLabel} className={cn("flex border border-ink", className)}>
+      {options.map((o, i) => {
+        const on = o.key === value;
+        return (
+          <button
+            key={o.key}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onChange(o.key)}
+            className={cn(
+              "whitespace-nowrap border-0 px-[13px] py-[7px] font-map-mono text-[11px] uppercase tracking-[0.08em] leading-[1.2] transition-[background-color,color] duration-200",
+              i > 0 && "border-l border-ink",
+              on ? "bg-ink text-white" : "bg-transparent text-ink hover:bg-hover",
+            )}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function OutlineSelect({
   className,
   children,

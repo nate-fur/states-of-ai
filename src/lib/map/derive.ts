@@ -65,22 +65,23 @@ export function sign(n: number): string {
   return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
 }
 
-export function postureCells(st: StateRecord): string[] {
+/** 7-cell posture bar. `on` overrides the quadrant accent (single-axis map modes). */
+export function postureCells(st: StateRecord, on: string = st.q.color): string[] {
   const dim = "#D7DBE0";
-  const qc = st.q.color;
   return [-3, -2, -1, 0, 1, 2, 3].map((v) =>
     v === 0
       ? "#14181D"
       : (st.posture < 0 && v < 0 && v >= st.posture) ||
           (st.posture > 0 && v > 0 && v <= st.posture)
-        ? qc
+        ? on
         : dim,
   );
 }
 
-export function aiCells(st: StateRecord): string[] {
+/** 6-cell AI regulation bar. `on` overrides the quadrant accent (single-axis map modes). */
+export function aiCells(st: StateRecord, on: string = st.q.color): string[] {
   const dim = "#D7DBE0";
-  return [1, 2, 3, 4, 5, 6].map((v) => (v <= st.ai ? st.q.color : dim));
+  return [1, 2, 3, 4, 5, 6].map((v) => (v <= st.ai ? on : dim));
 }
 
 export function scaleDots(

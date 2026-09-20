@@ -19,6 +19,7 @@ import {
   statusColor,
   areaLabelMap,
 } from "@/lib/map/derive";
+import { barAccents, sectionForMode, type MapMode } from "@/lib/map/mode";
 import type { DetailSelection, StateRecord } from "@/lib/map/types";
 import {
   fixedOffset,
@@ -71,6 +72,7 @@ export function StateDossierPanel({
   compact = false,
   animKey = 0,
   defaultOpen = { policy: true, ai: true, local: false },
+  mode = "combined",
 }: {
   state: StateRecord;
   detail: DetailSelection | null;
@@ -78,10 +80,25 @@ export function StateDossierPanel({
   compact?: boolean;
   animKey?: number;
   defaultOpen?: { policy: boolean; ai: boolean; local: boolean };
+  /**
+   * Broadsheet map mode. A single-axis mode opens its section (Compute →
+   * Build-out, Regulation → Regulation) and takes over the matching bar's
+   * accent while the other bar greys out. The quadrant chart stays as-is.
+   */
+  mode?: MapMode;
 }) {
   const [open, setOpen] = useState<OpenKey>(
-    defaultOpen.policy ? "policy" : defaultOpen.ai ? "ai" : defaultOpen.local ? "local" : "policy",
+    sectionForMode(mode) ??
+      (defaultOpen.policy ? "policy" : defaultOpen.ai ? "ai" : defaultOpen.local ? "local" : "policy"),
   );
+  // Mode → section coupling fires on change only; the user may still toggle
+  // sections freely afterwards. Combined leaves the current section alone.
+  const [modeSeen, setModeSeen] = useState(mode);
+  if (modeSeen !== mode) {
+    setModeSeen(mode);
+    const sec = sectionForMode(mode);
+    if (sec) setOpen(sec);
+  }
   const [hov, setHov] = useState<string | null>(null);
   // The tooltip keeps its last content/position while fading out.
   const [tip, setTip] = useState<{ id: string; x: number; y: number; on: boolean } | null>(
@@ -106,6 +123,7 @@ export function StateDossierPanel({
   const { text: typedName, caret } = useTypewriter(state.name);
 
   const qc = state.q.color;
+  const bar = barAccents(mode, qc);
   const { STATES, AREAS, caption } = useMapData();
   const tl = areaLabelMap(AREAS);
   const { maxMw, median } = useMemo(() => capacityStats(STATES), [STATES]);
@@ -235,7 +253,7 @@ export function StateDossierPanel({
               className="text-ink"
             />
           </div>
-          <SegmentBar cells={postureCells(state)} stagger="center" />
+          <SegmentBar cells={postureCells(state, bar.posture)} stagger="center" />
           <div className="flex justify-between font-map-mono text-[10px] text-dim">
             <span>Restrict</span>
             <span>Accelerate</span>
@@ -249,7 +267,7 @@ export function StateDossierPanel({
               <span>/6</span>
             </span>
           </div>
-          <SegmentBar cells={aiCells(state)} stagger="ltr" />
+          <SegmentBar cells={aiCells(state, bar.ai)} stagger="ltr" />
           <div className="flex justify-between font-map-mono text-[10px] text-dim">
             <span>Weak</span>
             <span>Strong</span>

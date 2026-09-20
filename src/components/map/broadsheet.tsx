@@ -12,13 +12,24 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { SourceToggle, useMapData } from "./data-context";
 import { countQuadrants } from "@/lib/map/derive";
+import {
+  MODES,
+  MODE_COPY,
+  MODE_TITLE,
+  modeParam,
+  parseMode,
+  rampCounts,
+  typedSegments,
+  type MapMode,
+} from "@/lib/map/mode";
 import type { DetailSelection } from "@/lib/map/types";
 import { DetailRail } from "./detail-rail";
 import { BillReaderOverlay } from "@/components/bill/reader";
 import { DiffView } from "./diff-view";
 import { StateDossierPanel } from "./state-dossier-panel";
 import { StateMap } from "./state-map";
-import { OutlineButton } from "./ui";
+import { useTypewriter } from "./motion";
+import { OutlineButton, SegmentedControl } from "./ui";
 
 const EASE = "cubic-bezier(.2,.7,.2,1)";
 const CONTAINER_MAX = 1480;
@@ -124,6 +135,9 @@ export function Broadsheet() {
   const rawCompare = stateParam(params.get("c"), byAbbr);
   const compare = rawCompare && rawCompare !== selected ? rawCompare : null;
   const drawer = !!selected;
+  // Map mode lives in the URL (?mode=compute|reg) so a view can be linked;
+  // Combined is the default and is omitted.
+  const mode: MapMode = parseMode(params.get("mode"));
 
   const [picking, setPicking] = useState(false);
   // The rail keeps rendering the last selection while it slides closed, and a
@@ -177,6 +191,15 @@ export function Broadsheet() {
     bounds: Bounds;
   } | null>(null);
   const counts = useMemo(() => countQuadrants(STATES), [STATES]);
+  const ramp = useMemo(() => rampCounts(mode, STATES), [mode, STATES]);
+  const copy = MODE_COPY[mode];
+  // The H1 retypes when the mode changes (same effect as the dossier name):
+  // erase back to the shared "Where each state stands on ", then type the rest.
+  const titleSegs = MODE_TITLE[mode];
+  const { text: typedTitle, caret: titleCaret } = useTypewriter(
+    titleSegs.map((t) => t.text).join(""),
+  );
+  const titleParts = typedSegments(mode, typedTitle);
 
   useLayoutEffect(() => {
     const measure = () => setVw(window.innerWidth);
@@ -207,9 +230,16 @@ export function Broadsheet() {
   });
 
   const setQuery = useCallback(
-    (next: { s?: string | null; c?: string | null; d?: string | null; r?: string | null; f?: string | null }) => {
+    (next: {
+      s?: string | null;
+      c?: string | null;
+      d?: string | null;
+      r?: string | null;
+      f?: string | null;
+      mode?: string | null;
+    }) => {
       const p = new URLSearchParams(params.toString());
-      for (const k of ["s", "c", "d", "r", "f"] as const) {
+      for (const k of ["s", "c", "d", "r", "f", "mode"] as const) {
         const v = next[k];
         if (v === undefined) continue;
         if (v) p.set(k, v);
@@ -451,12 +481,44 @@ export function Broadsheet() {
         </Link>
       </div>
 
-      <div className="border-b border-ink pb-[18px]">
-        <h1 className="m-0 font-map-serif text-[clamp(34px,4.2vw,58px)] leading-none font-normal tracking-[-0.02em]">
-          Where each state stands on{" "}
-          <em className="font-light italic">compute</em> and{" "}
-          <em className="font-light italic">regulation</em>
+      <div className="flex flex-wrap items-end justify-between gap-6 border-b border-ink pb-[18px]">
+        <h1 className="relative m-0 font-map-serif text-[clamp(34px,4.2vw,58px)] leading-[1.06] font-normal tracking-[-0.02em]">
+          {/* The longest title (Combined) reserves the box so the row and the
+              toggle stay put while a shorter title is typed over it. */}
+          <span className="invisible" aria-hidden>
+            {MODE_TITLE.combined.map((t, i) =>
+              t.em ? (
+                <em key={i} className="font-light italic">
+                  {t.text}
+                </em>
+              ) : (
+                t.text
+              ),
+            )}
+          </span>
+          <span className="absolute inset-0">
+            {titleParts.map((t, i) =>
+              t.em ? (
+                <em key={i} className="font-light italic">
+                  {t.text}
+                </em>
+              ) : (
+                t.text
+              ),
+            )}
+            <span
+              className="map-caret ml-[6px] inline-block h-[0.72em] w-[3px] translate-y-[0.06em] bg-ink"
+              style={{ opacity: titleCaret ? 1 : 0 }}
+              aria-hidden
+            />
+          </span>
         </h1>
+        <SegmentedControl
+          ariaLabel="Map mode"
+          value={mode}
+          options={MODES}
+          onChange={(m) => setQuery({ mode: modeParam(m) })}
+        />
       </div>
 
       <div className="flex flex-col gap-5 pt-7">
@@ -464,6 +526,7 @@ export function Broadsheet() {
           selected={selected}
           compare={compare}
           onSelect={onSelect}
+          mode={mode}
           panX={panX}
           animPan={animPan}
           cursor={dragging ? "grabbing" : canPan ? "grab" : "default"}
@@ -481,43 +544,61 @@ export function Broadsheet() {
             transition: settled ? `margin .45s ${EASE}` : "none",
           }}
         >
-          <div
-            className="grid items-stretch gap-1"
-            style={{
-              gridTemplateColumns: "auto 1fr 1fr",
-              gridTemplateRows: "auto 34px 34px",
-            }}
-          >
-            <div />
-            <div className="text-center text-[10px] uppercase tracking-[0.08em]">
-              Restrict DCs
+          {mode === "combined" ? (
+            <div
+              className="grid items-stretch gap-1"
+              style={{
+                gridTemplateColumns: "auto 1fr 1fr",
+                gridTemplateRows: "auto 34px 34px",
+              }}
+            >
+              <div />
+              <div className="text-center text-[10px] uppercase tracking-[0.08em]">
+                Restrict DCs
+              </div>
+              <div className="text-center text-[10px] uppercase tracking-[0.08em]">
+                Accelerate DCs
+              </div>
+              <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
+                Strong AI
+              </div>
+              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-brakes px-2.5 text-white">
+                <span>Full brakes</span>
+                <span>{counts.brakes}</span>
+              </div>
+              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-regulate px-2.5 text-white">
+                <span>Build &amp; regulate</span>
+                <span>{counts.regulate}</span>
+              </div>
+              <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
+                Weak AI
+              </div>
+              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-slow px-2.5 text-white">
+                <span>Slow lane</span>
+                <span>{counts.slow}</span>
+              </div>
+              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-throttle px-2.5 text-white">
+                <span>Full throttle</span>
+                <span>{counts.throttle}</span>
+              </div>
             </div>
-            <div className="text-center text-[10px] uppercase tracking-[0.08em]">
-              Accelerate DCs
+          ) : (
+            <div className="flex w-[308px] flex-col gap-[5px]">
+              <div className="text-[10px] uppercase tracking-[0.08em]">{copy.axisTitle}</div>
+              <div className="flex gap-[3px]">
+                {ramp.map((r, i) => (
+                  <div key={i} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+                    <span className="h-[26px] w-full" style={{ background: r.color }} />
+                    <span className="text-[10px] text-mute">{r.n}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between text-[9px] uppercase tracking-[0.06em] text-dim">
+                <span>{copy.axisLow}</span>
+                <span>{copy.axisHigh}</span>
+              </div>
             </div>
-            <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
-              Strong AI
-            </div>
-            <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-brakes px-2.5 text-white">
-              <span>Full brakes</span>
-              <span>{counts.brakes}</span>
-            </div>
-            <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-regulate px-2.5 text-white">
-              <span>Build &amp; regulate</span>
-              <span>{counts.regulate}</span>
-            </div>
-            <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
-              Weak AI
-            </div>
-            <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-slow px-2.5 text-white">
-              <span>Slow lane</span>
-              <span>{counts.slow}</span>
-            </div>
-            <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-throttle px-2.5 text-white">
-              <span>Full throttle</span>
-              <span>{counts.throttle}</span>
-            </div>
-          </div>
+          )}
           <p
             className="m-0 flex-none overflow-hidden font-map-serif text-[14px] leading-[1.55] text-mute"
             style={{
@@ -529,12 +610,7 @@ export function Broadsheet() {
                 : "none",
             }}
           >
-            <span className="block w-[340px] text-pretty">
-              Color is the state&apos;s quadrant: data center posture (−3
-              restricting to +3 accelerating) against AI regulation strength
-              (0–6). Click a state to open its dossier; use Compare to pin a
-              second state.
-            </span>
+            <span className="block w-[340px] text-pretty">{copy.caption}</span>
           </p>
         </div>
       </div>
@@ -612,6 +688,7 @@ export function Broadsheet() {
               detail={detail}
               onDetail={setDetail}
               defaultOpen={{ policy: true, ai: false, local: false }}
+              mode={mode}
             />
           ) : null}
         </div>
