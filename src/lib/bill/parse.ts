@@ -24,7 +24,8 @@ const ACT = /^(SECTION|Section|SEC\.|Sec\.)\s*(\d+)\.(?!\d)\s*(.*)$/;
 const CHAPTER = /^(CHAPTER|SUBCHAPTER|SUBTITLE|ARTICLE|PART)\s+([\w.]+)\.\s*(.*)$/;
 // Codified sections: California "22757.12. (a) …", Texas "Sec. 552.051.  HEADING. (a) …",
 // Alaska "Sec. 15.80.009.", Vermont "§ 2031.", New York "§ 227-g.", South Carolina "Section 7-25-230.".
-const SECTION = /^(?:(?:§|Sec\.|Section)\s*)?(\d{3,6}(?:\.\d+)?|\d+[A-Za-z]?(?:[.-][A-Za-z0-9]+)+)\.\s*(.*)$/;
+// The terminal period may not be followed by a digit, or "Section 541.001, …" would parse as § 541.
+const SECTION = /^(?:(?:§|Sec\.|Section)\s*)?(\d{3,6}(?:\.\d+)?|\d+[A-Za-z]?(?:[.-][A-Za-z0-9]+)+)\.(?!\d)\s*(.*)$/;
 // Subdivision markers only: (a) (12) (A) (iv) and hyphenated (b-1); not "(HIPAA)".
 const LEAD = /^\(([a-z]|\d{1,3}|[A-Z]|[ivx]+|[IVX]+|[a-z]-\d{1,2}|\d{1,3}-[a-z])\)\s*/;
 // Numbered subsections without parentheses, as in Nevada, New York, North Dakota: "1. Any communication…".
@@ -77,6 +78,7 @@ export function normalize(raw: string): string[] {
       .replace(/\( ([A-Za-z0-9-]{1,3})\)/g, "($1)") // "( A)"
       .replace(/^NEW SECTION\.\s*/, "") // Washington
       .replace(/^["“](?=(?:§|Sec\.|Section|SECTION)\s*)/, "") // quoted new sections: "§ 163-278.18A. …
+      .replace(/^((?:§|Sec\.|Section)\s*[\w.:-]*\d)\s+\./, "$1.") // Virginia, Michigan: "§ 59.1-200 ." with a space before the period
       .replace(/^§\s*(\d{1,2})\.(?![\d-])/, "Sec. $1."), // New York writes act sections as "§ 2."
   );
   return lines.filter(Boolean);
@@ -93,6 +95,8 @@ function closed(line: string): boolean {
  * - "SECTION 1." or "13663." alone takes the following line.
  * - A line that starts no marker, follows an unclosed line, or begins in
  *   lower case, is a continuation of the previous line.
+ * - So is a bare "Section 551.108." after an unclosed line: a cross-reference
+ *   the conversion wrapped, not a heading.
  */
 export function reflow(raw: string): string[] {
   const out: string[] = [];
@@ -108,7 +112,12 @@ export function reflow(raw: string): string[] {
         out[out.length - 1] = prev + " " + line;
         continue;
       }
-      const continuation = !isMarker(line) && !ACT.test(prev) && !CHAPTER.test(prev) && (!closed(prev) || /^[a-z]/.test(line));
+      // "…rights under" + "Section 551.108.": a spelled-out reference with nothing heading-like
+      // after the number, following a line that stops mid-sentence. Headings are "Sec." or bare.
+      const sm = /^(Section|§)\s/.test(line) && !ACT.test(line) ? line.match(SECTION) : null;
+      const bareRef = !!sm && (sm[2] === "" || /^[a-z]/.test(sm[2]!)) && /[a-z]$/.test(prev);
+      const continuation =
+        (!isMarker(line) || bareRef) && !ACT.test(prev) && !CHAPTER.test(prev) && (!closed(prev) || (!bareRef && /^[a-z]/.test(line)));
       if (continuation) {
         // "auto-" + "mated": a word hyphenated across a wrapped line.
         const hyphenated = /[a-z]-$/.test(prev) && /^[a-z]/.test(line);

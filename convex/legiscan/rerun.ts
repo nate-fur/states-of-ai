@@ -34,11 +34,12 @@ function describe(c: Counts): string {
   );
 }
 
-/** Queue every saved bill (one state, or all) for re-classification. */
+/** Queue saved bills (one state, all, or specific externalIds) for re-classification. */
 export const reclassify = internalAction({
-  args: { state: v.optional(v.string()), batchSize: v.optional(v.number()) },
-  handler: async (ctx, { state, batchSize = 10 }): Promise<{ states: number; bills: number }> => {
-    const ids = await ctx.runQuery(internal.legiscan.db.billIds, { state });
+  args: { state: v.optional(v.string()), externalIds: v.optional(v.array(v.string())), batchSize: v.optional(v.number()) },
+  handler: async (ctx, { state, externalIds, batchSize = 10 }): Promise<{ states: number; bills: number }> => {
+    const all = await ctx.runQuery(internal.legiscan.db.billIds, { state });
+    const ids = externalIds ? all.filter((b) => externalIds.includes(b.externalId)) : all;
     const byState = new Map<string, string[]>();
     for (const b of ids) byState.set(b.state, [...(byState.get(b.state) ?? []), b.externalId]);
     let i = 0;
