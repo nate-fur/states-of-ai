@@ -30,6 +30,33 @@ export const fixtures = mutation({
   },
 });
 
+/**
+ * Upsert the regulation areas from the committed seed without touching any
+ * other table. Run after editing a rubric or checklist in
+ * src/lib/scoring/checklists.ts, then `retier` so the grades follow.
+ */
+export const areas = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("regulationAreas").collect();
+    const byKey = new Map(rows.map((r) => [r.key, r]));
+    let inserted = 0;
+    let updated = 0;
+    for (const area of AREAS) {
+      const doc = { ...area, rubric: [...area.rubric] };
+      const existing = byKey.get(area.key);
+      if (existing) {
+        await ctx.db.patch(existing._id, doc);
+        updated++;
+      } else {
+        await ctx.db.insert("regulationAreas", doc);
+        inserted++;
+      }
+    }
+    return { inserted, updated };
+  },
+});
+
 /** Replace any subset of tables from a pipeline document keyed by table name. */
 export const importDocument = mutation({
   args: { document: v.any() },

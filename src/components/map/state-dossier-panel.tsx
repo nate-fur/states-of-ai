@@ -250,7 +250,7 @@ export function StateDossierPanel({
       >
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between font-map-mono text-[11px] uppercase tracking-[0.08em] text-mute">
-            <span>DC posture</span>
+            <span>DC build-out</span>
             <RollNumber
               value={nums.postureText}
               prev={prev?.postureText}
@@ -261,8 +261,8 @@ export function StateDossierPanel({
           </div>
           <SegmentBar cells={postureCells(state, bar.posture)} stagger="center" />
           <div className="flex justify-between font-map-mono text-[10px] text-dim">
-            <span>Restrict</span>
-            <span>Accelerate</span>
+            <span>Negligible</span>
+            <span>Hyperscale</span>
           </div>
         </div>
         <div className="flex flex-col gap-1.5">

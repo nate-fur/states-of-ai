@@ -7,6 +7,9 @@ import { v } from "convex/values";
 const axis = v.object({
   score: v.number(),
   summary: v.string(),
+  // What the score was computed from (src/lib/scoring/formulas.ts): the
+  // regulation point total (0 to 36) or the imputed operating megawatts.
+  points: v.optional(v.number()),
 });
 
 export const facilityStatus = v.union(
@@ -142,9 +145,10 @@ export default defineSchema({
   stateRegulationAreaGrades: defineTable({
     state: v.string(), // states.code
     regulationArea: v.string(), // regulationAreas.key
-    tier: v.number(), // 0 … 4
+    tier: v.number(), // 0 … 4, computed by rule from `elements` (src/lib/scoring/formulas.ts)
     note: v.string(), // 1 sentence: why this tier, naming the bills that earn it
     basisBillIds: v.array(v.string()), // bills.externalId of the enacted bills that set the tier
+    elements: v.optional(v.array(v.string())), // checklist element ids the state has enacted (src/lib/scoring/checklists.ts)
     gradedAt: v.string(), // ISO date
   })
     .index("by_state", ["state"])

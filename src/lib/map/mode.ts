@@ -146,16 +146,16 @@ export const MODE_COPY: Record<
   { caption: string; axisTitle: string; axisLow: string; axisHigh: string }
 > = {
   combined: {
-    caption: `Color is the state's quadrant: data center posture (−3 restricting to +3 accelerating) against AI regulation strength (0–6). ${COMPARE_HINT}`,
+    caption: `Color is the state's quadrant: data center build-out (−3 negligible to +3 hyperscale) against AI regulation strength (0–6). ${COMPARE_HINT}`,
     axisTitle: "",
     axisLow: "",
     axisHigh: "",
   },
   compute: {
-    caption: `Color is data center posture alone, from −3 (restricting) to +3 (accelerating). ${COMPARE_HINT}`,
-    axisTitle: "Data center posture",
-    axisLow: "Restrict (−3)",
-    axisHigh: "Accelerate (+3)",
+    caption: `Color is data center build-out alone, from −3 (negligible) to +3 (hyperscale). ${COMPARE_HINT}`,
+    axisTitle: "Data center build-out",
+    axisLow: "Negligible (−3)",
+    axisHigh: "Hyperscale (+3)",
   },
   reg: {
     caption: `Color is AI regulation strength alone, from 0 (nothing enacted) to 6 (comprehensive). ${COMPARE_HINT}`,

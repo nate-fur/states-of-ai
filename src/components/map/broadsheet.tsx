@@ -474,6 +474,12 @@ export function Broadsheet() {
       <div className="fixed top-3.5 right-7 z-[5] flex items-center gap-2">
         <SourceToggle />
         <Link
+          href="/scoring"
+          className="border border-ink bg-paper px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-ink no-underline hover:bg-ink hover:text-white"
+        >
+          Scoring
+        </Link>
+        <Link
           href="/data"
           className="border border-ink bg-paper px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-ink no-underline hover:bg-ink hover:text-white"
         >
@@ -554,10 +560,10 @@ export function Broadsheet() {
             >
               <div />
               <div className="text-center text-[10px] uppercase tracking-[0.08em]">
-                Restrict DCs
+                Few DCs
               </div>
               <div className="text-center text-[10px] uppercase tracking-[0.08em]">
-                Accelerate DCs
+                Many DCs
               </div>
               <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
                 Strong AI

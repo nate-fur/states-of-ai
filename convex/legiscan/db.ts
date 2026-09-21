@@ -324,6 +324,7 @@ export const upsertGrade = internalMutation({
     tier: v.number(),
     note: v.string(),
     basisBillIds: v.array(v.string()),
+    elements: v.array(v.string()),
   },
   handler: async (ctx, grade) => {
     const gradedAt = new Date().toISOString().slice(0, 10);

@@ -83,8 +83,8 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
 
   const metrics: DiffMetricRow[] = [
     {
-      label: "Data center posture",
-      sub: "−3 restrict · +3 accelerate",
+      label: "Data center build-out",
+      sub: "−3 negligible · +3 hyperscale",
       a: sign(a.posture),
       b: sign(b.posture),
       hasBars: true,
@@ -93,7 +93,7 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
       aSub: a.q.label,
       bSub: b.q.label,
       size: "20px",
-      ...lead(a.posture, b.posture, a.abbr, b.abbr, (d) => `+${d} toward accel`),
+      ...lead(a.posture, b.posture, a.abbr, b.abbr, (d) => `+${d} more build-out`),
       deltaSub: "",
       same: a.posture === b.posture,
     },
@@ -263,10 +263,10 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
   const parts: string[] = [];
   if (a.posture !== b.posture) {
     parts.push(
-      `${a.posture > b.posture ? a.name : b.name} leans further toward accelerating data centers (${sign(a.posture)} vs ${sign(b.posture)})`,
+      `${a.posture > b.posture ? a.name : b.name} has the heavier data center build-out (${sign(a.posture)} vs ${sign(b.posture)})`,
     );
   } else {
-    parts.push(`Both sit at ${sign(a.posture)} on data center posture`);
+    parts.push(`Both sit at ${sign(a.posture)} on data center build-out`);
   }
   if (a.ai !== b.ai) {
     parts.push(

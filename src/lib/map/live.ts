@@ -1,6 +1,7 @@
 import "server-only";
 import { convexQuery, convexUrl } from "@/lib/convex";
 import { quadrant } from "./derive";
+import { tagline } from "@/lib/scoring/formulas";
 import { AREAS as SEED_AREAS } from "./data";
 import type { MapBill, RegulationArea, StateRecord } from "./types";
 
@@ -140,7 +141,7 @@ export async function loadLiveMapData(): Promise<LiveMapData | null> {
         q: quadrant(posture, ai),
         posture,
         ai,
-        summary: s.aiRegulation?.summary ?? "No data yet.",
+        summary: s.aiRegulation && s.dataCenterPosture ? tagline(posture, ai) : "No data yet.",
         sites: { completed: operational.length, pipeline: fac.length - operational.length },
         mw,
         ops,

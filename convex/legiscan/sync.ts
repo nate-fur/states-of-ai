@@ -329,10 +329,10 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
     if (!area) continue;
     try {
       const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, regulationArea: key });
-      const { tier, note, basisBillIds } = await tierArea(ctx, { state, area, bills });
-      c.openaiCalls++;
-      console.log(`${state}/${key}: tier ${tier} (${note})`);
-      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, regulationArea: key, tier, note, basisBillIds });
+      const { tier, note, basisBillIds, elements, called } = await tierArea(ctx, { state, area, bills });
+      if (called) c.openaiCalls++; // nothing enacted is graded 0 without a call
+      console.log(`${state}/${key}: tier ${tier} [${elements.join(", ")}] (${note})`);
+      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, regulationArea: key, tier, note, basisBillIds, elements });
       retiered++;
     } catch (err) {
       c.errors = [...c.errors, `tier ${key}: ${err instanceof Error ? err.message : String(err)}`].slice(-KEEP);

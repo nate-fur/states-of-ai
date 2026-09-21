@@ -25,14 +25,17 @@ type State = {
 
   // Both axes are derived from facilities, bills, and grades once those
   // exist. Absent until then; never hand-filled.
+  // Formulas: src/lib/scoring/formulas.ts, explained in docs/scoring.md.
   dataCenterPosture?: {
-    score: number;         // -3 restrict … +3 accelerate
-    summary: string;
+    score: number;         // -3 negligible … +3 hyperscale build-out
+    summary: string;       // one sentence with the capacity behind it
+    points?: number;       // estimated operating MW
   };
 
   aiRegulation?: {
     score: number;         // 0 none … 6 comprehensive
-    summary: string;
+    summary: string;       // one sentence naming the strongest area
+    points?: number;       // sum of the nine area tiers, 0 … 36
   };
 
   verifiedAt?: string;     // ISO date
@@ -132,7 +135,7 @@ type RegulationArea = {
   label: string;           // "Deepfakes & elections"
   description: string;     // one line on what it covers
   icon: string;            // single glyph, e.g. "⚙"
-  rubric: string[];        // 5 lines, index = tier 0…4; what each tier means for this area
+  rubric: string[];        // 5 lines, index = tier 0…4; copied from src/lib/scoring/checklists.ts by the seed
   order: number;           // grid position
 };
 ```
@@ -147,9 +150,10 @@ this area" is a filter on Bill.
 type StateRegulationAreaGrade = {
   state: string;           // State.code
   regulationArea: string;  // RegulationArea.key
-  tier: 0 | 1 | 2 | 3 | 4;
+  tier: 0 | 1 | 2 | 3 | 4; // computed by rule from `elements`
   note: string;            // 1 sentence: why this tier, naming the bills that earn it
   basisBillIds: string[];  // Bill.id of the enacted bills that set the tier
+  elements?: string[];     // checklist element ids the state has enacted (src/lib/scoring/checklists.ts)
   gradedAt: string;        // ISO date
 };
 ```

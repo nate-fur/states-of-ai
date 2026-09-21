@@ -13,9 +13,8 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Todo
 
-- [ ] Decide the AI regulation score formula (0 to 6) from area tiers
-- [ ] Decide the data center posture formula (-3 to +3) from tier + facilities
-- [ ] Replace the "Scores use placeholder formulas" copy once the formulas land
+- [ ] Run `retier` so every grade carries checklist elements (one OpenAI call per state-area with an enacted bill; check `apiUsage` first)
+- [ ] Recalibrate scoring cut points after the first full LegiScan run (`node scripts/check-scoring.mts`, docs/scoring.md "Recalibration")
 - [ ] First full pipeline run against live LegiScan (check `apiUsage` before reclassifying; ~430 OpenAI calls)
 - [ ] Rework takeaway generation for all bills. Highlighted sections are sometimes irrelevant, miss nearby subsections that belong, or otherwise don't read as expert-curated by a human; each bill's per-area takeaways should cite the right sections and subsections in full
 - [ ] Stable regeneration: reclassifying a bill with the same system should not change its summary, gist, or takeaways. Users should never see a different set after a rerun. Approach unclear, likely tricky (pin model + temperature 0, seed, cache by textHash + prompt hash, or only regenerate when text changes)
@@ -26,6 +25,8 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Done
 
+- [x] Scoring system: per-area element checklists graded by the tier agent, tier by rule, regulation score as a banded sum, build-out score from operating capacity plus pipeline (`src/lib/scoring/`, docs/scoring.md)
+- [x] `/scoring` page explaining the method from the same constants; axis copy changed from posture/restrict/accelerate to build-out
 - [x] Parser: wrapped cross-references (`Section 541.001, …`) no longer parse as headings and reparent the subdivisions after them; `§ 59.1-200 .` headings parse
 - [x] Bill Reader: per-area takeaways that highlight the provisions they cite (`src/components/bill/`, `src/lib/bill/`)
 - [x] Bill Reader folds the text around a selected takeaway: one window per cluster of cited lines, fold bars for everything between, sticky banner with the place count

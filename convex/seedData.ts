@@ -1,8 +1,11 @@
-// Every state plus the nine regulation areas. rubric[tier] is the one-line
-// definition of tier 0…4 for that area; order is the grid position. Scores
-// are not seeded; they are derived from facilities, bills, and grades.
+// Every state plus the nine regulation areas. Each area's rubric (one line
+// per tier 0…4) and element checklist live in src/lib/scoring/checklists.ts;
+// order is the grid position. Scores are not seeded; they are derived from
+// facilities, bills, and grades.
 
-export const AREAS = [
+import { CHECKLISTS } from "../src/lib/scoring/checklists";
+
+const AREA_INFO = [
   {
     key: "frontier",
     label: "Frontier duties",
@@ -10,13 +13,6 @@ export const AREAS = [
     order: 0,
     description:
       "Obligations on developers of the largest general-purpose models: publishing safety frameworks, testing for catastrophic risk, reporting critical incidents to the state, and whistleblower protections for lab employees.",
-    rubric: [
-      "No obligations on large-model developers.",
-      "Voluntary framework or study of frontier risks.",
-      "Incident reporting or disclosure duties for the largest developers.",
-      "Mandatory safety frameworks and testing, with agency enforcement.",
-      "Pre-deployment safety duties with penalties and whistleblower protections.",
-    ],
   },
   {
     key: "transparency",
@@ -25,13 +21,6 @@ export const AREAS = [
     order: 1,
     description:
       "Duties to tell people when AI is in the loop: notices that content is AI-generated, disclosure when a consequential decision was automated, and documentation that developers must hand to deployers.",
-    rubric: [
-      "No AI disclosure duties.",
-      "Disclosure required in one narrow use, such as election ads or chatbots.",
-      "Disclosure across several consumer-facing uses.",
-      "General duty to notify when AI drives a consequential decision.",
-      "Notice, explanation, and appeal rights across sectors, with enforcement.",
-    ],
   },
   {
     key: "chatbots",
@@ -40,13 +29,6 @@ export const AREAS = [
     order: 2,
     description:
       "Rules for conversational and companion AI, especially with children: identity disclosure, self-harm protocols, limits on engagement-maximizing design, and parental controls.",
-    rubric: [
-      "No rules for conversational AI.",
-      "Bots must identify themselves as AI.",
-      "Disclosure plus self-harm response protocols.",
-      "Age-specific limits on companion features and data use.",
-      "Audits and a private right of action for harms to minors.",
-    ],
   },
   {
     key: "gov",
@@ -55,13 +37,6 @@ export const AREAS = [
     order: 3,
     description:
       "How state agencies may buy and use AI: inventories of systems in use, procurement standards, impact assessments before deployment, and human review of automated decisions.",
-    rubric: [
-      "No rules on agency use of AI.",
-      "Task force or inventory of systems in use.",
-      "Procurement standards and published inventories.",
-      "Impact assessments before deployment and human review of decisions.",
-      "Binding prohibitions on high-risk uses with independent oversight.",
-    ],
   },
   {
     key: "dc",
@@ -70,13 +45,6 @@ export const AREAS = [
     order: 4,
     description:
       "Data center build-out policy: grid interconnection and cost-allocation rules for large loads, water and energy reporting, siting review, and the tax incentives that attract or condition new campuses.",
-    rubric: [
-      "No data-center-specific rules.",
-      "Reporting of energy or water use.",
-      "Grid-impact studies or siting review for large loads.",
-      "Cost-allocation rules shifting grid costs to operators; conditioned incentives.",
-      "Moratoria or binding caps on new large-load interconnection.",
-    ],
   },
   {
     key: "discrimination",
@@ -85,13 +53,6 @@ export const AREAS = [
     order: 5,
     description:
       "Protections against biased outcomes from high-risk systems in housing, lending, education, and similar domains: risk management programs, impact assessments, and a right to appeal.",
-    rubric: [
-      "No AI-specific anti-discrimination rules.",
-      "Existing civil-rights law clarified to cover algorithms.",
-      "Bias audits required in one domain, such as housing or lending.",
-      "Cross-sector high-risk duties: risk management and impact assessments.",
-      "Full high-risk regime with AG enforcement and consumer rights.",
-    ],
   },
   {
     key: "deepfakes",
@@ -100,13 +61,6 @@ export const AREAS = [
     order: 6,
     description:
       "Restrictions on synthetic media: disclosure or bans for deceptive political content near elections, and remedies for non-consensual intimate imagery and digital replicas.",
-    rubric: [
-      "No synthetic-media rules.",
-      "Disclosure on AI-generated political ads.",
-      "Bans on deceptive election deepfakes in a window before voting.",
-      "Adds remedies for non-consensual intimate imagery and platform duties.",
-      "Criminal penalties, takedown duties, and provenance requirements.",
-    ],
   },
   {
     key: "employment",
@@ -115,13 +69,6 @@ export const AREAS = [
     order: 7,
     description:
       "AI in hiring, promotion, and workplace monitoring: notice to candidates and workers, bias audits of screening tools, and limits on using proxies for protected characteristics.",
-    rubric: [
-      "No rules for AI in hiring or the workplace.",
-      "Notice to candidates that AI screening is used.",
-      "Notice plus consent or opt-out for automated decisions.",
-      "Bias audits of screening tools and limits on proxy data.",
-      "Audits, surveillance limits, and a private right of action.",
-    ],
   },
   {
     key: "health",
@@ -130,15 +77,14 @@ export const AREAS = [
     order: 8,
     description:
       "AI in clinical and coverage decisions: disclosure when providers use generative AI, human review of utilization and claims denials, and limits on automated underwriting.",
-    rubric: [
-      "No AI-specific rules in health or insurance.",
-      "Disclosure when providers use generative AI in communications.",
-      "Human review required for coverage denials.",
-      "AI may not be the sole basis for clinical or claims decisions.",
-      "Licensing, audit, and liability regime for clinical AI.",
-    ],
   },
 ] as const;
+
+export const AREAS = AREA_INFO.map((a) => {
+  const checklist = CHECKLISTS[a.key];
+  if (!checklist) throw new Error(`no checklist for regulation area ${a.key}`);
+  return { ...a, rubric: checklist.rubric };
+});
 
 export const STATES = (
   [

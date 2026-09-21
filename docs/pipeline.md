@@ -37,9 +37,9 @@ For each state:
 4. Get the latest text of each bill. Titles are often vague, so the classifier needs the full text. LegiScan returns it as HTML or PDF depending on the state. HTML is stripped to plain text. PDF is converted to plain text once with a PDF library. The full text is stored in Convex file storage, with no size cap, so the classifier can be re-run later without another LegiScan call. Each text also has a hash. If the text hash matches the saved one, skip the classifier and only update the bill's status. If it differs, the stored text is replaced.
 5. Run a classifier agent on each bill. The text is first split into provisions, each with a stable id like `c22602-b-1` for § 22602(b)(1), and the agent sees those ids next to the text. First it decides if the bill is really about AI. Search results are fuzzy, and some bills only mention AI in passing. Those are dropped. Bills that were vetoed or failed are dropped too. For the rest, it writes a short title and a one or two sentence gist, picks which regulation areas the bill covers, and for each area writes a one-line summary plus one to five takeaways. A takeaway is a plain-English claim with the ids of the provisions that support it, so the Bill Reader can highlight them.
 6. Save the bill, one row per regulation area with its summary and takeaways, and the change hash and text hash to Convex.
-7. Only re-tier areas that had a new or updated bill in this run. Skip the rest. For each of those areas, load all of that state's bills in the area, with their per-area summaries and takeaways, and run a second agent. It grades the state against the area's five-line rubric (what tier 0 to 4 means for that area), assigns a tier, writes a one-sentence note on why, and names the enacted bills that earn it.
-8. Save the tiers, notes, and basis bills to Convex.
-9. Recompute the state scores for any state whose tiers changed. The AI regulation score (0 to 6) comes from the state's tiers across all areas. The data center posture score (-3 to +3) comes from the data center tier plus the state's facilities. Both use a plain formula, not an agent. The formulas are not decided yet.
+7. Only re-tier areas that had a new or updated bill in this run. Skip the rest. For each of those areas, load all of that state's bills in the area, with their per-area summaries and takeaways, and run a second agent. It works through the area's fixed checklist of provisions (`src/lib/scoring/checklists.ts`), marks which ones an enacted bill contains and which bill, and writes a one-sentence note. The tier (0 to 4) is then computed by rule from the checked provisions, not chosen by the agent. Areas with no enacted bill are graded 0 without a call.
+8. Save the tiers, checked provisions, notes, and basis bills to Convex.
+9. Recompute the state scores for any state whose tiers changed. The AI regulation score (0 to 6) is a banded sum of the state's nine area tiers. The data center build-out score (-3 to +3) comes from the state's facilities alone: a base from operating capacity plus momentum from the pipeline. Both are plain formulas in `src/lib/scoring/formulas.ts`; docs/scoring.md explains them.
 10. Save the scores to Convex.
 
 ```mermaid
@@ -62,7 +62,7 @@ flowchart TD
   SC --> X4[Done]
 ```
 
-Re-running the agents without LegiScan: `reclassify` re-runs the classifier on every saved bill from its stored text (re-parsing it, so provision ids stay in step with the text), then re-tiers and rescores what changed. `retier` re-runs the tier agent on every graded area and rescores. Use them after changing a prompt, the areas, or the model. Both cost OpenAI calls only.
+Re-running the agents without LegiScan: `reclassify` re-runs the classifier on every saved bill from its stored text (re-parsing it, so provision ids stay in step with the text), then re-tiers and rescores what changed. `retier` re-runs the tier agent on every graded area and rescores. Use them after changing a prompt, the areas, a checklist, or the model. Both cost OpenAI calls only. `scores:recomputeAll` rescores every state from the saved grades and facilities with no API calls; use it after changing a formula. `seed:areas` upserts the regulation areas (labels, rubrics) without touching other tables.
 
 How the hashes work: LegiScan gives every bill a change hash that updates when anything about the bill changes, and every bill text a text hash. Saving both lets a run tell what is new without a date filter. Search calls are cheap. Details, text, and classifier calls are not, so the hashes are what keep later runs small.
 
@@ -74,5 +74,5 @@ Compute Atlas is one public API call that returns every US data center. There is
 2. Keep only records where the facility type is data center. Drop cancelled facilities.
 3. Map each record to a Facility: name, operator, state, status, and capacity in MW. Compute Atlas has five statuses and our model has three, so permitted becomes proposed. Operational, under construction, and proposed stay as they are.
 4. Replace the facilities table in Convex with the new list. Match on the Compute Atlas ID so a facility keeps its record across runs.
-5. Recompute the data center posture score for every state whose facilities changed. This is the same formula as step 9 of the bills job. It uses the state's data center tier plus its facilities. The formula is not decided yet.
+5. Recompute the data center build-out score for every state whose facilities changed. This is the same formula as step 9 of the bills job: a base from estimated operating megawatts plus momentum from the weighted pipeline (docs/scoring.md).
 6. Save the scores to Convex.

@@ -373,8 +373,8 @@ export function QuadrantMini({
         className="flex justify-between pl-[15px] font-map-mono text-[9px] uppercase tracking-[0.06em] text-mute"
         style={{ width: size + 15 }}
       >
-        <span>Restrict</span>
-        <span>Accel</span>
+        <span>Few DCs</span>
+        <span>Many</span>
       </div>
     </div>
   );

@@ -9,10 +9,10 @@ import { Takeaways, type TakeawayRow } from "./takeaways";
 // Reads live from Convex on every request; nothing here is cached.
 export const dynamic = "force-dynamic";
 
-type Axis = { score: number; summary: string };
+type Axis = { score: number; summary: string; points?: number };
 type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
 type Area = { key: string; label: string; description: string; icon: string };
-type Grade = { state: string; regulationArea: string; tier: number; note?: string; basisBillIds?: string[]; gradedAt?: string };
+type Grade = { state: string; regulationArea: string; tier: number; note?: string; basisBillIds?: string[]; elements?: string[]; gradedAt?: string };
 type Usage = { api: string; month: string; calls: number };
 type Run = { job: string; startedAt: number; finishedAt?: number; ok?: boolean; summary: string };
 
@@ -47,8 +47,16 @@ export default async function DataPage() {
       content: (
         <Table
           rows={states}
-          columns={["Code", "Name", "DC posture", "AI regulation", "Verified"]}
-          render={(s) => [s.code, s.name, axis(s.dataCenterPosture), axis(s.aiRegulation), s.verifiedAt ?? "—"]}
+          columns={["Code", "Name", "DC build-out", "Operating MW", "AI regulation", "Points", "Verified"]}
+          render={(s) => [
+            s.code,
+            s.name,
+            axis(s.dataCenterPosture),
+            s.dataCenterPosture?.points ?? "—",
+            axis(s.aiRegulation),
+            s.aiRegulation?.points ?? "—",
+            s.verifiedAt ?? "—",
+          ]}
         />
       ),
     },
@@ -84,11 +92,12 @@ export default async function DataPage() {
       content: (
         <Table
           rows={grades}
-          columns={["State", "Area", "Tier", "Note", "Basis", "Graded"]}
+          columns={["State", "Area", "Tier", "Elements", "Note", "Basis", "Graded"]}
           render={(g) => [
             g.state,
             g.regulationArea,
             g.tier,
+            (g.elements ?? []).join(", "),
             g.note ?? "",
             (g.basisBillIds ?? []).map((id) => billNumbers[id] ?? id).join(", "),
             g.gradedAt ?? "",
