@@ -59,7 +59,11 @@ export async function getSearch(
   return call<SearchEnvelope>(ctx, "getSearch", args);
 }
 
-/** Every page of a full search. Costs one call per page. */
+/**
+ * Every page of a full search. Costs one call per page. LegiScan serves at
+ * most 450 hits (9 pages) per query, sorted by relevance, even when the
+ * summary claims more pages, so stop at the first empty page.
+ */
 export async function searchAllPages(
   ctx: ActionCtx,
   args: { state: string; query: string; year: number },
@@ -67,10 +71,14 @@ export async function searchAllPages(
   const first = await getSearch(ctx, { ...args, page: 1 });
   const hits = parseSearchHits(first);
   const pages = searchPageTotal(first);
+  let calls = 1;
   for (let page = 2; page <= pages; page++) {
-    hits.push(...parseSearchHits(await getSearch(ctx, { ...args, page })));
+    const more = parseSearchHits(await getSearch(ctx, { ...args, page }));
+    calls++;
+    if (more.length === 0) break;
+    hits.push(...more);
   }
-  return { hits, calls: pages };
+  return { hits, calls };
 }
 
 /**

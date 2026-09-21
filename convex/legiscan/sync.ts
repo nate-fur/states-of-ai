@@ -366,8 +366,9 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
 
 /** Cron entrypoint. Schedules one `syncState` per state, a few seconds apart. */
 export const runAll = internalAction({
-  args: {},
-  handler: async (ctx): Promise<{ scheduled: number }> => {
+  // `since` (ISO date) switches every state to the dated sweep, for the first fill.
+  args: { since: v.optional(v.string()) },
+  handler: async (ctx, { since }): Promise<{ scheduled: number }> => {
     if (!pipelinesEnabled()) {
       console.log("legiscan: PIPELINES_ENABLED is not true, skipping");
       return { scheduled: 0 };
@@ -376,14 +377,14 @@ export const runAll = internalAction({
     const spacingMs = 5_000;
     let i = 0;
     for (const { code } of STATES) {
-      await ctx.scheduler.runAfter(i * spacingMs, internal.legiscan.sync.syncState, { state: code, maxTotal });
+      await ctx.scheduler.runAfter(i * spacingMs, internal.legiscan.sync.syncState, { state: code, maxTotal, since });
       i++;
     }
     const runId = await ctx.runMutation(internal.pipelineRuns.start, { job: "legiscan" });
     await ctx.runMutation(internal.pipelineRuns.finish, {
       id: runId,
       ok: true,
-      summary: `scheduled ${i} states, maxTotal ${maxTotal} each; see legiscan:<state> runs`,
+      summary: `scheduled ${i} states, maxTotal ${maxTotal} each${since ? `, since ${since}` : ""}; see legiscan:<state> runs`,
     });
     return { scheduled: i };
   },
