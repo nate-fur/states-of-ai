@@ -3,8 +3,8 @@
 // Each area has a fixed list of provisions ("elements"). The tier agent's
 // only job is to say which elements a state has enacted and which bill
 // enacts each one; the tier itself is computed by rule in ./formulas.ts.
-// Every element carries the rung (1 to 4) it signifies, and the rubric
-// lines below describe what each rung looks like in plain words.
+// Every element carries a level (1 to 4), the tier that kind of provision
+// belongs to, and the rubric lines describe what each tier looks like in plain words.
 //
 // This file is the source of truth for both the pipeline (convex/seedData.ts
 // spreads the rubrics into the regulationAreas table) and the /scoring page.
@@ -17,7 +17,7 @@ export type ChecklistElement = {
   id: string;
   /** Under 10 words, a provision a reader can recognise. */
   label: string;
-  /** The rung this provision signifies. */
+  /** The tier this provision belongs to: 1 is a first, narrow duty; 4 completes a regime. */
   level: ElementLevel;
   /** One sentence on what counts. The agent reads this. */
   test: string;

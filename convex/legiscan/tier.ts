@@ -76,7 +76,7 @@ function schema(elements: ChecklistElement[], enactedIds: string[]) {
 }
 
 function systemPrompt(area: Area, elements: ChecklistElement[]): string {
-  const list = elements.map((e) => `- ${e.id} (rung ${e.level}): ${e.label}. Counts when: ${e.test}`).join("\n");
+  const list = elements.map((e) => `- ${e.id} (level ${e.level}): ${e.label}. Counts when: ${e.test}`).join("\n");
   return `You audit one area of a US state's AI law against a fixed checklist of provisions.
 
 Area: ${area.label}. ${area.description}

@@ -27,9 +27,10 @@ constants. This file is the design rationale.
 ### Step 1: element checklist per area
 
 Each of the nine regulation areas has a fixed checklist of seven or eight
-provisions ("elements"), each sitting on a rung from 1 to 4. Rung 1 is a
-first, narrow duty (a disclosure, a study); rung 4 is what completes a
-regime (enforcement, audits, a private right of action). The full lists are
+provisions ("elements"), each with a level from 1 to 4 that says which tier
+that kind of provision belongs to. Level 1 is a first, narrow duty (a
+disclosure, a study); level 4 is what completes a regime (enforcement,
+audits, a private right of action). The full lists are
 in `src/lib/scoring/checklists.ts`.
 
 The tier agent (`convex/legiscan/tier.ts`) is given the state's bills in the
@@ -46,10 +47,10 @@ each provision and the dossier can later list them.
 ### Step 2: tier by rule
 
 ```
-tier = min(highest rung among met elements, number of met elements, 4)
+tier = min(highest level among met elements, number of met elements, 4)
 ```
 
-A tier of N needs at least N provisions, one of which reaches rung N.
+A tier of N needs at least N provisions, one of which is a level-N provision.
 Depth needs breadth: a lone private right of action is tier 1; Colorado's
 SB 205 regime (high-risk definition, impact assessments, developer duty of
 care, consumer rights, AG enforcement) is tier 4.
@@ -66,7 +67,7 @@ points = Σ tier over the nine areas        (0 to 36)
 
 Areas are weighted equally. The checklists already set the bar per area, so
 a tier-3 in deepfakes and a tier-3 in frontier duties each mean "three
-provisions, one at rung 3". Weighting is the obvious knob to revisit if
+provisions, one at level 3". Weighting is the obvious knob to revisit if
 deepfake laws (which nearly every state has) come to dominate the middle of
 the distribution.
 

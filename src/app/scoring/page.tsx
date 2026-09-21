@@ -176,18 +176,18 @@ export default async function ScoringPage() {
           items={[
             ["Classify each bill", "A model reads the full text, drops bills that are not really about AI or that failed, and tags the areas each bill touches."],
             ["Audit the checklist", "Per area, a second model marks which provisions on a fixed checklist an enacted bill contains, naming the bill. Pending bills never count."],
-            ["Compute the tier", "Provisions sit on rungs 1 to 4. Tier = the highest rung reached, capped at the number of provisions met."],
+            ["Compute the tier", "Each provision has a level from 1 to 4: level 1 is a first, narrow duty such as a disclosure; level 4 is what completes a regime, such as enforcement or a private right of action. Tier = the highest level among the provisions met, but never more than the number of provisions met."],
             ["Add up and band", `The nine tiers are summed (0 to ${REGULATION_MAX_POINTS} points) and the total falls into one of seven bands.`],
           ]}
         />
 
         <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
           <div>
-            <Caption>Tier rule · highest rung met × provisions met</Caption>
+            <Caption>Tier rule · highest level met × provisions met</Caption>
             <MinGrid />
             <p className="mt-3 max-w-[44ch] font-map-serif text-[14px] leading-[1.45] text-mute text-pretty">
-              Depth needs breadth. A lone private right of action (rung 4) is only tier 1. Comprehensive takes four or
-              more provisions including a rung-4 one.
+              Depth needs breadth. A lone private right of action (level 4) is only tier 1. Comprehensive takes four or
+              more provisions including a level-4 one.
             </p>
           </div>
           <div>
@@ -271,7 +271,7 @@ export default async function ScoringPage() {
       </Section>
 
       {/* ------------------------------------------------------------------ */}
-      <Section id="checklists" n="3" title="The checklists" sub="nine areas · four rungs">
+      <Section id="checklists" n="3" title="The checklists" sub="nine areas · four levels">
         <p className="m-0 max-w-[72ch] font-map-serif text-[16px] leading-[1.5] text-mute text-pretty">
           Each area&apos;s checklist is the whole basis for its tier. A provision counts only when an enacted bill
           clearly contains it; anything doubtful stays unchecked. Open an area to see what each tier looks like and the
@@ -312,7 +312,7 @@ export default async function ScoringPage() {
                       </ol>
                     </div>
                     <div>
-                      <Caption>Provisions · numbered by rung</Caption>
+                      <Caption>Provisions · the number is the level, 1 to 4</Caption>
                       <ul className="m-0 flex list-none flex-col p-0">
                         {c.elements.map((e) => (
                           <ElementRow key={e.id} e={e} count={hasElements ? (elementStates.get(`${key}/${e.id}`)?.size ?? 0) : null} />
@@ -469,7 +469,7 @@ function Steps({ items }: { items: [string, string][] }) {
   );
 }
 
-/** tier = min(highest rung, provisions met), laid out as a grid. */
+/** tier = min(highest level, provisions met), laid out as a grid. */
 function MinGrid() {
   const cols = [1, 2, 3, 4];
   return (
@@ -480,25 +480,25 @@ function MinGrid() {
           {c === 4 ? "4+" : c}
         </div>
       ))}
-      {[1, 2, 3, 4].map((rung) => (
-        <MinRow key={rung} rung={rung} cols={cols} />
+      {[1, 2, 3, 4].map((level) => (
+        <MinRow key={level} level={level} cols={cols} />
       ))}
     </div>
   );
 }
 
-function MinRow({ rung, cols }: { rung: number; cols: number[] }) {
+function MinRow({ level, cols }: { level: number; cols: number[] }) {
   return (
     <>
-      <div className="flex h-11 items-center justify-end pr-3 text-mute">rung {rung}</div>
+      <div className="flex h-11 items-center justify-end pr-3 text-mute">level {level}</div>
       {cols.map((met) => {
-        const tier = Math.min(rung, met);
+        const tier = Math.min(level, met);
         return (
           <div
             key={met}
             className="flex h-11 items-center justify-center"
             style={tierStyle(tier)}
-            title={`Highest rung ${rung}, ${met} provisions met → tier ${tier}`}
+            title={`Highest level ${level}, ${met} provisions met → tier ${tier}`}
           >
             {tier}
           </div>
@@ -585,7 +585,7 @@ function TierBar({ counts }: { counts: number[] }) {
 function ElementRow({ e, count }: { e: ChecklistElement; count: number | null }) {
   return (
     <li className="grid grid-cols-[28px_1fr_auto] gap-3 border-b border-hair py-2 last:border-b-0">
-      <span className="mt-[3px] inline-flex h-5 w-5 items-center justify-center font-map-mono text-[11px]" style={tierStyle(e.level)} title={`rung ${e.level}`}>
+      <span className="mt-[3px] inline-flex h-5 w-5 items-center justify-center font-map-mono text-[11px]" style={tierStyle(e.level)} title={`Level ${e.level} · ${TIER_NAMES[e.level]}`}>
         {e.level}
       </span>
       <span className="font-map-serif text-[15px] leading-[1.4]">

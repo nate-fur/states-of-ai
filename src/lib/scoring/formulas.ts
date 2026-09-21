@@ -16,15 +16,15 @@ export type TierBreakdown = {
   tier: 0 | 1 | 2 | 3 | 4;
   /** Element ids that were both claimed and exist in the checklist. */
   met: string[];
-  /** Highest rung among the met elements; 0 when none. */
+  /** Highest level among the met elements; 0 when none. */
   maxLevel: number;
 };
 
 /**
  * Tier rule: a tier of N needs at least N provisions on the books, one of
- * which sits at rung N. So a single rung-4 provision earns tier 1, and a
+ * which sits at level N. So a single level-4 provision earns tier 1, and a
  * state reaches Comprehensive only with four or more provisions including a
- * rung-4 one. Unknown ids are ignored.
+ * level-4 one. Unknown ids are ignored.
  */
 export function tierFromElements(area: string, elementIds: Iterable<string>): TierBreakdown {
   const checklist = CHECKLISTS[area];
