@@ -11,7 +11,6 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SourceToggle, useMapData } from "./data-context";
-import { countQuadrants } from "@/lib/map/derive";
 import {
   MODES,
   MODE_COPY,
@@ -190,7 +189,6 @@ export function Broadsheet() {
     moved: boolean;
     bounds: Bounds;
   } | null>(null);
-  const counts = useMemo(() => countQuadrants(STATES), [STATES]);
   const ramp = useMemo(() => rampCounts(mode, STATES), [mode, STATES]);
   const copy = MODE_COPY[mode];
   // The H1 retypes when the mode changes (same effect as the dossier name):
@@ -544,61 +542,25 @@ export function Broadsheet() {
             transition: settled ? `margin .45s ${EASE}` : "none",
           }}
         >
-          {mode === "combined" ? (
-            <div
-              className="grid items-stretch gap-1"
-              style={{
-                gridTemplateColumns: "auto 1fr 1fr",
-                gridTemplateRows: "auto 34px 34px",
-              }}
-            >
-              <div />
-              <div className="text-center text-[10px] uppercase tracking-[0.08em]">
-                Restrict DCs
-              </div>
-              <div className="text-center text-[10px] uppercase tracking-[0.08em]">
-                Accelerate DCs
-              </div>
-              <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
-                Strong AI
-              </div>
-              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-brakes px-2.5 text-white">
-                <span>Full brakes</span>
-                <span>{counts.brakes}</span>
-              </div>
-              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-regulate px-2.5 text-white">
-                <span>Build &amp; regulate</span>
-                <span>{counts.regulate}</span>
-              </div>
-              <div className="self-center pr-1.5 text-[9px] uppercase tracking-[0.06em] leading-none whitespace-nowrap">
-                Weak AI
-              </div>
-              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-slow px-2.5 text-white">
-                <span>Slow lane</span>
-                <span>{counts.slow}</span>
-              </div>
-              <div className="flex min-w-[130px] items-center justify-between gap-3 bg-q-throttle px-2.5 text-white">
-                <span>Full throttle</span>
-                <span>{counts.throttle}</span>
-              </div>
+          {/* One legend for all three modes; only the ramp, title and end labels change. */}
+          <div className="flex w-[308px] flex-col gap-[5px]">
+            <div className="text-[10px] uppercase tracking-[0.08em]">{copy.axisTitle}</div>
+            <div className="flex gap-[3px]">
+              {ramp.map((r, i) => (
+                <div key={i} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+                  <span
+                    className="h-[26px] w-full"
+                    style={{ background: r.color, transition: "background .3s ease" }}
+                  />
+                  <span className="text-[10px] text-mute">{r.n}</span>
+                </div>
+              ))}
             </div>
-          ) : (
-            <div className="flex w-[308px] flex-col gap-[5px]">
-              <div className="text-[10px] uppercase tracking-[0.08em]">{copy.axisTitle}</div>
-              <div className="flex gap-[3px]">
-                {ramp.map((r, i) => (
-                  <div key={i} className="flex min-w-0 flex-1 flex-col items-center gap-1">
-                    <span className="h-[26px] w-full" style={{ background: r.color }} />
-                    <span className="text-[10px] text-mute">{r.n}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between text-[9px] uppercase tracking-[0.06em] text-dim">
-                <span>{copy.axisLow}</span>
-                <span>{copy.axisHigh}</span>
-              </div>
+            <div className="flex justify-between text-[9px] uppercase tracking-[0.06em] text-dim">
+              <span>{copy.axisLow}</span>
+              <span>{copy.axisHigh}</span>
             </div>
-          )}
+          </div>
           <p
             className="m-0 flex-none overflow-hidden font-map-serif text-[14px] leading-[1.55] text-mute"
             style={{

@@ -1,10 +1,10 @@
 import { TIERS, AREAS } from "./data";
+import { AXIS, netColor, tint } from "./mode";
 import type {
   BillStatus,
   DetailSelection,
   MapBill,
   Quadrant,
-  QuadrantKey,
   StateRecord,
   RegulationArea,
 } from "./types";
@@ -18,10 +18,10 @@ export const STATUS_ORDER: Record<BillStatus, number> = {
 export function quadrant(posture: number, ai: number): Quadrant {
   const build = posture >= 0;
   const strong = ai >= 3;
-  if (!build && strong) return { key: "brakes", label: "Full brakes", color: "#5C62A8" };
-  if (build && strong) return { key: "regulate", label: "Build & regulate", color: "#4A8C82" };
-  if (build && !strong) return { key: "throttle", label: "Full throttle", color: "#D4A15E" };
-  return { key: "slow", label: "Slow lane", color: "#B0776A" };
+  if (!build && strong) return { key: "brakes", label: "Full brakes" };
+  if (build && strong) return { key: "regulate", label: "Build & regulate" };
+  if (build && !strong) return { key: "throttle", label: "Full throttle" };
+  return { key: "slow", label: "Slow lane" };
 }
 
 export function grade(
@@ -65,8 +65,8 @@ export function sign(n: number): string {
   return (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
 }
 
-/** 7-cell posture bar. `on` overrides the quadrant accent (single-axis map modes). */
-export function postureCells(st: StateRecord, on: string = st.q.color): string[] {
+/** 7-cell posture bar. `on` overrides the build accent (dimmed in Regulation mode). */
+export function postureCells(st: StateRecord, on: string = AXIS.build): string[] {
   const dim = "#D7DBE0";
   return [-3, -2, -1, 0, 1, 2, 3].map((v) =>
     v === 0
@@ -78,8 +78,8 @@ export function postureCells(st: StateRecord, on: string = st.q.color): string[]
   );
 }
 
-/** 6-cell AI regulation bar. `on` overrides the quadrant accent (single-axis map modes). */
-export function aiCells(st: StateRecord, on: string = st.q.color): string[] {
+/** 6-cell AI regulation bar. `on` overrides the policy accent (dimmed in Compute mode). */
+export function aiCells(st: StateRecord, on: string = AXIS.policy): string[] {
   const dim = "#D7DBE0";
   return [1, 2, 3, 4, 5, 6].map((v) => (v <= st.ai ? on : dim));
 }
@@ -107,13 +107,13 @@ export function sortedBills(bills: MapBill[]): MapBill[] {
   return [...bills].sort((a, b) => STATUS_ORDER[a.s] - STATUS_ORDER[b.s]);
 }
 
-export function statusColor(s: BillStatus, qc: string): string {
+export function statusColor(s: BillStatus): string {
   if (s === "enacted") return "#14181D";
-  if (s === "pending") return qc;
+  if (s === "pending") return AXIS.policy;
   return "#9AA1A9";
 }
 
-export function statusLine(status: number, qc: string): {
+export function statusLine(status: number): {
   text: string;
   color: string;
 } {
@@ -125,7 +125,7 @@ export function statusLine(status: number, qc: string): {
   ];
   return {
     text: texts[status] ?? texts[3]!,
-    color: status === 0 ? "#14181D" : status === 1 ? qc : "#9AA1A9",
+    color: status === 0 ? "#14181D" : status === 1 ? AXIS.policy : "#9AA1A9",
   };
 }
 
@@ -141,7 +141,6 @@ export function glyphForStatus(status: number): {
 
 export function interactiveGlyph(
   status: number,
-  qc: string,
   inverted: boolean,
 ): { bg: string; border: string; icon: string; text: string } {
   if (inverted) {
@@ -149,8 +148,8 @@ export function interactiveGlyph(
   }
   return {
     bg: status === 0 ? "#14181D" : "transparent",
-    border: status === 0 ? "#14181D" : status === 1 ? qc : "#D7DBE0",
-    icon: status === 0 ? "#fff" : status === 1 ? qc : "#C4C9CF",
+    border: status === 0 ? "#14181D" : status === 1 ? AXIS.policy : "#D7DBE0",
+    icon: status === 0 ? "#fff" : status === 1 ? AXIS.policy : "#C4C9CF",
     text: status <= 1 ? "#14181D" : "#9AA1A9",
   };
 }
@@ -162,8 +161,9 @@ export function donutSegments(st: StateRecord): {
   dash: string;
   offset: number;
 }[] {
-  const qc = st.q.color;
-  const shades = ["#14181D", qc, "#9AA1A9", "#D7DBE0"];
+  // Operators shade from the state's net stance toward paper; "Other" stays grey.
+  const accent = netColor(st);
+  const shades = [accent, tint(accent, 0.4), tint(accent, 0.7), "#D7DBE0"];
   const C = 2 * Math.PI * 15.5;
   let acc = 0;
   const segs = [
@@ -208,19 +208,6 @@ export function legiscanUrl(abbr: string, keyword: string): string {
   return `https://legiscan.com/gaits/search?state=${abbr}&keyword=${encodeURIComponent(keyword)}`;
 }
 
-export function countQuadrants(
-  states: StateRecord[],
-): Record<QuadrantKey, number> {
-  const out: Record<QuadrantKey, number> = {
-    brakes: 0,
-    regulate: 0,
-    slow: 0,
-    throttle: 0,
-  };
-  for (const s of states) out[s.q.key] += 1;
-  return out;
-}
-
 export function buildDetail(
   detail: DetailSelection | null,
   st: StateRecord | undefined,
@@ -228,7 +215,6 @@ export function buildDetail(
   areas: RegulationArea[] = AREAS,
 ) {
   if (!detail || !st) return null;
-  const qc = st.q.color;
   if ("bill" in detail && detail.bill) {
     const bill = st.bills.find((b) => b.n === detail.bill);
     if (!bill) return null;
@@ -264,7 +250,7 @@ export function buildDetail(
       border: g.border,
       iconColor: g.icon,
       statusText: `${bill.s.charAt(0).toUpperCase()}${bill.s.slice(1)} · ${bill.d}`,
-      statusColor: statusColor(bill.s, qc),
+      statusColor: statusColor(bill.s),
       title: bill.t,
       gist: bill.gist ?? "",
       hasText: !!bill.hasText,
@@ -285,12 +271,12 @@ export function buildDetail(
       .filter((b) => b.tags.includes(area.k))
       .map((b) => ({
         ...b,
-        color: statusColor(b.s, qc),
+        color: statusColor(b.s),
         url: b.url ?? legiscanUrl(st.abbr, b.n),
         summary: b.areaSummaries?.[area.k]?.summary ?? "",
         hasText: !!b.hasText,
       }));
-    const line = statusLine(status, qc);
+    const line = statusLine(status);
     const count = bills.length;
     const stateSummary =
       g.note ||

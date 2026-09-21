@@ -1,10 +1,10 @@
 import type { StateRecord } from "./types";
 
 /**
- * Broadsheet map mode (handoff README, "Single-axis ramps" + "Broadsheet").
- * Combined colors each state by quadrant; the single-axis modes use one
- * sequential 7-step ramp indexed by that axis alone. Nothing outside the
- * Broadsheet (map fill, legend, dossier bar accents) reads these.
+ * Broadsheet map mode (handoff README, "Single-axis ramps" + "Broadsheet";
+ * COLOR_SYSTEM_UPDATE.md for Combined). Every mode uses one 7-step ramp:
+ * the single-axis modes index a sequential ramp by that axis alone, and
+ * Combined indexes a diverging net-stance ramp built from the same two hues.
  */
 export type MapMode = "combined" | "compute" | "reg";
 
@@ -34,18 +34,62 @@ export const RAMP_R = [
   "#51578F",
 ] as const;
 
-/** Segmented-bar fill for the active axis inside the dossier, replacing `qc`. */
-export const MODE_ACCENT: Record<Exclude<MapMode, "combined">, string> = {
-  compute: "#AB7538",
-  reg: "#6A70A8",
-};
+/**
+ * Combined map fill, index 0 = most build-forward, 6 = most regulation-forward.
+ * Amber and indigo are the ends of RAMP_C and RAMP_R, so the three modes read
+ * as one family; the pale middle is where the two axes balance.
+ */
+export const RAMP_D = [
+  "#8A5A22",
+  "#B5813C",
+  "#D8B87E",
+  "#EDE9E2",
+  "#A7ABCB",
+  "#7A80AE",
+  "#51578F",
+] as const;
+/** The readable variant of RAMP_D for text, dots and markers, same index. */
+const NET_COLOR = [
+  "#8A5A22",
+  "#8A5A22",
+  "#93743C",
+  "#6C6F74",
+  "#6A70A8",
+  "#51578F",
+  "#51578F",
+] as const;
+
+/** Axis accents: anything measuring build-out is amber, anything measuring regulation is indigo. */
+export const AXIS = { build: "#AE7538", policy: "#6A70A8" } as const;
 /** Segmented-bar fill for the inactive axis in a single-axis mode. */
 export const DIM_BAR = "#B9BFC7";
 
-/** Labels flip from white to ink once the fill is lighter than this index. */
+/** Sequential ramps flip labels from white to ink once the fill is lighter than this index. */
 const DARK_FROM = 4;
 
 const clamp7 = (n: number) => Math.max(0, Math.min(6, n));
+
+/** Net stance: 0 = build-out far ahead of regulation, 3 = balanced, 6 = regulation far ahead. */
+export function netIdx(st: Pick<StateRecord, "posture" | "ai">): number {
+  return clamp7(Math.round(3 + (st.ai - 3 - st.posture) / 2));
+}
+
+/** A state's colour "as a whole": its net stance at a contrast that survives small elements. */
+export function netColor(st: Pick<StateRecord, "posture" | "ai">): string {
+  return NET_COLOR[netIdx(st)]!;
+}
+
+/** Mix a hex colour toward the paper background by `t` (0 = unchanged, 1 = paper). */
+export function tint(hex: string, t: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const mix = (c: number, d: number) => Math.round(c + (d - c) * t);
+  return (
+    "#" +
+    [mix(n >> 16, 247), mix((n >> 8) & 255, 248), mix(n & 255, 250)]
+      .map((v) => v.toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
 
 /** URL value → mode. Unknown or missing values fall back to Combined. */
 export function parseMode(v: string | null | undefined): MapMode {
@@ -59,27 +103,26 @@ export function modeParam(mode: MapMode): string | null {
   return mode === "combined" ? null : mode;
 }
 
-/** Position on the active ramp, or null in Combined mode. */
-export function rampIndex(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): number | null {
+/** Position on the mode's ramp: Compute by posture + 3, Regulation by ai, Combined by net stance. */
+export function rampIndex(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): number {
   if (mode === "compute") return clamp7(st.posture + 3);
   if (mode === "reg") return clamp7(st.ai);
-  return null;
+  return netIdx(st);
 }
 
 export function rampFor(mode: MapMode): readonly string[] {
-  return mode === "compute" ? RAMP_C : mode === "reg" ? RAMP_R : [];
+  return mode === "compute" ? RAMP_C : mode === "reg" ? RAMP_R : RAMP_D;
 }
 
 /** Map fill for a state under the given mode. */
-export function fillFor(mode: MapMode, st: Pick<StateRecord, "posture" | "ai" | "q">): string {
-  const i = rampIndex(mode, st);
-  return i === null ? st.q.color : rampFor(mode)[i]!;
+export function fillFor(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): string {
+  return rampFor(mode)[rampIndex(mode, st)]!;
 }
 
-/** Whether the fill is dark enough for a white label. Quadrant colors always are. */
+/** Whether the fill is dark enough for a white label; the diverging ramp is dark at both ends. */
 export function isDarkFill(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): boolean {
   const i = rampIndex(mode, st);
-  return i === null || i >= DARK_FROM;
+  return mode === "combined" ? i <= 1 || i >= 5 : i >= DARK_FROM;
 }
 
 /** One entry per ramp step: its color and how many states sit at that value. */
@@ -93,11 +136,12 @@ export function rampCounts(
   }));
 }
 
-/** Accent for each dossier bar: `qc` in Combined, else the mode tone or the dim grey. */
-export function barAccents(mode: MapMode, qc: string): { posture: string; ai: string } {
-  if (mode === "compute") return { posture: MODE_ACCENT.compute, ai: DIM_BAR };
-  if (mode === "reg") return { posture: DIM_BAR, ai: MODE_ACCENT.reg };
-  return { posture: qc, ai: qc };
+/** Accent for each dossier bar: its axis colour, or the dim grey when the other axis's mode is on. */
+export function barAccents(mode: MapMode): { posture: string; ai: string } {
+  return {
+    posture: mode === "reg" ? DIM_BAR : AXIS.build,
+    ai: mode === "compute" ? DIM_BAR : AXIS.policy,
+  };
 }
 
 /** Which dossier accordion a mode opens; Combined leaves the current one alone. */
@@ -146,10 +190,10 @@ export const MODE_COPY: Record<
   { caption: string; axisTitle: string; axisLow: string; axisHigh: string }
 > = {
   combined: {
-    caption: `Color is the state's quadrant: data center posture (−3 restricting to +3 accelerating) against AI regulation strength (0–6). ${COMPARE_HINT}`,
-    axisTitle: "",
-    axisLow: "",
-    axisHigh: "",
+    caption: `Color is one net-stance score: amber where build-out outpaces regulation, indigo where regulation outpaces build-out, neutral where they balance. ${COMPARE_HINT}`,
+    axisTitle: "Net stance",
+    axisLow: "Build-forward",
+    axisHigh: "Regulation-forward",
   },
   compute: {
     caption: `Color is data center posture alone, from −3 (restricting) to +3 (accelerating). ${COMPARE_HINT}`,

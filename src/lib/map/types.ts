@@ -2,10 +2,10 @@ export type BillStatus = "enacted" | "pending" | "proposed";
 
 export type QuadrantKey = "brakes" | "regulate" | "slow" | "throttle";
 
+/** Which corner of the posture × regulation square a state sits in. Names only; colour is the net stance. */
 export type Quadrant = {
   key: QuadrantKey;
   label: string;
-  color: string;
 };
 
 export type MapBill = {

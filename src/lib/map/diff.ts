@@ -12,6 +12,7 @@ import {
   statusColor,
   areaLabelMap,
 } from "./derive";
+import { netColor } from "./mode";
 import type { StateRecord } from "./types";
 
 export type DiffMetricRow = {
@@ -215,7 +216,7 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
       delta,
       deltaSub,
       deltaColor: same ? "#9AA1A9" : "#14181D",
-      leadColor: same ? "#D7DBE0" : leader.q.color,
+      leadColor: same ? "#D7DBE0" : netColor(leader),
     };
   }).sort((x, y) => y.gap - x.gap || (y.neither ? 0 : 1) - (x.neither ? 0 : 1));
 
@@ -247,9 +248,9 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
       s: x.s,
       stateName: s.name,
       tagText: x.tags.map((k) => tl[k] || k).join(", "),
-      markBg: isA ? s.q.color : "#F7F8FA",
-      markBorder: s.q.color,
-      statusColor: statusColor(x.s, s.q.color),
+      markBg: isA ? netColor(s) : "#F7F8FA",
+      markBorder: netColor(s),
+      statusColor: statusColor(x.s),
       _t: ts(x.d),
     }));
 
@@ -302,14 +303,14 @@ export function buildDiff(a: StateRecord, b: StateRecord) {
     A: {
       name: a.name,
       abbr: a.abbr,
-      color: a.q.color,
+      color: netColor(a),
       dotX: `${(10 + ((a.posture + 3) / 6) * 80).toFixed(0)}%`,
       dotY: `${(90 - (a.ai / 6) * 80).toFixed(0)}%`,
     },
     B: {
       name: b.name,
       abbr: b.abbr,
-      color: b.q.color,
+      color: netColor(b),
       dotX: `${(10 + ((b.posture + 3) / 6) * 80).toFixed(0)}%`,
       dotY: `${(90 - (b.ai / 6) * 80).toFixed(0)}%`,
     },

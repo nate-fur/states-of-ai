@@ -19,7 +19,7 @@ import {
   statusColor,
   areaLabelMap,
 } from "@/lib/map/derive";
-import { barAccents, sectionForMode, type MapMode } from "@/lib/map/mode";
+import { AXIS, barAccents, netColor, sectionForMode, type MapMode } from "@/lib/map/mode";
 import type { DetailSelection, StateRecord } from "@/lib/map/types";
 import {
   fixedOffset,
@@ -83,8 +83,8 @@ export function StateDossierPanel({
   defaultOpen?: { policy: boolean; ai: boolean; local: boolean };
   /**
    * Broadsheet map mode. A single-axis mode opens its section (Compute →
-   * Build-out, Regulation → Regulation) and takes over the matching bar's
-   * accent while the other bar greys out. The quadrant chart stays as-is.
+   * Build-out, Regulation → Regulation) and greys out the other axis's bar.
+   * The quadrant square stays as-is.
    */
   mode?: MapMode;
 }) {
@@ -123,8 +123,10 @@ export function StateDossierPanel({
 
   const { text: typedName, caret } = useTypewriter(state.name);
 
-  const qc = state.q.color;
-  const bar = barAccents(mode, qc);
+  // Build-side elements are amber, policy-side indigo; the state "as a whole"
+  // (its quadrant label, capacity marker, donut) takes its net-stance colour.
+  const net = netColor(state);
+  const bar = barAccents(mode);
   const { STATES, AREAS, caption } = useMapData();
   const tl = areaLabelMap(AREAS);
   const { maxMw, median } = useMemo(() => capacityStats(STATES), [STATES]);
@@ -162,8 +164,8 @@ export function StateDossierPanel({
     const active = detail?.abbr === state.abbr && "k" in detail && detail.k === t.k;
     const g = grade(state, t.k);
     const hovered = hov === `${state.abbr}:k:${t.k}`;
-    const glyph = interactiveGlyph(status, qc, active);
-    const rowBg = active ? (status === 1 ? qc : "#14181D") : hovered ? "#ECEEF1" : "transparent";
+    const glyph = interactiveGlyph(status, active);
+    const rowBg = active ? (status === 1 ? AXIS.policy : "#14181D") : hovered ? "#ECEEF1" : "transparent";
     return {
       ...t,
       status,
@@ -178,7 +180,7 @@ export function StateDossierPanel({
   const bills = sortedBills(state.bills).map((b, i) => {
     const active = detail?.abbr === state.abbr && "bill" in detail && detail.bill === b.n;
     const hovered = hov === `${state.abbr}:bill:${b.n}`;
-    const accent = b.s === "pending" ? qc : "#14181D";
+    const accent = b.s === "pending" ? AXIS.policy : "#14181D";
     return {
       ...b,
       active,
@@ -186,7 +188,7 @@ export function StateDossierPanel({
       rowBg: active ? accent : hovered ? "#ECEEF1" : "transparent",
       rowColor: active ? "#fff" : "#14181D",
       capColor: active ? "rgba(255,255,255,.75)" : "#5F6770",
-      statusColor: active ? "#fff" : statusColor(b.s, qc),
+      statusColor: active ? "#fff" : statusColor(b.s),
       tagText: b.tags.map((k) => tl[k] || k).join(", "),
     };
   });
@@ -234,10 +236,10 @@ export function StateDossierPanel({
           </p>
         </div>
         <div className="flex flex-col gap-1.5">
-          <QuadrantMini posture={state.posture} ai={state.ai} activeKey={state.q.key} />
+          <QuadrantMini posture={state.posture} ai={state.ai} />
           <div
             className="self-end text-right font-map-mono text-[11px] uppercase tracking-[0.1em] whitespace-nowrap transition-colors duration-300"
-            style={{ color: qc }}
+            style={{ color: net }}
           >
             {state.q.label}
           </div>
@@ -345,10 +347,11 @@ export function StateDossierPanel({
                 style={{ left: `${((median / maxMw) * 100).toFixed(1)}%` }}
               />
               <span
-                className="absolute top-[-4px] h-3 w-[3px] -translate-x-1/2 bg-ink"
+                className="absolute top-[-4px] h-3 w-[3px] -translate-x-1/2"
                 style={{
                   left: `${((state.mw / maxMw) * 100).toFixed(1)}%`,
-                  transition: `left .65s ${EASE_OUT}`,
+                  background: net,
+                  transition: `left .65s ${EASE_OUT}, background .3s ease`,
                 }}
               />
             </div>
@@ -524,10 +527,7 @@ export function StateDossierPanel({
               style={{ opacity: state.preempt ? 1 : 0, transition: "opacity .28s ease" }}
             >
               <div className="flex items-center gap-2 py-[9px] font-map-mono text-[12px]">
-                <span
-                  className="h-2 w-2 rounded-full transition-colors duration-300"
-                  style={{ background: qc }}
-                />
+                <span className="h-2 w-2 rounded-full" style={{ background: AXIS.policy }} />
                 <span>Flagged under federal preemption order</span>
               </div>
             </div>
@@ -536,17 +536,12 @@ export function StateDossierPanel({
             {(
               [
                 ["Enacted", tiles("enacted"), "#14181D", true],
-                ["Pending", tiles("pending"), qc, true],
+                ["Pending", tiles("pending"), AXIS.policy, true],
                 ["Proposed", tiles("proposed"), "#14181D", false],
               ] as const
             ).map(([label, ons, color, filled]) => (
               <div key={label} className="flex flex-col gap-2">
-                <span
-                  className="transition-colors duration-300"
-                  style={{ color: label === "Pending" ? qc : undefined }}
-                >
-                  {label}
-                </span>
+                <span style={{ color: label === "Pending" ? AXIS.policy : undefined }}>{label}</span>
                 <div className="flex min-h-4 flex-wrap items-center">
                   {ons.map((on, i) => (
                     <span

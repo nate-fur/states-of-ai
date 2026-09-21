@@ -31,6 +31,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - [x] Bill Reader folds the text around a selected takeaway: one window per cluster of cited lines, fold bars for everything between, sticky banner with the place count
 - [x] Empty states in the dossier (no data centers, no operating capacity, no bills) and the diff's merged bill list
 - [x] Map mode toggle (Combined / Compute / Regulation) with single-hue ramps, swapped legend, dossier coupling, and `?mode=` in the URL
+- [x] Combined map colored by a net-stance diverging ramp (amber build-forward → indigo regulation-forward) sharing the two axis hues; quadrant colors dropped, the dossier/diff square is the same ramp on the diagonal
 - [x] Data model rebuilt and Convex seeded from scratch
 - [x] LegiScan and Compute Atlas pipelines as Convex crons
 - [x] Map wired to live Convex data with a seed/live toggle

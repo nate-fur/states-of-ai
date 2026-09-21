@@ -284,24 +284,29 @@ export function DotScale({
   );
 }
 
+/**
+ * The posture × regulation square, filled with the Combined map's diverging
+ * ramp on the diagonal (indigo top-left = restrict + strong AI, amber
+ * bottom-right = accelerate + weak AI) so it doubles as that legend in two
+ * dimensions. No divider lines: they would read as a mark on one quadrant.
+ */
+const NET_SQUARE =
+  "linear-gradient(135deg,#51578F 0%,#7A80AE 17%,#A7ABCB 33%,#EDE9E2 50%,#D8B87E 67%,#B5813C 83%,#8A5A22 100%)";
+
 export function QuadrantMini({
   posture,
   ai,
-  activeKey,
   size = 120,
   a,
   b,
 }: {
   posture: number;
   ai: number;
-  activeKey?: string;
   size?: number;
   a?: { posture: number; ai: number; color: string };
   b?: { posture: number; ai: number; color: string };
 }) {
   const dual = !!(a && b);
-  const opacity = (key: string) =>
-    dual ? 0.22 : activeKey === key ? 0.9 : 0.25;
   const pad = dual ? 10 : 12;
   const span = dual ? 80 : 76;
   const yBase = dual ? 90 : 88;
@@ -333,13 +338,14 @@ export function QuadrantMini({
           </span>
         </div>
         <div
-          className="relative grid shrink-0 grid-cols-2 grid-rows-2 border border-ink box-border"
+          className="relative shrink-0 border border-ink box-border"
           style={{ width: size, height: size }}
         >
-          <span className="transition-opacity duration-[550ms]" style={{ background: "#5C62A8", opacity: opacity("brakes") }} />
-          <span className="transition-opacity duration-[550ms]" style={{ background: "#4A8C82", opacity: opacity("regulate") }} />
-          <span className="transition-opacity duration-[550ms]" style={{ background: "#B0776A", opacity: opacity("slow") }} />
-          <span className="transition-opacity duration-[550ms]" style={{ background: "#D4A15E", opacity: opacity("throttle") }} />
+          {/* Faded under the two Diff dots so they stay the loudest thing on it. */}
+          <span
+            className="absolute inset-0"
+            style={{ background: NET_SQUARE, opacity: dual ? 0.5 : 1 }}
+          />
           {dual && a && b ? (
             <>
               <span

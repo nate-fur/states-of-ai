@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useMapData } from "./data-context";
 import { buildDiff } from "@/lib/map/diff";
+import { netColor } from "@/lib/map/mode";
 import { fixedOffset } from "./motion";
 import {
   AccordionSection,
@@ -150,8 +151,8 @@ export function DiffView({
           posture={sa.posture}
           ai={sa.ai}
           size={135}
-          a={{ posture: sa.posture, ai: sa.ai, color: sa.q.color }}
-          b={{ posture: sb.posture, ai: sb.ai, color: sb.q.color }}
+          a={{ posture: sa.posture, ai: sa.ai, color: netColor(sa) }}
+          b={{ posture: sb.posture, ai: sb.ai, color: netColor(sb) }}
         />
       </div>
 
