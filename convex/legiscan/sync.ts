@@ -5,7 +5,8 @@ import type { Id } from "../_generated/dataModel";
 import { envNumber, pipelinesEnabled } from "../pipelines";
 import { STATES } from "../seedData";
 import { getBill, getBillText, getSearchRaw, searchAllPages } from "./client";
-import { classifyBill, type Area } from "./classify";
+import { classifyBill, skipReason, type Area } from "./classify";
+import { describeBill } from "./describe";
 import { tierArea } from "./tier";
 import {
   base64ToString,
@@ -40,6 +41,7 @@ const counts = v.object({
   dropped: v.number(),
   saved: v.number(),
   legiscanCalls: v.number(),
+  typesafeCalls: v.number(),
   openaiCalls: v.number(),
   processed: v.array(v.string()), // last few "SB524 Title" entries
   errors: v.array(v.string()), // last few error messages
@@ -63,13 +65,13 @@ type SyncResult = {
 const KEEP = 20; // how many processed/error entries to carry between batches
 
 function emptyCounts(): Counts {
-  return { fetched: 0, textUnchanged: 0, dropped: 0, saved: 0, legiscanCalls: 0, openaiCalls: 0, processed: [], errors: [] };
+  return { fetched: 0, textUnchanged: 0, dropped: 0, saved: 0, legiscanCalls: 0, typesafeCalls: 0, openaiCalls: 0, processed: [], errors: [] };
 }
 
 function describe(c: Counts, extra = ""): string {
   return (
     `${extra}fetched ${c.fetched}, textUnchanged ${c.textUnchanged}, dropped ${c.dropped}, saved ${c.saved}, ` +
-    `legiscan ${c.legiscanCalls}, openai ${c.openaiCalls}` +
+    `legiscan ${c.legiscanCalls}, typesafe ${c.typesafeCalls}, openai ${c.openaiCalls}` +
     (c.errors.length ? `, errors ${c.errors.length}` : "")
   );
 }
@@ -265,22 +267,20 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         textType: used.type,
       });
 
-      // 5. Classifier.
-      const result = await classifyBill(ctx, {
-        state,
-        number: bill.bill_number,
-        title: bill.title,
-        status,
-        session: bill.session.session_name,
-        text: plain,
-        areas,
-      });
-      c.openaiCalls++;
+      // 5a. Classifier (Jev): is it about AI, and which areas.
+      const input = { state, number: bill.bill_number, title: bill.title, status, session: bill.session.session_name, text: plain };
+      const tags = await classifyBill(ctx, { ...input, areas });
+      c.typesafeCalls += tags.calls;
 
-      if (!result.relevant) {
-        await drop("not about AI");
+      if (!tags.relevant) {
+        await drop(skipReason(tags.relevance));
         continue;
       }
+
+      // 5b. Writer (generative model): title, gist, and per-area text for the tagged areas.
+      const tagged = tags.regulationAreas.map((t) => areas.find((a) => a.key === t.key)!);
+      const prose = await describeBill(ctx, { ...input, areas: tagged });
+      c.openaiCalls++;
 
       // 6. Save the bill and its per-area summaries and takeaways.
       await ctx.runMutation(internal.legiscan.db.upsertBill, {
@@ -288,12 +288,16 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
         state,
         status,
         textHash: doc.text_hash,
-        shortTitle: result.shortTitle,
-        gist: result.gist,
-        regulationAreas: result.regulationAreas,
+        relevance: tags.relevance,
+        shortTitle: prose.shortTitle,
+        gist: prose.gist,
+        regulationAreas: prose.regulationAreas.map((a) => ({
+          ...a,
+          probability: tags.regulationAreas.find((t) => t.key === a.key)?.probability,
+        })),
       });
       c.saved++;
-      result.regulationAreas.forEach((a) => touched.add(a.key));
+      tags.regulationAreas.forEach((a) => touched.add(a.key));
       prev?.regulationAreas.forEach((k) => touched.add(k));
     } catch (err) {
       const message = `${externalId}: ${err instanceof Error ? err.message : String(err)}`;
@@ -329,10 +333,18 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
     if (!area) continue;
     try {
       const bills = await ctx.runQuery(internal.legiscan.db.billsForArea, { state, regulationArea: key });
-      const { tier, note, basisBillIds } = await tierArea(ctx, { state, area, bills });
-      c.openaiCalls++;
-      console.log(`${state}/${key}: tier ${tier} (${note})`);
-      await ctx.runMutation(internal.legiscan.db.upsertGrade, { state, regulationArea: key, tier, note, basisBillIds });
+      const g = await tierArea(ctx, { state, area, bills });
+      c.typesafeCalls += g.typesafeCalls;
+      c.openaiCalls += g.openaiCalls;
+      console.log(`${state}/${key}: tier ${g.tier} (${g.note})`);
+      await ctx.runMutation(internal.legiscan.db.upsertGrade, {
+        state,
+        regulationArea: key,
+        tier: g.tier,
+        confidence: g.confidence,
+        note: g.note,
+        basisBillIds: g.basisBillIds,
+      });
       retiered++;
     } catch (err) {
       c.errors = [...c.errors, `tier ${key}: ${err instanceof Error ? err.message : String(err)}`].slice(-KEEP);

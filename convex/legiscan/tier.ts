@@ -1,13 +1,17 @@
 import type { ActionCtx } from "../_generated/server";
-import { callWithSchema } from "./openai";
-import type { Area, Takeaway } from "./classify";
+import { ask, topLevel, type ScoreAnswer, type ScoreQuestion } from "./typesafe";
+import { tierNote, type Takeaway } from "./describe";
+import type { Area } from "./classify";
 
 // Tier agent (step 7 of docs/pipeline.md). Given every saved bill in one
-// (state, area), it grades how strong that state's rules are against the
-// area's rubric, says why in one sentence, and names the enacted bills
-// that earn the tier.
+// (state, area), Jev grades the state's enacted law against the area's
+// five-line rubric and, bill by bill, says how far each enacted bill
+// reaches on its own; code turns that into the tier and the basis bills.
+// The one-sentence note is written afterwards by the generative model.
 
 export const TIER_NAMES = ["None", "Light", "Moderate", "Strong", "Comprehensive"] as const;
+
+export type Tier = 0 | 1 | 2 | 3 | 4;
 
 export type TierBill = {
   externalId: string;
@@ -21,55 +25,77 @@ export type TierBill = {
   takeaways: Takeaway[];
 };
 
-export type TierResult = { tier: 0 | 1 | 2 | 3 | 4; note: string; basisBillIds: string[] };
+export type Grade = {
+  tier: Tier;
+  confidence: number; // Jev's confidence in the tier, 0-1; 1 when there was nothing to grade
+  basisBillIds: string[];
+  billTiers: Record<string, Tier>; // each enacted bill's reach on its own
+};
 
-function schema(enactedIds: string[]) {
-  const properties: Record<string, unknown> = {
+export type TierResult = Grade & { note: string; typesafeCalls: number; openaiCalls: number };
+
+function billQuestionId(i: number): string {
+  return `bill_${i}`;
+}
+
+/** What Jev sees: the area, and the enacted bills with the prose written for this area. Pending bills do not raise a tier, so they stay out. */
+export function tierState(state: string, area: Area, enacted: TierBill[]) {
+  return {
+    state,
+    area: { label: area.label, covers: area.description },
+    bills: enacted.map((b) => ({
+      number: b.number,
+      title: b.shortTitle || b.title,
+      enacted: b.date,
+      session: b.session,
+      summary: b.summary,
+      takeaways: b.takeaways.map((t) => `${t.title}: ${t.text}`),
+    })),
+  };
+}
+
+/** The rubric as Score levels: index = tier. */
+export function tierQuestions(area: Area, enactedCount: number): Record<string, ScoreQuestion> {
+  const criteria = (area.rubric ?? []).map((line, i) => `${TIER_NAMES[i]}: ${line}`);
+  if (criteria.length !== TIER_NAMES.length) throw new Error(`area ${area.key} needs a ${TIER_NAMES.length}-line rubric`);
+  const questions: Record<string, ScoreQuestion> = {
     tier: {
-      type: "integer",
-      enum: [0, 1, 2, 3, 4],
-      description: "0 None, 1 Light, 2 Moderate, 3 Strong, 4 Comprehensive",
-    },
-    note: {
-      type: "string",
-      description: "One sentence, at most 35 words, that reads like a caption for why this tier. Name bills by number only (SB 243). Never mention an id.",
+      type: "score",
+      instructions: "How strongly this state's enacted law, taken together across `bills`, regulates `area`.",
+      criteria,
     },
   };
-  const required = ["tier", "note"];
-  if (enactedIds.length > 0) {
-    properties.basisBillIds = {
-      type: "array",
-      description: "Ids of the enacted bills that set the tier. Empty if the tier is 0.",
-      items: { type: "string", enum: enactedIds },
+  for (let i = 0; i < enactedCount; i++) {
+    questions[billQuestionId(i)] = {
+      type: "score",
+      instructions: `How strongly \`bills[${i}]\` on its own regulates \`area\`.`,
+      criteria,
     };
-    required.push("basisBillIds");
+  }
+  return questions;
+}
+
+/** Turn Jev's answers into a tier and the enacted bills that carry it. */
+export function combineGrade(answers: Record<string, unknown>, enacted: TierBill[]): Grade {
+  const tierAnswer = answers.tier as ScoreAnswer;
+  const tier = topLevel(tierAnswer) as Tier;
+  const billTiers: Record<string, Tier> = {};
+  enacted.forEach((b, i) => {
+    const a = answers[billQuestionId(i)] as ScoreAnswer | undefined;
+    billTiers[b.externalId] = a ? (topLevel(a) as Tier) : 0;
+  });
+  // Basis: the enacted bills that reach at least Light on their own,
+  // strongest first. A tier above 0 always names at least one bill.
+  let basis = enacted.filter((b) => billTiers[b.externalId] >= 1).sort((a, b) => billTiers[b.externalId] - billTiers[a.externalId]);
+  if (tier > 0 && basis.length === 0 && enacted.length > 0) {
+    basis = [[...enacted].sort((a, b) => billTiers[b.externalId] - billTiers[a.externalId])[0]];
   }
   return {
-    name: "tier",
-    schema: { type: "object", properties, required, additionalProperties: false },
+    tier,
+    confidence: tierAnswer.confidence,
+    basisBillIds: tier === 0 ? [] : basis.map((b) => b.externalId),
+    billTiers,
   };
-}
-
-function systemPrompt(area: Area): string {
-  const rubric = (area.rubric ?? []).map((line, i) => `${i} ${TIER_NAMES[i]}: ${line}`).join("\n");
-  return `You grade how strongly a US state regulates one area of AI policy, on a 0-4 tier.
-
-Area: ${area.label}. ${area.description}
-
-Tier definitions for this area:
-${rubric}
-
-Tiers reflect enacted law only. Bills that are pending or proposed are context about where the state is heading; they do not raise the tier on their own. If nothing is enacted, the tier is 0 and basisBillIds is empty.
-
-Write the note as one matter-of-fact sentence of at most 35 words that reads like a caption, for example: "SB 243 requires AI disclosure and suicide-prevention protocols for companion bots, with a private right of action but no audit duty." Name bills by number only (SB 243). The bracketed ids in the bill list are for basisBillIds only and must not appear in the note. No em dashes, no hedging.
-
-Answer with JSON matching the schema.`;
-}
-
-function describe(b: TierBill): string {
-  const points = b.takeaways.map((t) => `    - ${t.title}: ${t.text}`).join("\n");
-  const name = b.shortTitle || b.title;
-  return `- ${b.number} [${b.externalId}] ${b.status.toUpperCase()}, ${b.date}, ${b.session}: ${name}\n  ${b.summary}\n${points}`;
 }
 
 export async function tierArea(
@@ -77,24 +103,23 @@ export async function tierArea(
   args: { state: string; area: Area; bills: TierBill[] },
 ): Promise<TierResult> {
   const { state, area, bills } = args;
-  const sorted = [...bills].sort((a, b) => a.status.localeCompare(b.status) || b.date.localeCompare(a.date));
-  const list = sorted.length ? sorted.map(describe).join("\n") : "(no bills)";
-  const enactedIds = sorted.filter((b) => b.status === "enacted").map((b) => b.externalId);
-  const text = `State: ${state}
-Area: ${area.label} (${area.key})
+  const enacted = [...bills].filter((b) => b.status === "enacted").sort((a, b) => b.date.localeCompare(a.date));
 
-Bills in this state tagged with the area:
-${list}
+  let grade: Grade;
+  let typesafeCalls = 0;
+  if (enacted.length === 0) {
+    grade = { tier: 0, confidence: 1, basisBillIds: [], billTiers: {} };
+  } else {
+    const res = await ask(ctx, { state: tierState(state, area, enacted), questions: tierQuestions(area, enacted.length) });
+    typesafeCalls = 1;
+    grade = combineGrade(res.answers, enacted);
+  }
 
-Assign the tier.`;
-
-  const result = await callWithSchema<Partial<TierResult>>(ctx, {
-    system: systemPrompt(area),
-    content: [{ type: "input_text", text }],
-    schema: schema(enactedIds),
-  });
-  const tier = Math.max(0, Math.min(4, Math.round(Number(result.tier) || 0))) as TierResult["tier"];
-  const allowed = new Set(enactedIds);
-  const basisBillIds = tier === 0 ? [] : [...new Set((result.basisBillIds ?? []).filter((id) => allowed.has(id)))];
-  return { tier, note: (result.note ?? "").trim(), basisBillIds };
+  // Nothing at all in the area: the caption writes itself.
+  if (bills.length === 0) {
+    return { ...grade, note: "No bills in this area yet.", typesafeCalls, openaiCalls: 0 };
+  }
+  const basis = grade.basisBillIds.map((id) => enacted.find((b) => b.externalId === id)!).filter(Boolean);
+  const note = await tierNote(ctx, { state, area, tier: grade.tier, tierNames: TIER_NAMES, basis, bills });
+  return { ...grade, note, typesafeCalls, openaiCalls: 1 };
 }

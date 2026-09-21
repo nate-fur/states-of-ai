@@ -62,18 +62,21 @@ export default defineSchema({
     session: v.string(), // e.g. "2025-2026 Regular Session"
     changeHash: v.string(), // LegiScan change_hash; skip the bill when unchanged
     textHash: v.string(), // LegiScan text_hash of the classified text
-    shortTitle: v.string(), // classifier: 3-7 word noun phrase, shown in lists
-    gist: v.string(), // classifier: 1-2 plain sentences
+    relevance: v.optional(v.number()), // classifier: Jev's probability that AI is a substantial purpose
+    shortTitle: v.string(), // writer: 3-7 word noun phrase, shown in lists
+    gist: v.string(), // writer: 1-2 plain sentences
   })
     .index("by_state", ["state"])
     .index("by_external_id", ["externalId"]),
 
   // What one bill does for one regulation area: a one-line summary and the
-  // takeaways the Bill Reader highlights. Written by the classifier.
+  // takeaways the Bill Reader highlights. The classifier (Jev) picks the
+  // area; the writer (generative model) fills in the text.
   billRegulationAreas: defineTable({
     externalId: v.string(), // bills.externalId
     state: v.string(),
     regulationArea: v.string(), // regulationAreas.key
+    probability: v.optional(v.number()), // classifier: Jev's probability that the bill sets rules in this area
     summary: v.string(), // 1 sentence: how this bill moves this area in this state
     takeaways: v.array(takeaway), // 1-5, most important first
     textHash: v.string(), // text these were written against
@@ -126,7 +129,7 @@ export default defineSchema({
   // One row per outside API per calendar month. The pipelines refuse to make
   // a call once `calls` reaches the cap, so a bug cannot burn the quota.
   apiUsage: defineTable({
-    api: v.string(), // "legiscan" | "openai" | "computeAtlas"
+    api: v.string(), // "legiscan" | "typesafe" | "openai" | "computeAtlas"
     month: v.string(), // "YYYY-MM"
     calls: v.number(),
   }).index("by_api_month", ["api", "month"]),
@@ -143,6 +146,7 @@ export default defineSchema({
     state: v.string(), // states.code
     regulationArea: v.string(), // regulationAreas.key
     tier: v.number(), // 0 … 4
+    confidence: v.optional(v.number()), // Jev's confidence in the tier, 0 … 1
     note: v.string(), // 1 sentence: why this tier, naming the bills that earn it
     basisBillIds: v.array(v.string()), // bills.externalId of the enacted bills that set the tier
     gradedAt: v.string(), // ISO date

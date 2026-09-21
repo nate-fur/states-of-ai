@@ -7,8 +7,8 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## In progress
 
-- [~] Classifier writes shortTitle, gist, and per-area summaries + takeaways (`convex/legiscan/classify.ts`)
-- [~] Tier agent grades against per-area rubrics and records note + basis bills
+- [~] Writer (generative model) writes shortTitle, gist, and per-area summaries + takeaways for the areas Jev tagged (`convex/legiscan/describe.ts`)
+- [~] Tier agent grades against per-area rubrics on Jev and records confidence, note, and basis bills
 - [~] `/data` page: chips and takeaways views
 
 ## Todo
@@ -16,7 +16,9 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - [ ] Bring regulation-area rubric information into the UI from the Claude Design: show each area's five tier lines and mark the state's tier
 - [ ] Decide the AI regulation score formula (0 to 6) after the full bill run; current grades cover a subset, so the distribution can still move
 - [ ] Decide the data center posture formula (-3 to +3) from tier + facilities
-- [ ] First full pipeline run against live LegiScan (check `apiUsage` before reclassifying; ~430 OpenAI calls)
+- [ ] First full pipeline run against live LegiScan (decide the date range first: `runAll` searches the current session only; pass `since` for a dated sweep)
+- [ ] Rubrics that Jev grades flatly: the deepfakes ladder mixes subjects (political ads, election bans, intimate imagery, criminal penalties), so an identity-fraud deepfake act gets a flat distribution; check low-confidence grades after a retier
+- [ ] Area definitions Jev reads narrowly: "Chatbots & minors" leaves a general chatbot liability act at ~0.4; bills about AI that fit no area (Right to Compute acts, algorithmic rent pricing, AI literacy) are remembered as skips
 - [ ] Rework takeaway generation for all bills. Highlighted sections are sometimes irrelevant, miss nearby subsections that belong, or otherwise don't read as expert-curated by a human; each bill's per-area takeaways should cite the right sections and subsections in full
 - [ ] Stable regeneration: reclassifying a bill with the same system should not change its summary, gist, or takeaways. Users should never see a different set after a rerun. Approach unclear, likely tricky (pin model + temperature 0, seed, cache by textHash + prompt hash, or only regenerate when text changes)
 
@@ -34,6 +36,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 - [x] Map mode toggle (Combined / Compute / Regulation) with single-hue ramps, swapped legend, dossier coupling, and `?mode=` in the URL
 - [x] Combined map colored by a net-stance diverging ramp (amber build-forward → indigo regulation-forward) sharing the two axis hues; quadrant colors dropped, the dossier/diff square is the same ramp on the diagonal
 - [x] Data model rebuilt and Convex seeded from scratch
+- [x] Classifier and tier agent moved to Jev (TypeSafe System One): typed probabilities instead of generated JSON, ~1000x cheaper, sub-second; prose stays with the generative model. `reclassify` / `redescribe` / `retier` reruns and `scripts/check-jev-*.mts` comparisons
 - [x] LegiScan and Compute Atlas pipelines as Convex crons
 - [x] Map wired to live Convex data with a seed/live toggle
 - [x] Regulation categories renamed to regulation areas

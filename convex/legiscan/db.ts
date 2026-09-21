@@ -106,6 +106,12 @@ export const billsWithText = internalQuery({
     for (const b of bills) {
       if (!want.has(b.externalId)) continue;
       const t = await findText(ctx, b.externalId);
+      const rows = await ctx.db
+        .query("billRegulationAreas")
+        .withIndex("by_external_id", (q) => q.eq("externalId", b.externalId))
+        .collect();
+      const probabilities: Record<string, number> = {};
+      for (const r of rows) if (r.probability !== undefined) probabilities[r.regulationArea] = r.probability;
       out.push({
         externalId: b.externalId,
         number: b.number,
@@ -113,6 +119,8 @@ export const billsWithText = internalQuery({
         status: b.status,
         session: b.session,
         regulationAreas: b.regulationAreas,
+        relevance: b.relevance,
+        probabilities,
         changeHash: b.changeHash,
         textHash: t?.textHash ?? b.textHash,
         storageId: t?.storageId ?? null,
@@ -135,30 +143,57 @@ export const billIds = internalQuery({
 
 const areaResult = v.object({
   key: v.string(),
+  probability: v.optional(v.number()),
   summary: v.string(),
   takeaways: v.array(takeaway),
 });
 type AreaResult = (typeof areaResult)["type"];
 
 /**
- * Save what the classifier decided about a saved bill: the bill's own
- * fields plus one billRegulationAreas row per area (old rows replaced).
+ * Save the classifier's tags and the writer's text for a saved bill: the
+ * bill's own fields plus one billRegulationAreas row per area (old rows
+ * replaced).
  */
 export const saveClassification = internalMutation({
   args: {
     externalId: v.string(),
     state: v.string(),
     textHash: v.string(),
+    relevance: v.optional(v.number()),
     shortTitle: v.string(),
     gist: v.string(),
     regulationAreas: v.array(areaResult),
   },
-  handler: async (ctx, { externalId, state, textHash, shortTitle, gist, regulationAreas }) => {
+  handler: async (ctx, { externalId, state, textHash, relevance, shortTitle, gist, regulationAreas }) => {
     const existing = await findBill(ctx, externalId);
     if (existing) {
-      await ctx.db.patch(existing._id, { shortTitle, gist, regulationAreas: regulationAreas.map((a) => a.key) });
+      await ctx.db.patch(existing._id, { relevance, shortTitle, gist, regulationAreas: regulationAreas.map((a) => a.key) });
     }
     await replaceBillAreas(ctx, { externalId, state, textHash, regulationAreas });
+  },
+});
+
+/**
+ * The classifier ran again and picked the same areas: keep the text,
+ * refresh the probabilities.
+ */
+export const patchTags = internalMutation({
+  args: {
+    externalId: v.string(),
+    relevance: v.number(),
+    regulationAreas: v.array(v.object({ key: v.string(), probability: v.number() })),
+  },
+  handler: async (ctx, { externalId, relevance, regulationAreas }) => {
+    const existing = await findBill(ctx, externalId);
+    if (existing) await ctx.db.patch(existing._id, { relevance });
+    const rows = await ctx.db
+      .query("billRegulationAreas")
+      .withIndex("by_external_id", (q) => q.eq("externalId", externalId))
+      .collect();
+    for (const row of rows) {
+      const tag = regulationAreas.find((a) => a.key === row.regulationArea);
+      if (tag) await ctx.db.patch(row._id, { probability: tag.probability });
+    }
   },
 });
 
@@ -176,6 +211,7 @@ async function replaceBillAreas(
       externalId: args.externalId,
       state: args.state,
       regulationArea: a.key,
+      probability: a.probability,
       summary: a.summary,
       takeaways: a.takeaways,
       textHash: args.textHash,
@@ -249,6 +285,7 @@ const billFields = {
   session: v.string(),
   changeHash: v.string(),
   textHash: v.string(),
+  relevance: v.optional(v.number()),
   shortTitle: v.string(),
   gist: v.string(),
 };
@@ -322,6 +359,7 @@ export const upsertGrade = internalMutation({
     state: v.string(),
     regulationArea: v.string(),
     tier: v.number(),
+    confidence: v.optional(v.number()),
     note: v.string(),
     basisBillIds: v.array(v.string()),
   },
