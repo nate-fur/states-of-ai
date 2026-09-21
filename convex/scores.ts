@@ -4,8 +4,9 @@ import { internalMutation } from "./_generated/server";
 // Step 9 of the bills job and step 5 of the facilities job (docs/pipeline.md).
 // Both jobs call `recompute` with the states they touched.
 //
-// PLACEHOLDER FORMULAS. docs/pipeline.md says the formulas are not decided.
-// These exist so the pipeline runs end to end; replace them deliberately.
+// AI regulation is the average tier scaled to 0–6. Whether that rounding
+// should change waits on a full bill run; the current grades cover a subset.
+// Data center posture is unchanged for now.
 
 const DATA_CENTER_AREA = "dc";
 const MAX_TIER = 4;
@@ -52,11 +53,11 @@ export const recompute = internalMutation({
       await ctx.db.patch(state._id, {
         aiRegulation: {
           score: aiRegulationScore(grades.map((g) => g.tier), areas.length),
-          summary: `Placeholder formula. ${graded} of ${areas.length} areas graded.`,
+          summary: `${graded} of ${areas.length} areas graded.`,
         },
         dataCenterPosture: {
           score: dataCenterPostureScore(dcTier, operational, planned),
-          summary: `Placeholder formula. ${operational} operational, ${planned} planned sites; data center tier ${dcTier}.`,
+          summary: `${operational} operational, ${planned} planned sites; data center tier ${dcTier}.`,
         },
         verifiedAt: new Date().toISOString().slice(0, 10),
       });

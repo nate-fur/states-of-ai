@@ -13,9 +13,8 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Todo
 
-- [ ] Decide the AI regulation score formula (0 to 6) from area tiers
+- [ ] Decide the AI regulation score formula (0 to 6) after the full bill run; current grades cover a subset, so the distribution can still move
 - [ ] Decide the data center posture formula (-3 to +3) from tier + facilities
-- [ ] Replace the "Scores use placeholder formulas" copy once the formulas land
 - [ ] First full pipeline run against live LegiScan (check `apiUsage` before reclassifying; ~430 OpenAI calls)
 - [ ] Rework takeaway generation for all bills. Highlighted sections are sometimes irrelevant, miss nearby subsections that belong, or otherwise don't read as expert-curated by a human; each bill's per-area takeaways should cite the right sections and subsections in full
 - [ ] Stable regeneration: reclassifying a bill with the same system should not change its summary, gist, or takeaways. Users should never see a different set after a rerun. Approach unclear, likely tricky (pin model + temperature 0, seed, cache by textHash + prompt hash, or only regenerate when text changes)
@@ -26,6 +25,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Done
 
+- [x] Dropped the "Scores use placeholder formulas" caption and the "Placeholder formula" score summaries
 - [x] Parser: wrapped cross-references (`Section 541.001, …`) no longer parse as headings and reparent the subdivisions after them; `§ 59.1-200 .` headings parse
 - [x] Bill Reader: per-area takeaways that highlight the provisions they cite (`src/components/bill/`, `src/lib/bill/`)
 - [x] Bill Reader folds the text around a selected takeaway: one window per cluster of cited lines, fold bars for everything between, sticky banner with the place count

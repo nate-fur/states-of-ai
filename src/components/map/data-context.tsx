@@ -51,7 +51,7 @@ export function MapDataProvider({
     setSource,
     hasLive: live !== null,
     caption: useLive
-      ? `Live data from Convex. Scores use placeholder formulas. Last updated ${live.VERIFIED}.`
+      ? `Live data from Convex. Last updated ${live.VERIFIED}.`
       : `Sample data, illustrative only. Last verified ${SEED_VERIFIED}.`,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
