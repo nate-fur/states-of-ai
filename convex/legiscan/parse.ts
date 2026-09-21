@@ -9,7 +9,7 @@ export type SearchHit = {
   bill_number: string;
   title: string;
   url: string;
-  last_action_date: string;
+  last_action_date: string | null; // null on a few hits with no recorded action
   last_action: string;
   relevance: number;
 };
@@ -93,14 +93,14 @@ export function searchQuery(): string {
 
 /** Keep hits whose last action is on or after `since` (ISO date). */
 export function sinceFilter(hits: SearchHit[], since: string): SearchHit[] {
-  return hits.filter((h) => h.last_action_date >= since);
+  return hits.filter((h) => (h.last_action_date ?? "") >= since);
 }
 
 /** Count hits by last-action year, for sizing a sweep. */
 export function byYear(hits: SearchHit[]): Record<string, number> {
   const out: Record<string, number> = {};
   for (const h of hits) {
-    const y = h.last_action_date.slice(0, 4) || "unknown";
+    const y = h.last_action_date?.slice(0, 4) || "unknown";
     out[y] = (out[y] ?? 0) + 1;
   }
   return out;
@@ -122,7 +122,7 @@ export function mergeHits(lists: SearchHit[][]): SearchHit[] {
   // Most relevant first, then most recently acted on, so a capped run
   // spends its budget on the bills most likely to be about AI.
   return [...byId.values()].sort(
-    (a, b) => b.relevance - a.relevance || b.last_action_date.localeCompare(a.last_action_date),
+    (a, b) => b.relevance - a.relevance || (b.last_action_date ?? "").localeCompare(a.last_action_date ?? ""),
   );
 }
 

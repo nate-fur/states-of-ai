@@ -9,6 +9,7 @@ import { classifyBill, skipReason, type Area } from "./classify";
 import { describeBill } from "./describe";
 import { tierArea } from "./tier";
 import {
+  base64ToBytes,
   base64ToString,
   byYear,
   htmlToText,
@@ -154,9 +155,21 @@ export const processBatch = internalAction({
 type SavedBills = Record<string, { changeHash: string; textHash: string; status: string; regulationAreas: string[] }>;
 
 /** Convert what LegiScan sent into plain text. PDFs go through the Node action once. */
+/** Base64 this long (about 3 MiB of PDF) gets close to the 5 MiB action argument cap. */
+const INLINE_PDF_CHARS = 4_000_000;
+
 async function toPlainText(ctx: ActionCtx, doc: BillTextDoc): Promise<string> {
   if (doc.mime === "application/pdf") {
-    return ctx.runAction(internal.legiscan.pdf.pdfToText, { base64: doc.doc });
+    if (doc.doc.length <= INLINE_PDF_CHARS) {
+      return ctx.runAction(internal.legiscan.pdf.pdfToText, { base64: doc.doc });
+    }
+    // Too big to pass as an argument: hand it over through file storage.
+    const storageId = await ctx.storage.store(new Blob([base64ToBytes(doc.doc) as Uint8Array<ArrayBuffer>], { type: "application/pdf" }));
+    try {
+      return await ctx.runAction(internal.legiscan.pdf.pdfToText, { storageId });
+    } finally {
+      await ctx.storage.delete(storageId);
+    }
   }
   const raw = base64ToString(doc.doc);
   return doc.mime === "text/html" ? htmlToText(raw) : raw;
