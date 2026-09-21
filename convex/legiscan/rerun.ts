@@ -5,6 +5,7 @@ import { classifyBill, skipReason, type Area } from "./classify";
 import { describeBill } from "./describe";
 import { tierArea } from "./tier";
 import { countText } from "../../src/lib/bill/parse";
+import { isOutOfBudget } from "./openai";
 
 // Re-run the agents over what is already in Convex. None of these touch
 // LegiScan; each works from the stored bill text.
@@ -195,7 +196,7 @@ export const batch = internalAction({
         const message = `${bill.number}: ${err instanceof Error ? err.message : String(err)}`;
         console.error(message);
         c.errors = [...c.errors, message].slice(-KEEP);
-        if (message.includes("monthly cap")) {
+        if (isOutOfBudget(message)) {
           stop = true;
           break;
         }

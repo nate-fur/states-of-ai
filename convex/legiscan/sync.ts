@@ -23,6 +23,7 @@ import {
   type BillTextDoc,
 } from "./parse";
 import { countText } from "../../src/lib/bill/parse";
+import { isOutOfBudget } from "./openai";
 
 // LegiScan bills job (docs/pipeline.md, "LegiScan bills").
 //
@@ -317,7 +318,7 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
       console.error(message);
       c.errors = [...c.errors, message].slice(-KEEP);
       // A cap error will repeat for every bill; stop instead of spinning.
-      if (message.includes("monthly cap")) {
+      if (isOutOfBudget(message)) {
         stop = true;
         break;
       }

@@ -17,6 +17,15 @@ export function openaiCap(): number {
   return envNumber("OPENAI_MONTHLY_CAP", 500);
 }
 
+/**
+ * Errors that will repeat for every bill until a person acts: our own
+ * monthly cap, or the OpenAI account running dry. A batch stops on these
+ * instead of spinning through its queue.
+ */
+export function isOutOfBudget(message: string): boolean {
+  return message.includes("monthly cap") || message.includes("no credits remaining") || message.includes("insufficient_quota");
+}
+
 export type OutputSchema = {
   name: string;
   schema: Record<string, unknown>;
