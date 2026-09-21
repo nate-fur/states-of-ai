@@ -13,6 +13,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Todo
 
+- [ ] Bring regulation-area rubric information into the UI from the Claude Design: show each area's five tier lines and mark the state's tier
 - [ ] Decide the AI regulation score formula (0 to 6) after the full bill run; current grades cover a subset, so the distribution can still move
 - [ ] Decide the data center posture formula (-3 to +3) from tier + facilities
 - [ ] First full pipeline run against live LegiScan (check `apiUsage` before reclassifying; ~430 OpenAI calls)
