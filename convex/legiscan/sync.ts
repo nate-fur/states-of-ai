@@ -74,7 +74,7 @@ function describe(c: Counts, extra = ""): string {
   return (
     `${extra}fetched ${c.fetched}, textUnchanged ${c.textUnchanged}, dropped ${c.dropped}, saved ${c.saved}, ` +
     `legiscan ${c.legiscanCalls}, typesafe ${c.typesafeCalls}, openai ${c.openaiCalls}` +
-    (c.errors.length ? `, errors ${c.errors.length}` : "")
+    (c.errors.length ? `, errors ${c.errors.length} (last: ${c.errors[c.errors.length - 1].slice(0, 160)})` : "")
   );
 }
 
@@ -232,6 +232,14 @@ async function runBatch(ctx: ActionCtx, args: BatchArgs): Promise<BatchResult> {
       // Vetoed or failed.
       if (!status) {
         await drop("vetoed or failed");
+        continue;
+      }
+
+      // Introduced and not moving: nothing to grade, so not worth the text,
+      // the classifier, or the writer. The change hash moves if the bill
+      // advances, and the skip expires with it.
+      if (status === "proposed") {
+        await drop("proposed, not moving");
         continue;
       }
 
