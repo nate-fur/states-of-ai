@@ -23,7 +23,12 @@ export function openaiCap(): number {
  * instead of spinning through its queue.
  */
 export function isOutOfBudget(message: string): boolean {
-  return message.includes("monthly cap") || message.includes("no credits remaining") || message.includes("insufficient_quota");
+  return (
+    message.includes("monthly cap") ||
+    message.includes("no credits remaining") || // OpenAI
+    message.includes("insufficient_quota") || // OpenAI
+    message.includes("billing_error") // TypeSafe HTTP 402
+  );
 }
 
 export type OutputSchema = {

@@ -73,8 +73,9 @@ export async function post(
       headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
       body: JSON.stringify(body),
     });
-    // Rate limited or overloaded: back off and try again a few times.
-    if ((res.status === 429 || res.status === 529) && attempt < RETRIES) {
+    // Rate limited, overloaded, or a passing 5xx: back off and try again a
+    // few times. (A 503 window in the first full run cost ~130 bills.)
+    if ((res.status === 429 || res.status >= 500) && attempt < RETRIES) {
       await new Promise((r) => setTimeout(r, 500 * 2 ** attempt));
       continue;
     }
