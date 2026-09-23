@@ -69,6 +69,8 @@ Keep both values secret; do not commit them or place them in `.env.example`. A V
 
 PostHog records pageviews, page leaves, and autocaptured clicks for anonymous visitors (no person profiles, no session recording). It is set up in `src/instrumentation-client.ts` and only runs in production builds when `NEXT_PUBLIC_POSTHOG_KEY` is set. The key is the PostHog project API key, which is public by design. Events are sent to `/ingest`, which `next.config.ts` rewrites to PostHog's US cloud.
 
+The key is set in Vercel for Production and Preview. Every event carries an `environment` property (`production`, `preview`, or `local` for a local `next start`), and the PostHog project's test-account filter keeps only `production`, so preview and local traffic is hidden from insights by default. Untick "Filter out internal and test users" on an insight to see it.
+
 ## Cursor MCP connections
 
 The project configures a Vercel MCP server at `https://mcp.vercel.com` and starts the Convex MCP server locally through `npx convex mcp start`.

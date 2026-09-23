@@ -15,4 +15,10 @@ if (key && process.env.NODE_ENV === "production") {
     person_profiles: "identified_only",
     disable_session_recording: true,
   });
+  // Vercel sets this to "production" or "preview". Preview traffic lands in
+  // the same project; the project's test-account filter keeps it out of the
+  // default numbers. Local `next start` builds report as "local".
+  posthog.register({
+    environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? "local",
+  });
 }
