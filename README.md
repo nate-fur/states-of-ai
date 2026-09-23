@@ -15,18 +15,13 @@ The app runs from bundled LegiScan-shaped fixtures when Convex is not configured
 
 The deployed app reads bills from the `bills:list` Convex query whenever `NEXT_PUBLIC_CONVEX_URL` is set. If the URL is absent or Convex is unavailable, it falls back to the local fixture adapter.
 
-This project uses the existing Convex project **states-of-ai** (team `nmfurbearr-gmail-com`):
-
-- Development deployment: `dev/mac`
-- Production deployment: `superb-hippopotamus-315`, served at https://statesofai.info
-
-Run this once from a machine authenticated to that Convex account to generate bindings and configure local development:
+To run against your own Convex backend:
 
 ```bash
-npx convex dev --once --configure existing --team nmfurbearr-gmail-com --project states-of-ai
+npx convex dev
 ```
 
-That command writes the correct `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` values to `.env.local`. It does not create a new Convex project.
+That creates or links a Convex project, pushes the functions in `convex/`, and writes `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` to `.env.local`.
 
 ### Fixture seed and pipeline
 
@@ -49,10 +44,7 @@ python3 ingest.py --source auto
 
 Set the identical `CONVEX_INGEST_TOKEN` in Convex Dashboard → Settings → Environment Variables. The `/ingest` endpoint rejects calls without it.
 
-## Vercel deploys
-
-The Vercel project **states-of-ai** builds from [nate-fur/states-of-ai](https://github.com/nate-fur/states-of-ai). Pushes to `main` deploy to production at https://statesofai.info (`www` redirects to the apex); every other branch gets a preview.
-
+## Deploying to Vercel
 
 `vercel.json` uses `npm run build:vercel`. That invokes:
 
@@ -68,16 +60,10 @@ In the connected Vercel project, add `CONVEX_DEPLOY_KEY` twice:
 
 | Vercel environment | Value |
 | --- | --- |
-| Preview | Preview Deploy Key from Convex Dashboard → states-of-ai → Settings |
+| Preview | Preview Deploy Key from your Convex project's Settings |
 | Production | Production Deploy Key from the same page |
 
 Keep both values secret; do not commit them or place them in `.env.example`. A Vercel preview created from a GitHub branch push will then receive an isolated Convex preview deployment.
-
-### Production pipelines
-
-The weekly crons in `convex/crons.ts` run only where `PIPELINES_ENABLED=true`. That is set on production and off on dev, so API spend happens once. Production carries its own copies of `LEGISCAN_API_KEY`, `OPENAI_API_KEY`, `TYPESAFE_API_KEY` and the `*_MONTHLY_CAP` values; `apiUsage` counts each deployment separately.
-
-Production's data was first copied from a full dev snapshot (`npx convex export --include-file-storage`, then `npx convex import --prod`), bill texts included. The copy also carried dev's `apiUsage` and `pipelineRuns` rows, so production's September 2026 counts include dev's calls; caps reset with the month.
 
 ## Usage analytics
 
