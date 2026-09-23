@@ -1,4 +1,4 @@
-# StateAI Index
+# States of AI
 
 A public tracker for AI legislation in all 50 states and the District of Columbia. The current slice is a responsive, searchable bill list with state filtering, proposed/enacted status, and source links.
 
@@ -15,7 +15,7 @@ The app runs from bundled LegiScan-shaped fixtures when Convex is not configured
 
 The deployed app reads bills from the `bills:list` Convex query whenever `NEXT_PUBLIC_CONVEX_URL` is set. If the URL is absent or Convex is unavailable, it falls back to the local fixture adapter.
 
-This project uses the existing Convex project **state-ai-index** (team `nmfurbearr-gmail-com`):
+This project uses the existing Convex project **states-of-ai** (team `nmfurbearr-gmail-com`):
 
 - Development deployment: `dev/mac`
 - Production deployment: `production`
@@ -23,7 +23,7 @@ This project uses the existing Convex project **state-ai-index** (team `nmfurbea
 Run this once from a machine authenticated to that Convex account to generate bindings and configure local development:
 
 ```bash
-npx convex dev --once --configure existing --team nmfurbearr-gmail-com --project state-ai-index
+npx convex dev --once --configure existing --team nmfurbearr-gmail-com --project states-of-ai
 ```
 
 That command writes the correct `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` values to `.env.local`. It does not create a new Convex project.
@@ -65,10 +65,10 @@ In the connected Vercel project, add `CONVEX_DEPLOY_KEY` twice:
 
 | Vercel environment | Value |
 | --- | --- |
-| Preview | Preview Deploy Key from Convex Dashboard → state-ai-index → Settings |
+| Preview | Preview Deploy Key from Convex Dashboard → states-of-ai → Settings |
 | Production | Production Deploy Key from the same page |
 
-Keep both values secret; do not commit them or place them in `.env.example`. A Vercel preview created from an Origin branch push will then receive an isolated Convex preview deployment.
+Keep both values secret; do not commit them or place them in `.env.example`. A Vercel preview created from a GitHub branch push will then receive an isolated Convex preview deployment.
 
 ## Cursor MCP connections
 

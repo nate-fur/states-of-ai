@@ -11,7 +11,7 @@ import { mapFacilities, recordsFrom, type FacilityRow } from "./map";
 
 const FACILITIES_URL = "https://www.compute-atlas.com/api/facilities";
 const STATS_URL = "https://www.compute-atlas.com/api/stats";
-const USER_AGENT = "states-ai-policies/0.1";
+const USER_AGENT = "states-of-ai/0.1";
 const JOB = "computeAtlas";
 const CHUNK = 200; // rows per upsert mutation; keeps each transaction small
 

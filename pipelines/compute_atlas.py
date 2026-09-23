@@ -34,7 +34,7 @@ ATTRIBUTION = "Kubiak, E. Compute Atlas [Data set]. https://doi.org/10.5281/zeno
 
 
 def get(url: str) -> dict:
-    req = urllib.request.Request(url, headers={"User-Agent": "states-ai-policies/0.1"})
+    req = urllib.request.Request(url, headers={"User-Agent": "states-of-ai/0.1"})
     with urllib.request.urlopen(req, timeout=60) as r:
         return json.load(r)
 

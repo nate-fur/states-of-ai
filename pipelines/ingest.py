@@ -1,4 +1,4 @@
-"""Fixture-first ingestion for the StateAI Index.
+"""Fixture-first ingestion for States of AI.
 
 Run with `python ingest.py`, or `uv run python ingest.py` when uv is installed.
 It emits a Convex-shaped JSON import under ../data. If LEGISCAN_API_KEY is set,

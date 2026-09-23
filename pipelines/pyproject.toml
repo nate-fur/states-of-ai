@@ -1,7 +1,7 @@
 [project]
-name = "state-ai-index-pipelines"
+name = "states-of-ai-pipelines"
 version = "0.1.0"
-description = "Fixture-first ingestion pipelines for StateAI Index"
+description = "Fixture-first ingestion pipelines for States of AI"
 requires-python = ">=3.11"
 dependencies = []
 

@@ -1,6 +1,6 @@
 # Features
 
-Work tracker for the StateAI Index. One line per item; move items between
+Work tracker for States of AI. One line per item; move items between
 sections as they progress. Details live in `docs/`, not here.
 
 Status: `[ ]` todo · `[~]` in progress · `[x]` done
