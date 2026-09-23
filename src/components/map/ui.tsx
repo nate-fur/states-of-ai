@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function OutlineButton({
@@ -24,43 +25,122 @@ export function OutlineButton({
 }
 
 /**
- * Segmented control (handoff "Mode toggle"): one ink outline around flush
- * buttons, a 1px ink divider between them, the active segment inverted.
+ * Three-stop slider on the stance axis: left pole, both, right pole. The knob
+ * follows the pointer while dragging and snaps to the nearest stop; the value
+ * changes as soon as the nearest stop does. Above 560px the pole labels sit
+ * at the track ends; at 560px and below all three sit under a fluid track.
  */
-export function SegmentedControl<K extends string>({
+export function StanceSlider<K extends string>({
   value,
-  options,
+  stops,
   onChange,
-  className,
   ariaLabel,
+  className,
 }: {
   value: K;
-  options: { key: K; label: string }[];
+  /** [left pole, middle, right pole]. */
+  stops: readonly [{ key: K; label: string }, { key: K; label: string }, { key: K; label: string }];
   onChange: (k: K) => void;
-  className?: string;
   ariaLabel?: string;
+  className?: string;
 }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  // Knob position (0..1) while dragging; null when resting on a stop.
+  const [drag, setDrag] = useState<number | null>(null);
+  const idx = Math.max(0, stops.findIndex((s) => s.key === value));
+  const last = stops.length - 1;
+  const pos = drag ?? idx / last;
+
+  const set = (i: number) => {
+    const k = stops[Math.min(last, Math.max(0, i))].key;
+    if (k !== value) onChange(k);
+  };
+  const frac = (clientX: number) => {
+    const r = trackRef.current!.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+  };
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const f = frac(e.clientX);
+    setDrag(f);
+    set(Math.round(f * last));
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (drag === null) return;
+    const f = frac(e.clientX);
+    setDrag(f);
+    set(Math.round(f * last));
+  };
+  const onPointerUp = () => setDrag(null);
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const next =
+      e.key === "ArrowLeft" || e.key === "ArrowDown" ? idx - 1
+      : e.key === "ArrowRight" || e.key === "ArrowUp" ? idx + 1
+      : e.key === "Home" ? 0
+      : e.key === "End" ? last
+      : null;
+    if (next === null) return;
+    e.preventDefault();
+    set(next);
+  };
+
+  const label = (i: number, extra?: string) => (
+    <button
+      type="button"
+      tabIndex={-1}
+      onClick={() => set(i)}
+      className={cn(
+        "whitespace-nowrap font-map-mono text-[11px] uppercase tracking-[0.08em] transition-colors duration-200 hover:text-ink",
+        i === idx ? "text-ink" : "text-dim",
+        extra,
+      )}
+    >
+      {stops[i].label}
+    </button>
+  );
+
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className={cn("flex border border-ink", className)}>
-      {options.map((o, i) => {
-        const on = o.key === value;
-        return (
-          <button
-            key={o.key}
-            type="button"
-            role="radio"
-            aria-checked={on}
-            onClick={() => onChange(o.key)}
-            className={cn(
-              "whitespace-nowrap border-0 px-[13px] py-[7px] font-map-mono text-[11px] uppercase tracking-[0.08em] leading-[1.2] transition-[background-color,color] duration-200",
-              i > 0 && "border-l border-ink",
-              on ? "bg-ink text-white" : "bg-transparent text-ink hover:bg-hover",
-            )}
-          >
-            {o.label}
-          </button>
-        );
-      })}
+    <div className={cn("flex min-w-0 flex-col", className)}>
+      <div className="flex items-center gap-[14px]">
+        {label(0, "max-[560px]:hidden")}
+        <div
+          ref={trackRef}
+          role="slider"
+          tabIndex={0}
+          aria-label={ariaLabel}
+          aria-valuemin={0}
+          aria-valuemax={last}
+          aria-valuenow={idx}
+          aria-valuetext={stops[idx].label}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onKeyDown={onKeyDown}
+          style={{ "--p": pos } as React.CSSProperties}
+          className="group relative h-[22px] w-[200px] shrink-0 cursor-pointer touch-none outline-none xl:w-[132px] max-[560px]:h-9 max-[560px]:w-auto max-[560px]:flex-1"
+        >
+          <span
+            className="absolute inset-x-0 top-[10px] h-[2px] max-[560px]:top-[17px]"
+            style={{
+              background: "linear-gradient(90deg, var(--color-axis-build), #e4e0d8, var(--color-axis-policy))",
+            }}
+          />
+          <span className="absolute top-[6px] left-1/2 h-[10px] w-px bg-hair-3 max-[560px]:top-[13px]" />
+          {/* On the fluid phone track the thumb is inset so it stays inside the ends. */}
+          <span
+            className="absolute top-[4px] left-[calc(var(--p)*100%)] -ml-[7px] size-[14px] rounded-full border-2 border-paper bg-ink shadow-[0_0_0_1px_var(--color-ink)] group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ink max-[560px]:top-[9px] max-[560px]:left-[calc(9px+(100%-18px)*var(--p))] max-[560px]:-ml-[9px] max-[560px]:size-[18px]"
+            style={{ transition: drag === null ? "left .25s cubic-bezier(.2,.7,.2,1)" : "none" }}
+          />
+        </div>
+        {label(last, "max-[560px]:hidden")}
+      </div>
+      <div className="-mt-1 hidden grid-cols-3 max-[560px]:grid">
+        {label(0, "justify-self-start py-1 text-[10px]")}
+        {label(1, "justify-self-center py-1 text-[10px]")}
+        {label(last, "justify-self-end py-1 text-[10px]")}
+      </div>
     </div>
   );
 }

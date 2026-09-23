@@ -10,11 +10,30 @@ import { Takeaways, type TakeawayRow } from "./takeaways";
 export const dynamic = "force-dynamic";
 
 type Axis = { score: number; summary: string };
-type State = { code: string; name: string; dataCenterPosture?: Axis; aiRegulation?: Axis; verifiedAt?: string };
+type State = {
+  code: string;
+  name: string;
+  dataCenterPosture?: Axis;
+  aiRegulation?: Axis;
+  verifiedAt?: string;
+};
 type Area = { key: string; label: string; description: string; icon: string };
-type Grade = { state: string; regulationArea: string; tier: number; note?: string; basisBillIds?: string[]; gradedAt?: string };
+type Grade = {
+  state: string;
+  regulationArea: string;
+  tier: number;
+  note?: string;
+  basisBillIds?: string[];
+  gradedAt?: string;
+};
 type Usage = { api: string; month: string; calls: number };
-type Run = { job: string; startedAt: number; finishedAt?: number; ok?: boolean; summary: string };
+type Run = {
+  job: string;
+  startedAt: number;
+  finishedAt?: number;
+  ok?: boolean;
+  summary: string;
+};
 
 const axis = (a?: Axis) => (a ? `${a.score > 0 ? "+" : ""}${a.score}` : "—");
 
@@ -22,23 +41,30 @@ export default async function DataPage() {
   if (!convexUrl()) {
     return (
       <Shell>
-        <p className="font-map-mono text-[13px] text-mute">NEXT_PUBLIC_CONVEX_URL is not set, so there is nothing to read.</p>
+        <p className="font-map-mono text-[13px] text-mute">
+          NEXT_PUBLIC_CONVEX_URL is not set, so there is nothing to read.
+        </p>
       </Shell>
     );
   }
 
-  const [states, areas, facilities, bills, grades, takeaways, usage, runs] = await Promise.all([
-    convexQuery<State[]>("states:list"),
-    convexQuery<Area[]>("regulationAreas:list"),
-    convexQuery<FacilityRow[]>("facilities:list"),
-    convexQuery<BillRow[]>("bills:list"),
-    convexQuery<Grade[]>("stateRegulationAreaGrades:list"),
-    convexQuery<TakeawayRow[]>("billRegulationAreas:list").catch(() => [] as TakeawayRow[]),
-    convexQuery<Usage[]>("apiUsage:list"),
-    convexQuery<Run[]>("pipelineRuns:list"),
-  ]);
+  const [states, areas, facilities, bills, grades, takeaways, usage, runs] =
+    await Promise.all([
+      convexQuery<State[]>("states:list"),
+      convexQuery<Area[]>("regulationAreas:list"),
+      convexQuery<FacilityRow[]>("facilities:list"),
+      convexQuery<BillRow[]>("bills:list"),
+      convexQuery<Grade[]>("stateRegulationAreaGrades:list"),
+      convexQuery<TakeawayRow[]>("billRegulationAreas:list").catch(
+        () => [] as TakeawayRow[],
+      ),
+      convexQuery<Usage[]>("apiUsage:list"),
+      convexQuery<Run[]>("pipelineRuns:list"),
+    ]);
   states.sort((a, b) => a.code.localeCompare(b.code));
-  const billNumbers = Object.fromEntries(bills.map((b) => [b.externalId, b.number]));
+  const billNumbers = Object.fromEntries(
+    bills.map((b) => [b.externalId, b.number]),
+  );
 
   const tabs = [
     {
@@ -48,7 +74,13 @@ export default async function DataPage() {
         <Table
           rows={states}
           columns={["Code", "Name", "DC posture", "AI regulation", "Verified"]}
-          render={(s) => [s.code, s.name, axis(s.dataCenterPosture), axis(s.aiRegulation), s.verifiedAt ?? "—"]}
+          render={(s) => [
+            s.code,
+            s.name,
+            axis(s.dataCenterPosture),
+            axis(s.aiRegulation),
+            s.verifiedAt ?? "—",
+          ]}
         />
       ),
     },
@@ -76,7 +108,9 @@ export default async function DataPage() {
     {
       title: "Takeaways",
       count: takeaways.length,
-      content: <Takeaways rows={takeaways} areas={areas} billNumbers={billNumbers} />,
+      content: (
+        <Takeaways rows={takeaways} areas={areas} billNumbers={billNumbers} />
+      ),
     },
     {
       title: "Grades",
@@ -90,7 +124,9 @@ export default async function DataPage() {
             g.regulationArea,
             g.tier,
             g.note ?? "",
-            (g.basisBillIds ?? []).map((id) => billNumbers[id] ?? id).join(", "),
+            (g.basisBillIds ?? [])
+              .map((id) => billNumbers[id] ?? id)
+              .join(", "),
             g.gradedAt ?? "",
           ]}
         />
@@ -100,7 +136,11 @@ export default async function DataPage() {
       title: "API usage",
       count: usage.length,
       content: (
-        <Table rows={usage} columns={["API", "Month", "Calls"]} render={(u) => [u.api, u.month, u.calls]} />
+        <Table
+          rows={usage}
+          columns={["API", "Month", "Calls"]}
+          render={(u) => [u.api, u.month, u.calls]}
+        />
       ),
     },
     {
@@ -133,7 +173,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <main className="mx-auto w-full max-w-[1480px] px-9 py-7 pb-16 text-ink">
       <div className="flex items-baseline justify-between border-b border-ink pb-[18px]">
         <h1 className="m-0 font-map-serif text-[clamp(28px,3vw,40px)] leading-none font-normal tracking-[-0.02em]">
-          Data <em className="font-light italic">in Convex</em>
+          Data
         </h1>
         <Link
           href="/"

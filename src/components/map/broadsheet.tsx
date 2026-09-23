@@ -12,7 +12,6 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { SourceToggle, useMapData } from "./data-context";
 import {
-  MODES,
   MODE_COPY,
   MODE_TITLE,
   modeParam,
@@ -28,7 +27,7 @@ import { DiffView } from "./diff-view";
 import { StateDossierPanel } from "./state-dossier-panel";
 import { StateMap } from "./state-map";
 import { useTypewriter } from "./motion";
-import { OutlineButton, SegmentedControl } from "./ui";
+import { OutlineButton, StanceSlider } from "./ui";
 
 const EASE = "cubic-bezier(.2,.7,.2,1)";
 const CONTAINER_MAX = 1480;
@@ -49,6 +48,13 @@ const PAN_SLACK = 24;
 function baseDrawerPx(compare: boolean): number {
   return compare ? 760 : 560;
 }
+
+// Slider stops, left to right along the stance axis.
+const STANCE_STOPS = [
+  { key: "compute", label: "Compute" },
+  { key: "combined", label: "Both" },
+  { key: "reg", label: "Regulation" },
+] as const satisfies readonly { key: MapMode; label: string }[];
 
 type Geom = { panX: number; drawerPx: number; vw: number };
 type Bounds = { lo: number; hi: number; canPan: boolean };
@@ -468,21 +474,16 @@ export function Broadsheet() {
 
   return (
     <div className="mx-auto w-full min-h-screen max-w-[1480px] px-9 py-7 pb-16 text-ink">
-      {/* Out of flow so the title row matches the design; sits under the drawer when it is open. */}
-      <div className="fixed top-3.5 right-7 z-[5] flex items-center gap-2">
-        <SourceToggle />
-        <Link
-          href="/data"
-          className="border border-ink bg-paper px-2.5 py-[5px] font-map-mono text-[11px] uppercase tracking-[0.08em] text-ink no-underline hover:bg-ink hover:text-white"
-        >
-          Data
-        </Link>
-      </div>
+      {/* Dev-only seed/live switch; renders nothing in production. */}
+      <SourceToggle className="fixed right-4 bottom-4 z-[5]" />
 
-      <div className="flex flex-wrap items-end justify-between gap-6 border-b border-ink pb-[18px]">
-        <h1 className="relative m-0 font-map-serif text-[clamp(34px,4.2vw,58px)] leading-[1.06] font-normal tracking-[-0.02em]">
-          {/* The longest title (Combined) reserves the box so the row and the
-              toggle stay put while a shorter title is typed over it. */}
+      {/* Desktop (xl+): title and controls on one line. The title is 40px but
+          shrinks just above xl so the line never wraps (it runs ~20.4em).
+          Below xl the controls drop to their own row, Data pushed right. */}
+      <div className="flex flex-col gap-[14px] border-b border-ink pb-3 xl:flex-row xl:items-end xl:justify-between xl:gap-6">
+        <h1 className="relative m-0 font-map-serif text-[36px] leading-[1.06] font-normal tracking-[-0.02em] text-balance max-[560px]:text-[28px] xl:text-[length:min(40px,calc((100vw_-_510px)/20.6))] xl:whitespace-nowrap">
+          {/* The longest title (Combined) reserves the box so the controls
+              stay put while a shorter title is typed over it. */}
           <span className="invisible" aria-hidden>
             {MODE_TITLE.combined.map((t, i) =>
               t.em ? (
@@ -511,12 +512,23 @@ export function Broadsheet() {
             />
           </span>
         </h1>
-        <SegmentedControl
-          ariaLabel="Map mode"
-          value={mode}
-          options={MODES}
-          onChange={(m) => setQuery({ mode: modeParam(m) })}
-        />
+        <div className="flex shrink-0 items-center gap-[14px] xl:pb-1 max-[560px]:items-start max-[560px]:gap-4">
+          <div className="min-w-0 max-[560px]:flex-1">
+            <StanceSlider
+              ariaLabel="Map mode"
+              value={mode}
+              stops={STANCE_STOPS}
+              onChange={(m) => setQuery({ mode: modeParam(m) })}
+            />
+          </div>
+          <span className="hidden h-3 w-px bg-hair-3 xl:block" aria-hidden />
+          <Link
+            href="/data"
+            className="ml-auto shrink-0 font-map-mono text-[11px] uppercase tracking-[0.08em] whitespace-nowrap text-ink no-underline hover:text-mute xl:ml-0 max-[560px]:pt-[11px]"
+          >
+            Data →
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col gap-5 pt-7">

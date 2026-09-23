@@ -104,7 +104,10 @@ export function modeParam(mode: MapMode): string | null {
 }
 
 /** Position on the mode's ramp: Compute by posture + 3, Regulation by ai, Combined by net stance. */
-export function rampIndex(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): number {
+export function rampIndex(
+  mode: MapMode,
+  st: Pick<StateRecord, "posture" | "ai">,
+): number {
   if (mode === "compute") return clamp7(st.posture + 3);
   if (mode === "reg") return clamp7(st.ai);
   return netIdx(st);
@@ -115,12 +118,18 @@ export function rampFor(mode: MapMode): readonly string[] {
 }
 
 /** Map fill for a state under the given mode. */
-export function fillFor(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): string {
+export function fillFor(
+  mode: MapMode,
+  st: Pick<StateRecord, "posture" | "ai">,
+): string {
   return rampFor(mode)[rampIndex(mode, st)]!;
 }
 
 /** Whether the fill is dark enough for a white label; the diverging ramp is dark at both ends. */
-export function isDarkFill(mode: MapMode, st: Pick<StateRecord, "posture" | "ai">): boolean {
+export function isDarkFill(
+  mode: MapMode,
+  st: Pick<StateRecord, "posture" | "ai">,
+): boolean {
   const i = rampIndex(mode, st);
   return mode === "combined" ? i <= 1 || i >= 5 : i >= DARK_FROM;
 }
@@ -157,7 +166,7 @@ export const MODE_TITLE: Record<MapMode, TitleSegment[]> = {
     { text: TITLE_LEAD },
     { text: "compute", em: true },
     { text: " and " },
-    { text: "regulation", em: true },
+    { text: "AI regulation", em: true },
   ],
   compute: [{ text: TITLE_LEAD }, { text: "compute", em: true }],
   reg: [{ text: TITLE_LEAD }, { text: "regulation", em: true }],
@@ -171,7 +180,10 @@ export const MODE_TITLE: Record<MapMode, TitleSegment[]> = {
 export function typedSegments(mode: MapMode, typed: string): TitleSegment[] {
   const segments =
     Object.values(MODE_TITLE).find((segs) =>
-      segs.map((t) => t.text).join("").startsWith(typed),
+      segs
+        .map((t) => t.text)
+        .join("")
+        .startsWith(typed),
     ) ?? MODE_TITLE[mode];
   let i = 0;
   const out: TitleSegment[] = [];
@@ -183,7 +195,8 @@ export function typedSegments(mode: MapMode, typed: string): TitleSegment[] {
   return out;
 }
 
-const COMPARE_HINT = "Click a state to open its dossier; use Compare to pin a second state.";
+const COMPARE_HINT =
+  "Click a state to open its dossier; use Compare to pin a second state.";
 
 export const MODE_COPY: Record<
   MapMode,
