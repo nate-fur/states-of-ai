@@ -48,6 +48,7 @@ export default async function DataPage() {
     );
   }
 
+  const dev = process.env.NODE_ENV === "development";
   const [states, areas, facilities, bills, grades, takeaways, usage, runs] =
     await Promise.all([
       convexQuery<State[]>("states:list"),
@@ -58,8 +59,9 @@ export default async function DataPage() {
       convexQuery<TakeawayRow[]>("billRegulationAreas:list").catch(
         () => [] as TakeawayRow[],
       ),
-      convexQuery<Usage[]>("apiUsage:list"),
-      convexQuery<Run[]>("pipelineRuns:list"),
+      // Usage and run logs are for us, not visitors: only fetched under `next dev`.
+      dev ? convexQuery<Usage[]>("apiUsage:list") : ([] as Usage[]),
+      dev ? convexQuery<Run[]>("pipelineRuns:list") : ([] as Run[]),
     ]);
   states.sort((a, b) => a.code.localeCompare(b.code));
   const billNumbers = Object.fromEntries(
@@ -132,6 +134,8 @@ export default async function DataPage() {
         />
       ),
     },
+  ];
+  const devTabs = [
     {
       title: "API usage",
       count: usage.length,
@@ -163,7 +167,7 @@ export default async function DataPage() {
 
   return (
     <Shell>
-      <Tabs tabs={tabs} />
+      <Tabs tabs={dev ? [...tabs, ...devTabs] : tabs} />
     </Shell>
   );
 }
