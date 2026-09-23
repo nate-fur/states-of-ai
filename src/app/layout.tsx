@@ -37,7 +37,7 @@ export default async function RootLayout({
     return null;
   });
   const cookie = (await cookies()).get(SOURCE_COOKIE)?.value;
-  const initialSource: MapSource = cookie === "live" ? "live" : "seed";
+  const initialSource: MapSource = cookie === "seed" ? "seed" : "live";
   return (
     <html
       lang="en"

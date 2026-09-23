@@ -6,8 +6,10 @@ import type { RegulationArea, StateRecord } from "@/lib/map/types";
 
 // The map can read either the checked-in seed JSON or what the pipelines put
 // in Convex. Both are loaded up front; the toggle just switches which one
-// the components see. The choice is kept in a cookie so it survives reloads
-// and is known on the server, which avoids a flash on first paint.
+// the components see. Live is the default; the seed is a dev fallback, and
+// the toggle only renders under `next dev`. The choice is kept in a cookie so
+// it survives reloads and is known on the server, which avoids a flash on
+// first paint.
 
 import { SOURCE_COOKIE, type MapSource } from "@/lib/map/source";
 
@@ -63,9 +65,10 @@ export function useMapData(): MapData {
   return v;
 }
 
-/** Two-way switch between the seed JSON and live Convex data. */
+/** Two-way switch between the seed JSON and live Convex data (dev only). */
 export function SourceToggle({ className = "" }: { className?: string }) {
   const { source, setSource, hasLive } = useMapData();
+  if (process.env.NODE_ENV !== "development") return null;
   const opt = (s: MapSource, label: string) => (
     <button
       key={s}
