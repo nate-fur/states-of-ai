@@ -21,6 +21,7 @@ import {
   type MapMode,
 } from "@/lib/map/mode";
 import type { DetailSelection } from "@/lib/map/types";
+import { track, trackDetail, trackReader } from "@/lib/analytics";
 import { DetailRail } from "./detail-rail";
 import { BillReaderOverlay } from "@/components/bill/reader";
 import { DiffView } from "./diff-view";
@@ -318,6 +319,7 @@ export function Broadsheet() {
     }));
   }, []);
   const setDetail = (d: DetailSelection | null) => {
+    trackDetail(d);
     setRailDetail(d, selected, compare);
     setReader((r) => ({ ...r, on: false, focus: null }));
     setQuery({ d: detailToParam(d), r: null, f: null });
@@ -326,6 +328,7 @@ export function Broadsheet() {
   // Reader flows (handoff section 4). The nonce lets the panel re-apply the
   // same focus twice; only the section id goes in the URL.
   const openReader = (key: string, focus?: string) => {
+    trackReader(key, focus);
     setReader({ on: true, key, focus: focus ? `${focus}|${Date.now()}` : null });
     setQuery({ r: "1", f: focus ?? null });
   };
@@ -343,12 +346,14 @@ export function Broadsheet() {
         return;
       }
       pendingReveal.current = { abbr, wasClosed: false };
+      if (selected) track("state_compared", { state: selected, compare: abbr });
       setQuery({ c: abbr });
       setPicking(false);
       return;
     }
     if (abbr === selected && drawer) return;
     pendingReveal.current = { abbr, wasClosed: !drawer };
+    track("state_selected", { state: abbr, from: "map" });
     setQuery({
       s: abbr,
       c: compare === abbr ? null : compare,
@@ -518,7 +523,10 @@ export function Broadsheet() {
               ariaLabel="Map mode"
               value={mode}
               stops={STANCE_STOPS}
-              onChange={(m) => setQuery({ mode: modeParam(m) })}
+              onChange={(m) => {
+                track("map_mode_changed", { mode: m });
+                setQuery({ mode: modeParam(m) });
+              }}
             />
           </div>
           <span className="hidden h-3 w-px bg-hair-3 xl:block" aria-hidden />

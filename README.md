@@ -71,6 +71,17 @@ PostHog records pageviews, page leaves, and autocaptured clicks for anonymous vi
 
 The key is set in Vercel for Production and Preview. Every event carries an `environment` property (`production`, `preview`, or `local` for a local `next start`), and the PostHog project's test-account filter keeps only `production`, so preview and local traffic is hidden from insights by default. Untick "Filter out internal and test users" on an insight to see it.
 
+Named events, defined in `src/lib/analytics.ts`, cover the map's main actions:
+
+| Event | Properties |
+| --- | --- |
+| `state_selected` | `state`, `from` (`map` or `state_page`) |
+| `state_compared` | `state`, `compare` |
+| `dossier_section_toggled` | `state`, `section` (`build-out`, `regulation`, `bills`), `open` |
+| `detail_opened` | `state`, and `area` or `bill` |
+| `bill_reader_opened` | `state`, `bill`, `section` when opened at a takeaway |
+| `map_mode_changed` | `mode` (`compute`, `combined`, `reg`) |
+
 ## Cursor MCP connections
 
 The project configures a Vercel MCP server at `https://mcp.vercel.com` and starts the Convex MCP server locally through `npx convex mcp start`.
