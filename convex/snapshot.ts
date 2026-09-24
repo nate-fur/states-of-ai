@@ -16,8 +16,13 @@ export const SNAPSHOT_TABLES = [
 
 export const snapshotTable = v.union(...SNAPSHOT_TABLES.map((t) => v.literal(t)));
 
+const MAX_PAGE = 500;
+
 /** One page of a public table, raw rows. Everything here is already on the site. */
 export const page = query({
   args: { table: snapshotTable, paginationOpts: paginationOptsValidator },
-  handler: (ctx, { table, paginationOpts }) => ctx.db.query(table).paginate(paginationOpts),
+  handler: (ctx, { table, paginationOpts }) =>
+    ctx.db
+      .query(table)
+      .paginate({ ...paginationOpts, numItems: Math.min(paginationOpts.numItems, MAX_PAGE) }),
 });

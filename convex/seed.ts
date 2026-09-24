@@ -84,9 +84,9 @@ export const fromSource = internalAction({
 
     // Read everything before touching this deployment, so a failed read
     // leaves a clean fixture seed rather than half a copy.
-    const source = new ConvexHttpClient(url);
     const snapshot: { table: (typeof SNAPSHOT_TABLES)[number]; rows: Record<string, unknown>[] }[] = [];
     try {
+      const source = new ConvexHttpClient(url); // throws on a malformed URL
       for (const table of SNAPSHOT_TABLES) {
         const rows: Record<string, unknown>[] = [];
         let cursor: string | null = null;
@@ -107,13 +107,20 @@ export const fromSource = internalAction({
       return await ctx.runMutation(internal.seed.fixtures, {});
     }
 
-    await ctx.runMutation(internal.seed.clearAll, {});
+    // Source rows can fail this branch's schema. Fall back rather than leave
+    // a partial copy; `fixtures` clears whatever was written.
     const counts: Record<string, number> = {};
-    for (const { table, rows } of snapshot) {
-      for (let i = 0; i < rows.length; i += PAGE_SIZE) {
-        await ctx.runMutation(internal.seed.insertRows, { table, rows: rows.slice(i, i + PAGE_SIZE) });
+    try {
+      await ctx.runMutation(internal.seed.clearAll, {});
+      for (const { table, rows } of snapshot) {
+        for (let i = 0; i < rows.length; i += PAGE_SIZE) {
+          await ctx.runMutation(internal.seed.insertRows, { table, rows: rows.slice(i, i + PAGE_SIZE) });
+        }
+        counts[table] = rows.length;
       }
-      counts[table] = rows.length;
+    } catch (error) {
+      console.log(`seed: could not write the copy (${String(error)}); using fixtures`);
+      return await ctx.runMutation(internal.seed.fixtures, {});
     }
     console.log(`seed: copied from ${url}`, counts);
     return counts;
