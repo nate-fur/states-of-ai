@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { TIERS } from "@/lib/map/data";
-import { track } from "@/lib/analytics";
 import { useMapData } from "./data-context";
 import {
   aiCells,
@@ -39,7 +38,6 @@ import {
 } from "./ui";
 
 type OpenKey = "policy" | "ai" | "local" | null;
-const SECTION_NAMES = { policy: "build-out", ai: "regulation", local: "bills" } as const;
 
 type Nums = {
   gwText: string;
@@ -202,10 +200,7 @@ export function StateDossierPanel({
     return Array.from({ length: billPool(STATES, k) }, (_, i) => i < c);
   };
 
-  const toggle = (k: NonNullable<OpenKey>) => {
-    track("dossier_section_toggled", { state: state.abbr, section: SECTION_NAMES[k], open: open !== k });
-    setOpen((cur) => (cur === k ? null : k));
-  };
+  const toggle = (k: OpenKey) => setOpen((cur) => (cur === k ? null : k));
 
   // Empty states (FEATURES.md): say so instead of rendering zeros and blanks.
   const noSites = state.sites.completed + state.sites.pipeline === 0 && state.mw === 0;

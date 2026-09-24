@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SourceToggle, useMapData } from "./data-context";
 import type { DetailSelection } from "@/lib/map/types";
-import { track, trackDetail, trackReader } from "@/lib/analytics";
 import { DetailRail } from "./detail-rail";
 import { BillReaderOverlay } from "@/components/bill/reader";
 import { StateDossierPanel } from "./state-dossier-panel";
@@ -19,20 +18,14 @@ export function DossierPage({
   compare: string | null;
 }) {
   const router = useRouter();
-  const [detail, setDetailState] = useState<DetailSelection | null>(null);
-  const setDetail = (d: DetailSelection | null) => {
-    trackDetail(d);
-    setDetailState(d);
-  };
+  const [detail, setDetail] = useState<DetailSelection | null>(null);
   const [reader, setReader] = useState<{ on: boolean; key: string | null; focus: string | null }>({
     on: false,
     key: null,
     focus: null,
   });
-  const openReader = (key: string, focus?: string) => {
-    trackReader(key, focus);
+  const openReader = (key: string, focus?: string) =>
     setReader({ on: true, key, focus: focus ? `${focus}|${Date.now()}` : null });
-  };
   const closeReader = () => setReader((r) => ({ ...r, on: false, focus: null }));
   const { STATES } = useMapData();
   const selected = STATES.find((s) => s.abbr === abbr);
@@ -87,7 +80,6 @@ export function DossierPage({
               value={abbr}
               onChange={(e) => {
                 const next = e.target.value;
-                track("state_selected", { state: next, from: "state_page" });
                 setDetail(null);
                 router.push(
                   `/state/${next}${compare ? `?c=${compare}` : ""}`,
@@ -104,7 +96,6 @@ export function DossierPage({
               value={compare ?? ""}
               onChange={(e) => {
                 const v = e.target.value;
-                if (v) track("state_compared", { state: abbr, compare: v });
                 setDetail(null);
                 router.push(v ? `/state/${abbr}?c=${v}` : `/state/${abbr}`);
               }}
