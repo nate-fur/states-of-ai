@@ -1,6 +1,10 @@
-import { mutation, type MutationCtx } from "./_generated/server";
+import { ConvexHttpClient } from "convex/browser";
+import type { PaginationResult } from "convex/server";
 import { v } from "convex/values";
+import { api, internal } from "./_generated/api";
+import { internalAction, internalMutation, type MutationCtx } from "./_generated/server";
 import { AREAS, STATES } from "./seedData";
+import { SNAPSHOT_TABLES, snapshotTable } from "./snapshot";
 
 const TABLES = [
   "states",
@@ -20,7 +24,7 @@ async function clearTable(ctx: MutationCtx, table: Table) {
 }
 
 /** Replace states and regulation areas with the committed seed. Empties every other table. */
-export const fixtures = mutation({
+export const fixtures = internalMutation({
   args: {},
   handler: async (ctx) => {
     for (const table of TABLES) await clearTable(ctx, table);
@@ -31,7 +35,7 @@ export const fixtures = mutation({
 });
 
 /** Replace any subset of tables from a pipeline document keyed by table name. */
-export const importDocument = mutation({
+export const importDocument = internalMutation({
   args: { document: v.any() },
   handler: async (ctx, { document }) => {
     const counts: Record<string, number> = {};
@@ -42,6 +46,76 @@ export const importDocument = mutation({
       await Promise.all(rows.map((row: Record<string, unknown>) => ctx.db.insert(table, row as never)));
       counts[table] = rows.length;
     }
+    return counts;
+  },
+});
+
+export const clearAll = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    for (const table of TABLES) await clearTable(ctx, table);
+  },
+});
+
+export const insertRows = internalMutation({
+  args: { table: snapshotTable, rows: v.array(v.any()) },
+  handler: async (ctx, { table, rows }) => {
+    await Promise.all(rows.map((row) => ctx.db.insert(table, row as never)));
+  },
+});
+
+const PAGE_SIZE = 500;
+
+/**
+ * Preview seed: copy the site's tables from the deployment at
+ * SEED_SOURCE_URL (production, set as a Convex default env var for previews)
+ * through its public `snapshot:page` query. Falls back to `fixtures` when the
+ * URL is unset or the source can't be read, so a preview build never fails
+ * on it. Bill texts are not copied.
+ */
+export const fromSource = internalAction({
+  args: {},
+  handler: async (ctx): Promise<Record<string, number>> => {
+    const url = process.env.SEED_SOURCE_URL;
+    if (!url) {
+      console.log("seed: SEED_SOURCE_URL is not set; using fixtures");
+      return await ctx.runMutation(internal.seed.fixtures, {});
+    }
+
+    // Read everything before touching this deployment, so a failed read
+    // leaves a clean fixture seed rather than half a copy.
+    const source = new ConvexHttpClient(url);
+    const snapshot: { table: (typeof SNAPSHOT_TABLES)[number]; rows: Record<string, unknown>[] }[] = [];
+    try {
+      for (const table of SNAPSHOT_TABLES) {
+        const rows: Record<string, unknown>[] = [];
+        let cursor: string | null = null;
+        for (;;) {
+          const result: PaginationResult<Record<string, unknown>> = await source.query(api.snapshot.page, {
+            table,
+            paginationOpts: { numItems: PAGE_SIZE, cursor },
+          });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          for (const { _id, _creationTime, ...row } of result.page) rows.push(row);
+          if (result.isDone) break;
+          cursor = result.continueCursor;
+        }
+        snapshot.push({ table, rows });
+      }
+    } catch (error) {
+      console.log(`seed: could not read ${url} (${String(error)}); using fixtures`);
+      return await ctx.runMutation(internal.seed.fixtures, {});
+    }
+
+    await ctx.runMutation(internal.seed.clearAll, {});
+    const counts: Record<string, number> = {};
+    for (const { table, rows } of snapshot) {
+      for (let i = 0; i < rows.length; i += PAGE_SIZE) {
+        await ctx.runMutation(internal.seed.insertRows, { table, rows: rows.slice(i, i + PAGE_SIZE) });
+      }
+      counts[table] = rows.length;
+    }
+    console.log(`seed: copied from ${url}`, counts);
     return counts;
   },
 });

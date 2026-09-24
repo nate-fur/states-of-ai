@@ -1,6 +1,6 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
-import { api } from "./_generated/api";
+import { internal } from "./_generated/api";
 
 const http = httpRouter();
 
@@ -17,7 +17,7 @@ http.route({
     }
 
     const document = await request.json();
-    const result = await ctx.runMutation(api.seed.importDocument, { document });
+    const result = await ctx.runMutation(internal.seed.importDocument, { document });
     return Response.json(result);
   }),
 });
