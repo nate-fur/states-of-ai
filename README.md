@@ -30,7 +30,9 @@ That command writes the correct `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL`
 
 ### Fixture seed and pipeline
 
-`convex/seed.ts` contains an idempotent `seed:fixtures` mutation. It replaces the state, bill, and data-center tables with the committed LegiScan-style fixtures. Preview deployments run it automatically.
+`convex/seed.ts` contains an idempotent internal `seed:fixtures` mutation (`npx convex run seed:fixtures`). It fills the states and regulation areas from the committed seed and empties every other table.
+
+Preview deployments run `seed:fromSource` instead. It copies the tables the site renders from the deployment at `SEED_SOURCE_URL` (set as a default environment variable for preview deployments in the Convex dashboard) through its public `snapshot:page` query, and falls back to `seed:fixtures` when the URL is unset or unreadable. Bill texts are not copied.
 
 The Python pipeline still supports fixture or live-LegiScan normalization:
 
@@ -56,7 +58,7 @@ Set the identical `CONVEX_INGEST_TOKEN` in Convex Dashboard → Settings → Env
 ```bash
 npx convex deploy --cmd 'npm run build' \
   --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL \
-  --preview-run seed:fixtures
+  --preview-run seed:fromSource
 ```
 
 Convex deploys the backend first, exposes the matching deployment URL to the Next.js build as `NEXT_PUBLIC_CONVEX_URL`, and then builds the frontend. The preview seed is ignored by production deployments.
