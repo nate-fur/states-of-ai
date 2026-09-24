@@ -244,7 +244,11 @@ export function StateMap({
               onClick={() => onSelect(s.abbr)}
               onMouseEnter={() => setHover(s.abbr)}
               onMouseLeave={() => setHover(null)}
-            />
+            >
+              {/* SVG never draws text inside a path. It is here so PostHog's
+                  autocapture logs "clicked path with text WA" like the labels. */}
+              {s.abbr}
+            </path>
           ))}
           {outlines.map((s) => (
             <path
