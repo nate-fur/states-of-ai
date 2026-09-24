@@ -15,18 +15,13 @@ The app runs from bundled LegiScan-shaped fixtures when Convex is not configured
 
 The deployed app reads bills from the `bills:list` Convex query whenever `NEXT_PUBLIC_CONVEX_URL` is set. If the URL is absent or Convex is unavailable, it falls back to the local fixture adapter.
 
-This project uses the existing Convex project **states-of-ai** (team `nmfurbearr-gmail-com`):
-
-- Development deployment: `dev/mac`
-- Production deployment: `production`
-
-Run this once from a machine authenticated to that Convex account to generate bindings and configure local development:
+To run against your own Convex backend:
 
 ```bash
-npx convex dev --once --configure existing --team nmfurbearr-gmail-com --project states-of-ai
+npx convex dev
 ```
 
-That command writes the correct `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` values to `.env.local`. It does not create a new Convex project.
+That creates or links a Convex project, pushes the functions in `convex/`, and writes `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` to `.env.local`.
 
 ### Fixture seed and pipeline
 
@@ -51,7 +46,7 @@ python3 ingest.py --source auto
 
 Set the identical `CONVEX_INGEST_TOKEN` in Convex Dashboard → Settings → Environment Variables. The `/ingest` endpoint rejects calls without it.
 
-## Vercel previews with Origin
+## Deploying to Vercel
 
 `vercel.json` uses `npm run build:vercel`. That invokes:
 
@@ -67,10 +62,16 @@ In the connected Vercel project, add `CONVEX_DEPLOY_KEY` twice:
 
 | Vercel environment | Value |
 | --- | --- |
-| Preview | Preview Deploy Key from Convex Dashboard → states-of-ai → Settings |
+| Preview | Preview Deploy Key from your Convex project's Settings |
 | Production | Production Deploy Key from the same page |
 
 Keep both values secret; do not commit them or place them in `.env.example`. A Vercel preview created from a GitHub branch push will then receive an isolated Convex preview deployment.
+
+## Usage analytics
+
+PostHog records pageviews, page leaves, and autocaptured clicks for anonymous visitors (no person profiles, no session recording). It is set up in `src/instrumentation-client.ts` and only runs in production builds when `NEXT_PUBLIC_POSTHOG_KEY` is set. The key is the PostHog project API key, which is public by design. Events are sent to `/ingest`, which `next.config.ts` rewrites to PostHog's US cloud.
+
+The key is set in Vercel for Production and Preview. Every event carries an `environment` property (`production`, `preview`, or `local` for a local `next start`), and the PostHog project's test-account filter keeps only `production`, so preview and local traffic is hidden from insights by default. Untick "Filter out internal and test users" on an insight to see it.
 
 ## Cursor MCP connections
 
